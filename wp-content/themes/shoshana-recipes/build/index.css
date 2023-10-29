@@ -556,33 +556,18 @@ a {
     border-bottom: 3px solid #fff;
   }
   body.home .transparent-header .page-banner {
-    height: 500px;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-    background-size: cover !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    height: 450px;
   }
   body.home .transparent-header .page-banner .container {
     width: 100%;
     padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
   body.home .transparent-header .page-banner h3 {
     font-size: 2.4rem;
-    color: #fff;
-    margin-bottom: 0.5rem;
     text-align: center;
   }
   body.home .transparent-header .page-banner p {
-    width: 95%;
-    text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: #fff;
   }
   body.home .transparent-header .page-banner form {
@@ -608,109 +593,39 @@ a {
     font-size: 1.2rem;
     font-weight: 500;
   }
-  body.home .front-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: start;
-    background-color: #fff;
-  }
   body.home .front-page .container {
-    width: 200px !important;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    width: 100%;
+    padding: 1rem;
   }
   body.home .front-page .container section.newest-recipes {
     width: 100%;
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
   body.home .front-page .container section.newest-recipes h2 {
-    margin-top: 1rem;
-    color: #d17aa0;
-    font-size: 2.4rem;
-  }
-  body.home .front-page .container section.see-also {
-    margin: 1rem 0rem;
-  }
-  body.home .front-page .container section.see-also h2 {
-    margin-top: 1rem;
-    color: #d17aa0;
+    margin-top: 0rem;
     font-size: 1.8rem;
   }
   body.home .front-page .container .cards {
     width: 100%;
     margin-top: 2rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
   body.home .front-page .container .cards .card {
-    width: 20%;
-    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.5);
+    width: 85%;
+    margin-bottom: 2.4rem;
   }
-  body.home .front-page .container .cards .card .card-image {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    overflow: hidden;
-    width: 100%;
-    height: 15rem;
+  body.home .front-page .container section.see-also {
+    margin: 0rem 0rem;
   }
-  body.home .front-page .container .cards .card .card-body {
-    padding: 1rem;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+  body.home .front-page .container section.see-also h2 {
+    margin-top: 0rem;
+    font-size: 1.8rem;
+  }
+  body.home footer {
+    padding: 0.5rem 0rem;
+  }
+  body.home footer h3 {
     text-align: center;
-    height: 8rem;
-  }
-  body.home .front-page .container .cards .card .card-body a.link {
-    background-color: #d17aa0;
-    padding: 0.5rem;
-    margin-top: 1rem;
-    font-weight: 700;
-    text-align: center;
-    width: 50%;
-    border-radius: 1rem;
-    color: #643843;
-  }
-  body.home .front-page .container .cards .card .card-body a.link:hover {
-    background-color: #643843;
-    color: #e7cbcb;
-    transition: 0.2s ease-in-out;
-  }
-  body.home .front-page .container .cards .card .card-body a.link:active {
-    transition: 0;
-    transform: scale(0.85);
-  }
-  body.home .front-page .container .cards .card .card-body .badge {
-    transform: rotateZ(17deg);
-    background-color: #643843;
-    width: 80px;
-    height: 80px;
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border-radius: 50%;
-    top: -250px;
-    right: -20px;
-    color: #fff;
-  }
-  body.home .front-page .container .cards .card .card-body .badge .time {
-    font-weight: 700;
-    font-size: 1.2rem;
   }
 }
 
