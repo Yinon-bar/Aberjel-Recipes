@@ -39,7 +39,7 @@ if (strstr($_SERVER['SERVER_NAME'], 'localhost')) {
     define('DB_NAME', 'u528206822_recipe');
 
     /** Database username */
-    define('DB_USER', '	u528206822_inonab');
+    define('DB_USER', 'u528206822_inonab');
 
     /** Database password */
     define('DB_PASSWORD', 'INONab@053508384');
