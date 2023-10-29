@@ -67,9 +67,11 @@ __webpack_require__.r(__webpack_exports__);
 // Hamburger Menu
 const hamburger = document.querySelector(".hamburger");
 const navContainer = document.querySelector("#nav-container");
+const body = document.querySelector("body");
 hamburger.addEventListener("click", () => {
   hamburger.classList.toggle("active");
   navContainer.classList.toggle("active");
+  body.style.overflow = "hidden";
 });
 }();
 /******/ })()
