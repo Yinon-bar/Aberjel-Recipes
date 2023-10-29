@@ -1,0 +1,24 @@
+@import "./utils.scss";
+@import "./header.scss";
+@import "./front-page.scss";
+@import "./page-search.scss";
+@import "./single.scss";
+@import "./footer.scss";
+@import "./archive.scss";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Assistant", sans-serif;
+    direction: rtl;
+}
+
+a {
+    text-decoration: none;
+}
+
+.container {
+    width: 1400px;
+    display: flex;
+}
