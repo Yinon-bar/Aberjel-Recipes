@@ -11,7 +11,7 @@
 
     <header class="transparent-header">
         <nav class="transparent-nav">
-            <div class="container">
+            <div class="container" id="nav-container">
                 <div class="btns">
                     <?php if (is_user_logged_in()) { ?>
                         <a href="<?php echo wp_login_url() ?>">התנתק</a>
@@ -23,6 +23,11 @@
                 <?php wp_nav_menu('header-menu') ?>
                 <div class="btns">
                 </div>
+            </div>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
             </div>
         </nav>
         <?php
