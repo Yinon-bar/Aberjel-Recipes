@@ -1,0 +1,259 @@
+@media screen and (max-width: 980px) {
+    body.home {
+        // Header
+        .transparent-header {
+            width: 100%;
+            .transparent-nav {
+                position: absolute;
+                width: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                height: 3rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                display: none;
+                .container {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    .btns {
+                        width: 10rem;
+                        display: flex;
+                        flex-direction: row;
+                        a {
+                            margin-right: 1rem;
+                            padding: 0.3rem 0.5rem;
+                            font-weight: 700;
+                            text-align: center;
+                            border: 1px solid $secondary_color;
+                            border-radius: 1rem;
+                            color: $secondary_color;
+                        }
+                        a:hover {
+                            background-color: $secondary_color;
+                            color: $third_color;
+                            transition: 0.2s ease-in-out;
+                        }
+                    }
+                }
+                .container div:nth-child(2) {
+                    height: 100%;
+                    ul {
+                        li {
+                            height: 100%;
+                        }
+                    }
+                }
+                a {
+                    height: 100%;
+                    color: $background;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                a:hover {
+                    transition: 0.2s ease-in-out;
+                    color: $secondary_color;
+                    box-sizing: unset;
+                }
+            }
+        }
+
+        .transparent-header .transparent-nav ul {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            list-style-type: none;
+        }
+
+        .transparent-header .transparent-nav ul li.current-menu-item {
+            color: $secondary_color;
+            a {
+                font-weight: 700;
+                color: inherit;
+            }
+        }
+
+        .transparent-header .transparent-nav ul li a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0rem 1rem 0rem 1rem;
+            height: 100%;
+            font-size: 1.4rem;
+            color: #fff;
+            box-sizing: unset;
+        }
+
+        .transparent-header .transparent-nav ul li a:hover {
+            transition: 0.2s ease-in-out;
+            border-bottom: 3px solid $background;
+        }
+
+        .transparent-header .page-banner {
+            height: 500px;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            background-size: cover !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            .container {
+                width: 100%;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            h3 {
+                font-size: $title_resp;
+                color: #fff;
+                margin-bottom: 0.5rem;
+                text-align: center;
+            }
+            p {
+                width: 95%;
+                text-align: center;
+                font-size: 1.5rem;
+                color: #fff;
+            }
+            form {
+                margin-top: 1rem;
+                input[type="submit"] {
+                    background-color: $third_color;
+                    color: $primary_color;
+                    border: 1px solid $primary_color;
+                    border-radius: 0.7rem;
+                    padding: 0.2rem 0.5rem;
+                    font-size: 1.2rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                }
+                input[type="search"] {
+                    background-color: $third_color;
+                    color: $primary_color;
+                    border: 1px solid $primary_color;
+                    border-radius: 0.7rem;
+                    padding: 0.2rem 0.5rem;
+                    font-size: 1.2rem;
+                    font-weight: 500;
+                }
+                display: none;
+            }
+        }
+
+        // Front page
+        .front-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: start;
+            background-color: $background;
+            .container {
+                width: 200px !important;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+
+                section.newest-recipes {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    h2 {
+                        margin-top: 1rem;
+                        color: $secondary_color;
+                        font-size: $subtitle;
+                    }
+                }
+                section.see-also {
+                    margin: 1rem 0rem;
+                    h2 {
+                        margin-top: 1rem;
+                        color: $secondary_color;
+                        font-size: $small_heading;
+                    }
+                }
+                .cards {
+                    width: 100%;
+                    margin-top: 2rem;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+
+                    .card {
+                        width: 20%;
+                        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.5);
+                        .card-image {
+                            background-size: cover;
+                            background-position: center;
+                            background-repeat: no-repeat;
+                            overflow: hidden;
+                            width: 100%;
+                            height: 15rem;
+                        }
+                        .card-body {
+                            padding: 1rem;
+                            position: relative;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: space-between;
+                            text-align: center;
+                            height: 8rem;
+                            a.link {
+                                background-color: $secondary_color;
+                                padding: 0.5rem;
+                                margin-top: 1rem;
+                                font-weight: 700;
+                                text-align: center;
+                                width: 50%;
+                                border-radius: 1rem;
+                                color: $primary_color;
+                            }
+                            a.link:hover {
+                                background-color: $primary_color;
+                                color: $third_color;
+                                transition: 0.2s ease-in-out;
+                            }
+                            a.link:active {
+                                transition: 0;
+                                transform: scale(0.85);
+                            }
+                            .badge {
+                                transform: rotateZ(17deg);
+                                background-color: $primary_color;
+                                width: 80px;
+                                height: 80px;
+                                position: absolute;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                text-align: center;
+                                border-radius: 50%;
+                                top: -250px;
+                                right: -20px;
+                                color: $background;
+                                .time {
+                                    font-weight: 700;
+                                    font-size: 1.2rem;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
