@@ -683,6 +683,9 @@ a {
   body.home footer h3 {
     text-align: center;
   }
+  body.active {
+    overflow: hidden;
+  }
 }
 
 /*# sourceMappingURL=index.css.map*/

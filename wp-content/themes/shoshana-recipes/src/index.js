@@ -9,5 +9,5 @@ const body = document.querySelector("body");
 hamburger.addEventListener("click", () => {
     hamburger.classList.toggle("active");
     navContainer.classList.toggle("active");
-    body.style.overflow = "hidden";
+    body.classList.toggle("active");
 });
