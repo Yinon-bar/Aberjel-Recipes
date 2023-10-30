@@ -14,15 +14,19 @@ $category_recipes = new WP_Query(array(
         )
     )
 ));
-// $desc = category_description(get_category_by_slug($cat)->term_id);
+$desc = category_description();
+// echo "<pre>";
+// print_r($obj);
+// echo "</pre>";
+// echo get_field("subtitle", $obj);
 ?>
 
 <div class="archive">
     <div class="page-banner" style="background: linear-gradient(rgb(0, 0, 0, 0.6), rgb(0, 0, 0, 0.6)),
                     url(<?php if (function_exists('z_taxonomy_image_url')) echo z_taxonomy_image_url(); ?>);">
         <div class="container">
-            <h2><?php echo $cat ?></h2>
-            <!-- <p><?php echo $desc ?></p> -->
+            <h2><?php echo the_field('subtitle', $obj) ?></h2>
+            <p><?php echo $desc ?></p>
             <form method="get" action="<?php echo esc_url(site_url('/')) ?>">
                 <input type="search" name="s" id="" placeholder="הקלד מילה לחיפוש">
                 <input type="submit" value="חיפוש מתכון">
