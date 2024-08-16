@@ -46,9 +46,9 @@ function add_custom_taxonomies()
       'parent_item' => __('Parent Location'),
       'parent_item_colon' => __('Parent Location:'),
       'edit_item' => __('עריכת קטגוריה'),
-      'update_item' => __('Update Location'),
+      'update_item' => __('עדכון קטגוריה'),
       'add_new_item' => __('הוספת קטגוריה'),
-      'new_item_name' => __('New Location Name'),
+      'new_item_name' => __('שם הקטגוריה החדשה'),
       'menu_name' => __('קטגוריית אוכל'),
     ),
     // Control the slugs used for this taxonomy
