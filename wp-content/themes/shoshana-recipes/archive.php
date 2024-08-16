@@ -26,7 +26,7 @@ $desc = category_description();
                     url(<?php if (function_exists('z_taxonomy_image_url')) echo z_taxonomy_image_url(); ?>);">
     <div class="container">
       <h2><?php echo $obj->name ?></h2>
-      <p style="width: 450px;"><?php echo $desc ?></p>
+      <p><?php echo $desc ?></p>
       <form method="get" action="<?php echo esc_url(site_url('/')) ?>">
         <input type="search" name="s" id="" placeholder="הקלד מילה לחיפוש">
         <input type="submit" value="חיפוש מתכון">

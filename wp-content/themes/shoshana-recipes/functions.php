@@ -39,7 +39,7 @@ function add_custom_taxonomies()
     'hierarchical' => true,
     // This array of options controls the labels displayed in the WordPress Admin UI
     'labels' => array(
-      'name' => _x('טוקסונומיות', 'taxonomy general name'),
+      'name' => _x('קטגוריות', 'taxonomy general name'),
       'singular_name' => _x('קטגוריה', 'taxonomy singular name'),
       'search_items' =>  __('Search Locations'),
       'all_items' => __('All Locations'),
