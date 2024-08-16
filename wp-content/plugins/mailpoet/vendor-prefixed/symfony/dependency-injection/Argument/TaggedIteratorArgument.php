@@ -8,7 +8,7 @@ class TaggedIteratorArgument extends IteratorArgument
  private $defaultIndexMethod;
  private $defaultPriorityMethod;
  private $needsIndexes = \false;
- public function __construct(string $tag, string $indexAttribute = null, string $defaultIndexMethod = null, bool $needsIndexes = \false, string $defaultPriorityMethod = null)
+ public function __construct(string $tag, ?string $indexAttribute = null, ?string $defaultIndexMethod = null, bool $needsIndexes = \false, ?string $defaultPriorityMethod = null)
  {
  parent::__construct([]);
  if (null === $indexAttribute && $needsIndexes) {

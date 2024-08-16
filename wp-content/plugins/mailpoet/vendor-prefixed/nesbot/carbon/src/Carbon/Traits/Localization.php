@@ -12,9 +12,11 @@ use MailPoetVendor\Symfony\Component\Translation\TranslatorBagInterface;
 use MailPoetVendor\Symfony\Component\Translation\TranslatorInterface;
 use MailPoetVendor\Symfony\Contracts\Translation\LocaleAwareInterface;
 use MailPoetVendor\Symfony\Contracts\Translation\TranslatorInterface as ContractsTranslatorInterface;
+// @codeCoverageIgnoreStart
 if (\interface_exists('MailPoetVendor\\Symfony\\Contracts\\Translation\\TranslatorInterface') && !\interface_exists('MailPoetVendor\\Symfony\\Component\\Translation\\TranslatorInterface')) {
  \class_alias('MailPoetVendor\\Symfony\\Contracts\\Translation\\TranslatorInterface', 'MailPoetVendor\\Symfony\\Component\\Translation\\TranslatorInterface');
 }
+// @codeCoverageIgnoreEnd
 trait Localization
 {
  protected static $translator;

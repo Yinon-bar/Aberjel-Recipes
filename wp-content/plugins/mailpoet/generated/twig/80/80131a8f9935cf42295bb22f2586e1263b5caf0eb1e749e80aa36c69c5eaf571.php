@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,9 +38,9 @@ class __TwigTemplate_912232d8d98ec89992f5e6290c3740bfaa82c9b5be05df35d42defcaf1c
     {
         $macros = $this->macros;
         // line 1
-        echo "<h3>";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Dividers");
-        echo "</h3>
+        yield "<h3>";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Dividers");
+        yield "</h3>
 <div class=\"mailpoet_divider_selector\" data-automation-id=\"divider_selector\">
 {{#each availableStyles.dividers}}
     <div class=\"mailpoet_field_divider_style{{#ifCond this '==' ../model.styles.block.borderStyle}} mailpoet_active_divider_style{{/ifCond}}\" data-style=\"{{ this }}\">
@@ -55,8 +56,8 @@ class __TwigTemplate_912232d8d98ec89992f5e6290c3740bfaa82c9b5be05df35d42defcaf1c
         </div>
         <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 15
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Divider height");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Divider height");
+        yield "</div>
     </label>
 </div>
 <div class=\"mailpoet_form_field\">
@@ -65,8 +66,8 @@ class __TwigTemplate_912232d8d98ec89992f5e6290c3740bfaa82c9b5be05df35d42defcaf1c
     </div>
     <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 22
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Divider color");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Divider color");
+        yield "</div>
 </div>
 <div class=\"mailpoet_form_field\">
     <div class=\"mailpoet_form_field_input_option\">
@@ -74,40 +75,50 @@ class __TwigTemplate_912232d8d98ec89992f5e6290c3740bfaa82c9b5be05df35d42defcaf1c
     </div>
     <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 28
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Background");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Background");
+        yield "</div>
 </div>
 {{#ifCond renderOptions.hideApplyToAll '!==' true}}
 <div class=\"mailpoet_form_field\">
     <input type=\"button\" name=\"apply-to-all-dividers\" class=\"button button-secondary mailpoet_button_full mailpoet_button_divider_apply_to_all\" value=\"";
         // line 32
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Apply to all dividers"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Apply to all dividers"), "html_attr");
+        yield "\" />
 </div>
 {{/ifCond}}
 
 <div class=\"mailpoet_form_field\">
     <input type=\"button\" class=\"button button-primary mailpoet_done_editing\" value=\"";
         // line 37
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
+        yield "\" />
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/divider/settings.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  89 => 37,  81 => 32,  74 => 28,  65 => 22,  55 => 15,  37 => 1,);
+        return array (  90 => 37,  82 => 32,  75 => 28,  66 => 22,  56 => 15,  38 => 1,);
     }
 
     public function getSourceContext()

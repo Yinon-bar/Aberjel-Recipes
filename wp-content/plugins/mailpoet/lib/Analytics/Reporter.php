@@ -18,7 +18,9 @@ use MailPoet\Segments\DynamicSegments\Filters\AutomationsEvents;
 use MailPoet\Segments\DynamicSegments\Filters\EmailAction;
 use MailPoet\Segments\DynamicSegments\Filters\EmailActionClickAny;
 use MailPoet\Segments\DynamicSegments\Filters\EmailOpensAbsoluteCountAction;
+use MailPoet\Segments\DynamicSegments\Filters\EmailsReceived;
 use MailPoet\Segments\DynamicSegments\Filters\MailPoetCustomFields;
+use MailPoet\Segments\DynamicSegments\Filters\NumberOfClicks;
 use MailPoet\Segments\DynamicSegments\Filters\SubscriberDateField;
 use MailPoet\Segments\DynamicSegments\Filters\SubscriberScore;
 use MailPoet\Segments\DynamicSegments\Filters\SubscriberSegment;
@@ -30,12 +32,16 @@ use MailPoet\Segments\DynamicSegments\Filters\WooCommerceAverageSpent;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceCategory;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceCountry;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceCustomerTextField;
+use MailPoet\Segments\DynamicSegments\Filters\WooCommerceFirstOrder;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceMembership;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceNumberOfOrders;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceNumberOfReviews;
+use MailPoet\Segments\DynamicSegments\Filters\WooCommerceProduct;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommercePurchaseDate;
+use MailPoet\Segments\DynamicSegments\Filters\WooCommercePurchasedWithAttribute;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceSingleOrderValue;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceSubscription;
+use MailPoet\Segments\DynamicSegments\Filters\WooCommerceTag;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceTotalSpent;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceUsedCouponCode;
 use MailPoet\Segments\DynamicSegments\Filters\WooCommerceUsedPaymentMethod;
@@ -48,9 +54,11 @@ use MailPoet\Settings\TrackingConfig;
 use MailPoet\Subscribers\ConfirmationEmailCustomizer;
 use MailPoet\Subscribers\NewSubscriberNotificationMailer;
 use MailPoet\Subscribers\SubscriberListingRepository;
+use MailPoet\Subscription\Captcha\CaptchaConstants;
 use MailPoet\Tags\TagRepository;
 use MailPoet\Util\License\Features\Subscribers as SubscribersFeature;
 use MailPoet\WooCommerce\Helper as WooCommerceHelper;
+use MailPoet\WooCommerce\Subscription;
 use MailPoet\WP\Functions as WPFunctions;
 use MailPoet\WPCOM\DotcomHelperFunctions;
 use MailPoetVendor\Carbon\Carbon;
@@ -98,6 +106,9 @@ class Reporter {
   /*** @var DotcomHelperFunctions */
   private $dotcomHelperFunctions;
 
+  /*** @var ReporterCampaignData */
+  private $reporterCampaignData;
+
   public function __construct(
     NewslettersRepository $newslettersRepository,
     SegmentsRepository $segmentsRepository,
@@ -112,7 +123,8 @@ class Reporter {
     SubscriberListingRepository $subscriberListingRepository,
     AutomationStorage $automationStorage,
     UnsubscribeReporter $unsubscribeReporter,
-    DotcomHelperFunctions $dotcomHelperFunctions
+    DotcomHelperFunctions $dotcomHelperFunctions,
+    ReporterCampaignData $reporterCampaignData
   ) {
     $this->newslettersRepository = $newslettersRepository;
     $this->segmentsRepository = $segmentsRepository;
@@ -128,6 +140,7 @@ class Reporter {
     $this->automationStorage = $automationStorage;
     $this->unsubscribeReporter = $unsubscribeReporter;
     $this->dotcomHelperFunctions = $dotcomHelperFunctions;
+    $this->reporterCampaignData = $reporterCampaignData;
   }
 
   public function getData() {
@@ -170,8 +183,6 @@ class Reporter {
       'Tracking level' => $this->settings->get('tracking.level', TrackingConfig::LEVEL_FULL),
       'Premium key valid' => $this->servicesChecker->isPremiumKeyValid(),
       'New subscriber notifications' => NewSubscriberNotificationMailer::isDisabled($this->settings->get(NewSubscriberNotificationMailer::SETTINGS_KEY)),
-      'Number of standard newsletters sent in last 3 months' => $newsletters['sent_newsletters_3_months'],
-      'Number of standard newsletters sent in last 30 days' => $newsletters['sent_newsletters_30_days'],
       'Number of active post notifications' => $newsletters['notifications_count'],
       'Number of active welcome emails' => $newsletters['welcome_newsletters_count'],
       'Total number of standard newsletters sent' => $newsletters['sent_newsletters_count'],
@@ -179,6 +190,7 @@ class Reporter {
       'Number of lists' => isset($segments['default']) ? (int)$segments['default'] : 0,
       'Number of subscriber tags' => $this->tagRepository->countBy([]),
       'Stop sending to inactive subscribers' => $inactiveSubscribersStatus,
+      'CAPTCHA setting' => $this->settings->get(CaptchaConstants::TYPE_SETTING_NAME, '') ?: 'disabled',
       'Plugin > MailPoet Premium' => $this->wp->isPluginActive('mailpoet-premium/mailpoet-premium.php'),
       'Plugin > bounce add-on' => $this->wp->isPluginActive('mailpoet-bounce-handler/mailpoet-bounce-handler.php'),
       'Plugin > Bloom' => $this->wp->isPluginActive('bloom-for-publishers/bloom.php'),
@@ -216,11 +228,14 @@ class Reporter {
       'Segment > is in country' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceCountry::ACTION_CUSTOMER_COUNTRY),
       'Segment > MailPoet custom field' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_USER_ROLE, MailPoetCustomFields::TYPE),
       'Segment > purchased in category' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceCategory::ACTION_CATEGORY),
-      'Segment > purchased product' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceCategory::ACTION_PRODUCT),
+      'Segment > purchased product' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceProduct::ACTION_PRODUCT),
+      'Segment > purchased with tag' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceTag::ACTION),
       'Segment > subscribed date' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_USER_ROLE, SubscriberDateField::SUBSCRIBED_DATE),
       'Segment > total spent' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceTotalSpent::ACTION_TOTAL_SPENT),
+      'Segment > first order' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceFirstOrder::ACTION),
       'Segment > WordPress user role' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_USER_ROLE, UserRole::TYPE),
       'Segment > subscriber tags' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_USER_ROLE, SubscriberTag::TYPE),
+      'Segment > number of emails received' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_EMAIL, EmailsReceived::ACTION),
       'Segment > purchase date' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommercePurchaseDate::ACTION),
       'Segment > average order value' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceAverageSpent::ACTION),
       'Segment > single order value' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceSingleOrderValue::ACTION_SINGLE_ORDER_VALUE),
@@ -235,6 +250,7 @@ class Reporter {
       'Segment > email' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_USER_ROLE, SubscriberTextField::EMAIL),
       'Segment > city' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceCustomerTextField::CITY),
       'Segment > postal code' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceCustomerTextField::POSTAL_CODE),
+      'Segment > purchased with attribute' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommercePurchasedWithAttribute::ACTION),
       'Segment > used payment method' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceUsedPaymentMethod::ACTION),
       'Segment > used shipping method' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceUsedShippingMethod::ACTION),
       'Segment > number of reviews' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_WOOCOMMERCE, WooCommerceNumberOfReviews::ACTION),
@@ -243,6 +259,7 @@ class Reporter {
       'Segment > exited automation' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_AUTOMATIONS, AutomationsEvents::EXITED_ACTION),
       'Segment > was sent' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_EMAIL, EmailAction::ACTION_WAS_SENT),
       'Segment > subscribed via form' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_USER_ROLE, SubscriberSubscribedViaForm::TYPE),
+      'Segment > number of clicks' => $this->isFilterTypeActive(DynamicSegmentFilterData::TYPE_EMAIL, NumberOfClicks::ACTION),
       // Dynamic segment filters tracking -- end. If you extend segments tracking, please extend mapping in analytics.js
       'Number of segments with multiple conditions' => $this->segmentsRepository->getSegmentCountWithMultipleFilters(),
       'Support tier' => $this->subscribersFeature->hasPremiumSupport() ? 'premium' : 'free',
@@ -256,12 +273,14 @@ class Reporter {
       $result,
       $this->subscriberProperties(),
       $this->automationProperties(),
+      $this->reporterCampaignData->getCampaignAnalyticsProperties(),
       $this->unsubscribeReporter->getProperties()
     );
     if ($hasWc) {
       $result['WooCommerce version'] = $woocommerce->version;
       $result['Number of WooCommerce subscribers'] = isset($segments['woocommerce_users']) ? (int)$segments['woocommerce_users'] : 0;
-      $result['WooCommerce: opt-in on checkout is active'] = $this->settings->get('woocommerce.optin_on_checkout.enabled') ?: false;
+      $result['WooCommerce: opt-in on checkout is active'] = $this->settings->get(Subscription::OPTIN_ENABLED_SETTING_NAME) ?: false;
+      $result['WooCommerce: opt-in on checkout position'] = $this->settings->get(Subscription::OPTIN_POSITION_SETTING_NAME) ?: '';
       $result['WooCommerce: set old customers as subscribed'] = $this->settings->get('mailpoet_subscribe_old_woocommerce_customers.enabled') ?: false;
       $result['WooCommerce email customizer is active'] = $this->settings->get('woocommerce.use_mailpoet_editor') ?: false;
 

@@ -108,6 +108,16 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
  $order = esc_sql( $this->get_request_order() );
  return "ORDER BY {$orderby} {$order}";
  }
+ protected function get_request_query_args_to_persist() {
+ return array_merge(
+ $this->sort_by,
+ array(
+ 'page',
+ 'status',
+ 'tab',
+ )
+ );
+ }
  protected function get_request_orderby() {
  $valid_sortable_columns = array_values( $this->sort_by );
  if ( ! empty( $_GET['orderby'] ) && in_array( $_GET['orderby'], $valid_sortable_columns, true ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -320,8 +330,8 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
  }
  // Translated status labels.
  $status_labels = ActionScheduler_Store::instance()->get_status_labels();
- $status_labels['all'] = _x( 'All', 'status labels', 'action-scheduler' );
- $status_labels['past-due'] = _x( 'Past-due', 'status labels', 'action-scheduler' );
+ $status_labels['all'] = esc_html_x( 'All', 'status labels', 'action-scheduler' );
+ $status_labels['past-due'] = esc_html_x( 'Past-due', 'status labels', 'action-scheduler' );
  foreach ( $this->status_counts as $status_slug => $count ) {
  if ( 0 === $count ) {
  continue;
@@ -344,11 +354,12 @@ abstract class ActionScheduler_Abstract_ListTable extends WP_List_Table {
  }
  protected function display_table() {
  echo '<form id="' . esc_attr( $this->_args['plural'] ) . '-filter" method="get">';
- foreach ( $_GET as $key => $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
- if ( '_' === $key[0] || 'paged' === $key || 'ID' === $key ) {
+ foreach ( $this->get_request_query_args_to_persist() as $arg ) {
+ $arg_value = isset( $_GET[ $arg ] ) ? sanitize_text_field( wp_unslash( $_GET[ $arg ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+ if ( ! $arg_value ) {
  continue;
  }
- echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
+ echo '<input type="hidden" name="' . esc_attr( $arg ) . '" value="' . esc_attr( $arg_value ) . '" />';
  }
  if ( ! empty( $this->search_by ) ) {
  echo $this->search_box( $this->get_search_box_button_text(), 'plugin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

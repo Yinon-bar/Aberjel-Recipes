@@ -143,7 +143,7 @@ class Services extends APIEndpoint {
         $error = __('Your key is not valid for the MailPoet Sending Service', 'mailpoet');
         break;
       case Bridge::KEY_ALREADY_USED:
-        $error = __('Your MailPoet Sending Service key is already used on another site', 'mailpoet');
+        $error = __('Your MailPoet Sending Service key is already <a>used on another site</a>', 'mailpoet'); // we will use createInterpolateElement to replace <a> element
         break;
       default:
         $code = !empty($result['code']) ? $result['code'] : Bridge::CHECK_ERROR_UNKNOWN;
@@ -212,7 +212,7 @@ class Services extends APIEndpoint {
         $error = __('Your key is not valid for MailPoet Premium', 'mailpoet');
         break;
       case Bridge::KEY_ALREADY_USED:
-        $error = __('Your Premium key is already used on another site', 'mailpoet');
+        $error = __('Your Premium key is already <a>used on another site</a>', 'mailpoet'); // we will use createInterpolateElement to replace <a> element
         break;
       default:
         $code = !empty($result['code']) ? $result['code'] : Bridge::CHECK_ERROR_UNKNOWN;
@@ -291,6 +291,23 @@ class Services extends APIEndpoint {
     return $this->successResponse([
       'email_address' => $fromEmail,
     ]);
+  }
+
+  public function pingBridge() {
+    try {
+      $bridgePingResponse = $this->bridge->pingBridge();
+    } catch (\Exception $e) {
+      return $this->errorResponse([
+        APIError::UNKNOWN => $e->getMessage(),
+      ]);
+    }
+    if (!$this->bridge->validateBridgePingResponse($bridgePingResponse)) {
+      $code = $bridgePingResponse ?: Bridge::CHECK_ERROR_UNKNOWN;
+      return $this->errorResponse([
+        APIError::UNKNOWN => $this->getErrorDescriptionByCode($code),
+      ]);
+    }
+    return $this->successResponse();
   }
 
   public function refreshMSSKeyStatus() {

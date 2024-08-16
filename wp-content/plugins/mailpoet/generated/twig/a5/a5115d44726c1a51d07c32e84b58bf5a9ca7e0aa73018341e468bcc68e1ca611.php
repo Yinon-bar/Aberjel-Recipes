@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_fe82214a672852b4438d3bc95af40d7f6b223a020fa4c9d667c486d986e
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <div class=\"mailpoet_content\">
     <div class=\"mailpoet_spacer\" data-automation-id=\"spacer\" style=\"height: {{ model.styles.block.height }}; background-color: {{ model.styles.block.backgroundColor }};\">
         <div class=\"mailpoet_resize_handle_container\">
@@ -45,29 +46,39 @@ class __TwigTemplate_fe82214a672852b4438d3bc95af40d7f6b223a020fa4c9d667c486d986e
                 <span class=\"mailpoet_resize_handle_text\">{{ model.styles.block.height }}</span>
                 <span class=\"mailpoet_resize_handle_icon\">";
         // line 7
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-icons/spacer.svg");
-        echo "</span>
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-icons/spacer.svg");
+        yield "</span>
             </div>
         </div>
     </div>
 </div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/spacer/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  45 => 7,  37 => 1,);
+        return array (  46 => 7,  38 => 1,);
     }
 
     public function getSourceContext()

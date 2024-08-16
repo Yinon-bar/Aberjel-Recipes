@@ -10,7 +10,7 @@ use MailPoetVendor\Doctrine\Common\Collections\Expr\Value;
 use RuntimeException;
 use function count;
 use function str_replace;
-use function strpos;
+use function str_starts_with;
 class QueryExpressionVisitor extends ExpressionVisitor
 {
  private static $operatorMap = [Comparison::GT => Expr\Comparison::GT, Comparison::GTE => Expr\Comparison::GTE, Comparison::LT => Expr\Comparison::LT, Comparison::LTE => Expr\Comparison::LTE];
@@ -56,7 +56,7 @@ class QueryExpressionVisitor extends ExpressionVisitor
  }
  $field = $this->queryAliases[0] . '.' . $comparison->getField();
  foreach ($this->queryAliases as $alias) {
- if (strpos($comparison->getField() . '.', $alias . '.') === 0) {
+ if (str_starts_with($comparison->getField() . '.', $alias . '.')) {
  $field = $comparison->getField();
  break;
  }

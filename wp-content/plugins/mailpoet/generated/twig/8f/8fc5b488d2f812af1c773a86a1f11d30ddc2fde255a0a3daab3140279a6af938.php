@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,23 +37,29 @@ class __TwigTemplate_a23278e043e57c5a5a159f68109eef0e57fbdd4a848470bd2254637ae95
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "{{#each availableSets}}
+        yield "{{#each availableSets}}
     <div class=\"mailpoet_social_icon_set{{#ifCond ../activeSet '==' this }} mailpoet_active_icon_set{{/ifCond}}\" data-setName=\"{{ this }}\">
     {{#each ../availableSocialIcons}}<img src=\"{{lookup (lookup ../../socialIconSets ../this) this}}\" />{{/each}}
     </div>
 {{/each}}
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/social/settingsStyles.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

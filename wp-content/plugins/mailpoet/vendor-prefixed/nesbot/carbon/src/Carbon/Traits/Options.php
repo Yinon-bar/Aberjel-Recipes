@@ -43,9 +43,9 @@ trait Options
  'v' => '([0-9]{1,3})',
  'e' => '([a-zA-Z]{1,5})|([a-zA-Z]*\\/[a-zA-Z]*)',
  'I' => '(0|1)',
- 'O' => '([+-](1[012]|0[0-9])[0134][05])',
- 'P' => '([+-](1[012]|0[0-9]):[0134][05])',
- 'p' => '(Z|[+-](1[012]|0[0-9]):[0134][05])',
+ 'O' => '([+-](1[0123]|0[0-9])[0134][05])',
+ 'P' => '([+-](1[0123]|0[0-9]):[0134][05])',
+ 'p' => '(Z|[+-](1[0123]|0[0-9]):[0134][05])',
  'T' => '([a-zA-Z]{1,5})',
  'Z' => '(-?[1-5]?[0-9]{1,4})',
  'U' => '([0-9]*)',
@@ -134,7 +134,7 @@ trait Options
  $map = ['localStrictModeEnabled' => 'strictMode', 'localMonthsOverflow' => 'monthOverflow', 'localYearsOverflow' => 'yearOverflow', 'localHumanDiffOptions' => 'humanDiffOptions', 'localToStringFormat' => 'toStringFormat', 'localSerializer' => 'toJsonFormat', 'localMacros' => 'macros', 'localGenericMacros' => 'genericMacros', 'locale' => 'locale', 'tzName' => 'timezone', 'localFormatFunction' => 'formatFunction'];
  foreach ($map as $property => $key) {
  $value = $this->{$property} ?? null;
- if ($value !== null) {
+ if ($value !== null && ($key !== 'locale' || $value !== 'en' || $this->localTranslator)) {
  $settings[$key] = $value;
  }
  }
@@ -142,10 +142,10 @@ trait Options
  }
  public function __debugInfo()
  {
- $infos = \array_filter(\get_object_vars($this), function ($var) {
+ $infos = \array_filter(\get_object_vars($this), static function ($var) {
  return $var;
  });
- foreach (['dumpProperties', 'constructedObjectId'] as $property) {
+ foreach (['dumpProperties', 'constructedObjectId', 'constructed'] as $property) {
  if (isset($infos[$property])) {
  unset($infos[$property]);
  }

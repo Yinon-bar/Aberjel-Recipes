@@ -14,7 +14,7 @@ final class NativeQuery extends AbstractQuery
  $this->sql = $sql;
  return $this;
  }
- public function getSQL()
+ public function getSQL() : string
  {
  return $this->sql;
  }

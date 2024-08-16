@@ -5,25 +5,10 @@ namespace MailPoet\Automation\Engine\Data;
 if (!defined('ABSPATH')) exit;
 
 
-use MailPoet\RuntimeException;
-
 class AutomationTemplate {
   public const TYPE_DEFAULT = 'default';
-  public const TYPE_FREE_ONLY = 'free-only';
   public const TYPE_PREMIUM = 'premium';
   public const TYPE_COMING_SOON = 'coming-soon';
-
-  public const CATEGORY_WELCOME = 'welcome';
-  public const CATEGORY_ABANDONED_CART = 'abandoned-cart';
-  public const CATEGORY_REENGAGEMENT = 'reengagement';
-  public const CATEGORY_WOOCOMMERCE = 'woocommerce';
-
-  public const ALL_CATEGORIES = [
-    self::CATEGORY_WELCOME,
-    self::CATEGORY_ABANDONED_CART,
-    self::CATEGORY_REENGAGEMENT,
-    self::CATEGORY_WOOCOMMERCE,
-  ];
 
   /** @var string */
   private $slug;
@@ -40,26 +25,31 @@ class AutomationTemplate {
   /** @var callable(): Automation */
   private $automationFactory;
 
+  /** @var array<string, int|bool> */
+  private $requiredCapabilities;
+
   /** @var string */
   private $type;
 
-  /** @param callable(): Automation $automationFactory */
+  /**
+   * @param callable(): Automation $automationFactory
+   * @param array<string, int|bool> $requiredCapabilities
+   */
   public function __construct(
     string $slug,
     string $category,
     string $name,
     string $description,
     callable $automationFactory,
+    array $requiredCapabilities = [],
     string $type = self::TYPE_DEFAULT
   ) {
-    if (!in_array($category, self::ALL_CATEGORIES)) {
-      throw new RuntimeException("$category is not a valid category.");
-    }
     $this->slug = $slug;
     $this->category = $category;
     $this->name = $name;
     $this->description = $description;
     $this->automationFactory = $automationFactory;
+    $this->requiredCapabilities = $requiredCapabilities;
     $this->type = $type;
   }
 
@@ -83,6 +73,11 @@ class AutomationTemplate {
     return $this->description;
   }
 
+  /** @return array<string, int|bool> */
+  public function getRequiredCapabilities(): array {
+    return $this->requiredCapabilities;
+  }
+
   public function createAutomation(): Automation {
     return ($this->automationFactory)();
   }
@@ -93,6 +88,7 @@ class AutomationTemplate {
       'name' => $this->getName(),
       'category' => $this->getCategory(),
       'type' => $this->getType(),
+      'required_capabilities' => $this->getRequiredCapabilities(),
       'description' => $this->getDescription(),
     ];
   }

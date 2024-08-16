@@ -2,9 +2,11 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM;
 if (!defined('ABSPATH')) exit;
+use BackedEnum;
 use BadMethodCallException;
 use MailPoetVendor\Doctrine\Common\Cache\Psr6\CacheAdapter;
 use MailPoetVendor\Doctrine\Common\EventManager;
+use MailPoetVendor\Doctrine\Common\Persistence\PersistentObject;
 use MailPoetVendor\Doctrine\Common\Util\ClassUtils;
 use MailPoetVendor\Doctrine\DBAL\Connection;
 use MailPoetVendor\Doctrine\DBAL\DriverManager;
@@ -15,6 +17,8 @@ use MailPoetVendor\Doctrine\ORM\Exception\InvalidHydrationMode;
 use MailPoetVendor\Doctrine\ORM\Exception\MismatchedEventManager;
 use MailPoetVendor\Doctrine\ORM\Exception\MissingIdentifierField;
 use MailPoetVendor\Doctrine\ORM\Exception\MissingMappingDriverImplementation;
+use MailPoetVendor\Doctrine\ORM\Exception\NotSupported;
+use MailPoetVendor\Doctrine\ORM\Exception\ORMException;
 use MailPoetVendor\Doctrine\ORM\Exception\UnrecognizedIdentifierFields;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadataFactory;
@@ -28,7 +32,7 @@ use MailPoetVendor\Doctrine\Persistence\ObjectRepository;
 use InvalidArgumentException;
 use Throwable;
 use function array_keys;
-use function call_user_func;
+use function class_exists;
 use function get_debug_type;
 use function gettype;
 use function is_array;
@@ -37,6 +41,7 @@ use function is_object;
 use function is_string;
 use function ltrim;
 use function sprintf;
+use function strpos;
 class EntityManager implements EntityManagerInterface
 {
  private $config;
@@ -50,11 +55,14 @@ class EntityManager implements EntityManagerInterface
  private $closed = \false;
  private $filterCollection;
  private $cache;
- protected function __construct(Connection $conn, Configuration $config, EventManager $eventManager)
+ public function __construct(Connection $conn, Configuration $config, ?EventManager $eventManager = null)
  {
+ if (!$config->getMetadataDriverImpl()) {
+ throw MissingMappingDriverImplementation::create();
+ }
  $this->conn = $conn;
  $this->config = $config;
- $this->eventManager = $eventManager;
+ $this->eventManager = $eventManager ?? $conn->getEventManager();
  $metadataFactoryClassName = $config->getClassMetadataFactoryName();
  $this->metadataFactory = new $metadataFactoryClassName();
  $this->metadataFactory->setEntityManager($this);
@@ -98,7 +106,7 @@ class EntityManager implements EntityManagerInterface
  }
  $this->conn->beginTransaction();
  try {
- $return = call_user_func($func, $this);
+ $return = $func($this);
  $this->flush();
  $this->conn->commit();
  return $return ?: \true;
@@ -183,10 +191,13 @@ class EntityManager implements EntityManagerInterface
  $id = [$class->identifier[0] => $id];
  }
  foreach ($id as $i => $value) {
- if (is_object($value) && $this->metadataFactory->hasMetadataFor(ClassUtils::getClass($value))) {
+ if (is_object($value)) {
+ $className = ClassUtils::getClass($value);
+ if ($this->metadataFactory->hasMetadataFor($className)) {
  $id[$i] = $this->unitOfWork->getSingleIdentifierValue($value);
  if ($id[$i] === null) {
- throw ORMInvalidArgumentException::invalidIdentifierBindingEntity();
+ throw ORMInvalidArgumentException::invalidIdentifierBindingEntity($className);
+ }
  }
  }
  }
@@ -195,7 +206,11 @@ class EntityManager implements EntityManagerInterface
  if (!isset($id[$identifier])) {
  throw MissingIdentifierField::fromFieldAndClass($identifier, $class->name);
  }
+ if ($id[$identifier] instanceof BackedEnum) {
+ $sortedId[$identifier] = $id[$identifier]->value;
+ } else {
  $sortedId[$identifier] = $id[$identifier];
+ }
  unset($id[$identifier]);
  }
  if ($id) {
@@ -314,13 +329,13 @@ class EntityManager implements EntityManagerInterface
  $this->errorIfClosed();
  $this->unitOfWork->remove($entity);
  }
- public function refresh($entity)
+ public function refresh($entity, ?int $lockMode = null)
  {
  if (!is_object($entity)) {
  throw ORMInvalidArgumentException::invalidObject('EntityManager#refresh()', $entity);
  }
  $this->errorIfClosed();
- $this->unitOfWork->refresh($entity);
+ $this->unitOfWork->refresh($entity, $lockMode);
  }
  public function detach($entity)
  {
@@ -349,7 +364,18 @@ class EntityManager implements EntityManagerInterface
  }
  public function getRepository($entityName)
  {
- return $this->repositoryFactory->getRepository($this, $entityName);
+ if (strpos($entityName, ':') !== \false) {
+ if (class_exists(PersistentObject::class)) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/8818', 'Short namespace aliases such as "%s" are deprecated and will be removed in Doctrine ORM 3.0.', $entityName);
+ } else {
+ throw NotSupported::createForPersistence3(sprintf('Using short namespace alias "%s" when calling %s', $entityName, __METHOD__));
+ }
+ }
+ $repository = $this->repositoryFactory->getRepository($this, $entityName);
+ if (!$repository instanceof EntityRepository) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9533', 'Not returning an instance of %s from %s::getRepository() is deprecated and will cause a TypeError on 3.0.', EntityRepository::class, get_debug_type($this->repositoryFactory));
+ }
+ return $repository;
  }
  public function contains($entity)
  {
@@ -414,14 +440,13 @@ class EntityManager implements EntityManagerInterface
  }
  public static function create($connection, Configuration $config, ?EventManager $eventManager = null)
  {
- if (!$config->getMetadataDriverImpl()) {
- throw MissingMappingDriverImplementation::create();
- }
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9961', '%s() is deprecated. To boostrap a DBAL connection, call %s::getConnection() instead. Use the constructor to create an instance of %s.', __METHOD__, DriverManager::class, self::class);
  $connection = static::createConnection($connection, $config, $eventManager);
- return new EntityManager($connection, $config, $connection->getEventManager());
+ return new EntityManager($connection, $config);
  }
  protected static function createConnection($connection, Configuration $config, ?EventManager $eventManager = null)
  {
+ Deprecation::triggerIfCalledFromOutside('doctrine/orm', 'https://github.com/doctrine/orm/pull/9961', '%s() is deprecated, call %s::getConnection() instead.', __METHOD__, DriverManager::class);
  if (is_array($connection)) {
  return DriverManager::getConnection($connection, $config, $eventManager ?: new EventManager());
  }

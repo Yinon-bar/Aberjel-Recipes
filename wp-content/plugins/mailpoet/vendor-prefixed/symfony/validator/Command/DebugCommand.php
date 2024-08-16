@@ -12,8 +12,12 @@ use MailPoetVendor\Symfony\Component\Console\Style\SymfonyStyle;
 use MailPoetVendor\Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use MailPoetVendor\Symfony\Component\Finder\Finder;
 use MailPoetVendor\Symfony\Component\Validator\Constraint;
+use MailPoetVendor\Symfony\Component\Validator\Mapping\AutoMappingStrategy;
+use MailPoetVendor\Symfony\Component\Validator\Mapping\CascadingStrategy;
 use MailPoetVendor\Symfony\Component\Validator\Mapping\ClassMetadataInterface;
 use MailPoetVendor\Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface;
+use MailPoetVendor\Symfony\Component\Validator\Mapping\GenericMetadata;
+use MailPoetVendor\Symfony\Component\Validator\Mapping\TraversalStrategy;
 class DebugCommand extends Command
 {
  protected static $defaultName = 'debug:validator';
@@ -56,7 +60,11 @@ EOF
  $title = \sprintf('<info>%s</info>', $class);
  $rows = [];
  $dump = new Dumper($output);
- foreach ($this->getConstrainedPropertiesData($class) as $propertyName => $constraintsData) {
+ $classMetadata = $this->validator->getMetadataFor($class);
+ foreach ($this->getClassConstraintsData($classMetadata) as $data) {
+ $rows[] = ['-', $data['class'], \implode(', ', $data['groups']), $dump($data['options'])];
+ }
+ foreach ($this->getConstrainedPropertiesData($classMetadata) as $propertyName => $constraintsData) {
  foreach ($constraintsData as $data) {
  $rows[] = [$propertyName, $data['class'], \implode(', ', $data['groups']), $dump($data['options'])];
  }
@@ -76,10 +84,15 @@ EOF
  $table->setColumnMaxWidth(3, 80);
  $table->render();
  }
- private function getConstrainedPropertiesData(string $class) : array
+ private function getClassConstraintsData(ClassMetadataInterface $classMetadata) : iterable
+ {
+ foreach ($classMetadata->getConstraints() as $constraint) {
+ (yield ['class' => \get_class($constraint), 'groups' => $constraint->groups, 'options' => $this->getConstraintOptions($constraint)]);
+ }
+ }
+ private function getConstrainedPropertiesData(ClassMetadataInterface $classMetadata) : array
  {
  $data = [];
- $classMetadata = $this->validator->getMetadataFor($class);
  foreach ($classMetadata->getConstrainedProperties() as $constrainedProperty) {
  $data[$constrainedProperty] = $this->getPropertyData($classMetadata, $constrainedProperty);
  }
@@ -90,6 +103,28 @@ EOF
  $data = [];
  $propertyMetadata = $classMetadata->getPropertyMetadata($constrainedProperty);
  foreach ($propertyMetadata as $metadata) {
+ $autoMapingStrategy = 'Not supported';
+ if ($metadata instanceof GenericMetadata) {
+ switch ($metadata->getAutoMappingStrategy()) {
+ case AutoMappingStrategy::ENABLED:
+ $autoMapingStrategy = 'Enabled';
+ break;
+ case AutoMappingStrategy::DISABLED:
+ $autoMapingStrategy = 'Disabled';
+ break;
+ case AutoMappingStrategy::NONE:
+ $autoMapingStrategy = 'None';
+ break;
+ }
+ }
+ $traversalStrategy = 'None';
+ if (TraversalStrategy::TRAVERSE === $metadata->getTraversalStrategy()) {
+ $traversalStrategy = 'Traverse';
+ }
+ if (TraversalStrategy::IMPLICIT === $metadata->getTraversalStrategy()) {
+ $traversalStrategy = 'Implicit';
+ }
+ $data[] = ['class' => 'property options', 'groups' => [], 'options' => ['cascadeStrategy' => CascadingStrategy::CASCADE === $metadata->getCascadingStrategy() ? 'Cascade' : 'None', 'autoMappingStrategy' => $autoMapingStrategy, 'traversalStrategy' => $traversalStrategy]];
  foreach ($metadata->getConstraints() as $constraint) {
  $data[] = ['class' => \get_class($constraint), 'groups' => $constraint->groups, 'options' => $this->getConstraintOptions($constraint)];
  }

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,31 +38,41 @@ class __TwigTemplate_8757195cf6e3b4b538bc0229021fc88316ee26a19f6b4b0703e7efaacd4
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <div class=\"mailpoet_abandoned_cart_content_block_overlay\" data-automation-id=\"acc_overlay\">
   <span class=\"mailpoet_overlay_message\">";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This is only a preview! Your customers will see the product(s) they left in their shopping cart.");
-        echo "</span>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This is only a preview! Your customers will see the product(s) they left in their shopping cart.");
+        yield "</span>
 </div>
 <div class=\"mailpoet_abandoned_cart_content_container\"></div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/abandonedCartContent/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  41 => 3,  37 => 1,);
+        return array (  42 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

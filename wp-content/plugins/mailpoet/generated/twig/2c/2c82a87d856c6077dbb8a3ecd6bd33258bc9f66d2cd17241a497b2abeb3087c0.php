@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,34 +38,44 @@ class __TwigTemplate_fa065697f25afa3f448331ec5feeaeff06376f390132a244e352df6f052
     {
         $macros = $this->macros;
         // line 1
-        echo "<h3>";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Display options");
-        echo "</h3>
+        yield "<h3>";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Display options");
+        yield "</h3>
 <div class=\"mailpoet_settings_abandoned_cart_content_display_options\"></div>
 <div class=\"mailpoet_settings_abandoned_cart_content_controls\">
   <div class=\"mailpoet_form_field\">
     <input type=\"button\" class=\"button button-primary mailpoet_done_editing\" value=\"";
         // line 5
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
+        yield "\" />
   </div>
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/abandonedCartContent/settings.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  45 => 5,  37 => 1,);
+        return array (  46 => 5,  38 => 1,);
     }
 
     public function getSourceContext()

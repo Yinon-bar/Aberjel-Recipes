@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,27 +38,37 @@ class __TwigTemplate_85fc869f3ae1c550c3cf160741a139fd72e12753ecca0317d5c2fd9caec
     {
         $macros = $this->macros;
         // line 1
-        echo "<div id=\"mailpoet_social_icon_selector_contents\"></div>
+        yield "<div id=\"mailpoet_social_icon_selector_contents\"></div>
 <input type=\"button\" class=\"button button-secondary mailpoet_button_full mailpoet_add_social_icon\" data-automation-id='social_select_another_network' value=\"";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Add another social network");
-        echo "\" />
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Add another social network");
+        yield "\" />
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/social/settingsIconSelector.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  40 => 2,  37 => 1,);
+        return array (  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

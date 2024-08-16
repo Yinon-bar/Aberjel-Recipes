@@ -9,7 +9,7 @@ class FileExtensionEscapingStrategy
  return 'html';
  // return html for directories
  }
- if ('.twig' === \substr($name, -5)) {
+ if (\str_ends_with($name, '.twig')) {
  $name = \substr($name, 0, -5);
  }
  $extension = \pathinfo($name, \PATHINFO_EXTENSION);

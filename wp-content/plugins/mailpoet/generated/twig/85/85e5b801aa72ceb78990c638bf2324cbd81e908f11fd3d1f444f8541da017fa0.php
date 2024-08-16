@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,21 +37,27 @@ class __TwigTemplate_e51cc61a310c52902148636bb53b3a497f227efc58f5186127360284e3d
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <div class=\"mailpoet_products_container\"></div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/products/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

@@ -8,6 +8,7 @@ use MailPoetVendor\Doctrine\Common\Collections\Criteria;
 use MailPoetVendor\Doctrine\Common\Collections\Selectable;
 use MailPoetVendor\Doctrine\ORM\Persisters\Entity\EntityPersister;
 use ReturnTypeWillChange;
+use function assert;
 class LazyCriteriaCollection extends AbstractLazyCollection implements Selectable
 {
  protected $entityPersister;
@@ -47,6 +48,7 @@ class LazyCriteriaCollection extends AbstractLazyCollection implements Selectabl
  public function matching(Criteria $criteria)
  {
  $this->initialize();
+ assert($this->collection instanceof Selectable);
  return $this->collection->matching($criteria);
  }
  protected function doInitialize()

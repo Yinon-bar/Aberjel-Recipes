@@ -9,7 +9,6 @@ use function array_combine;
 use function array_filter;
 use function array_map;
 use function array_merge;
-use function call_user_func_array;
 final class ReflectionPropertiesGetter
 {
  private $properties = [];
@@ -23,10 +22,9 @@ final class ReflectionPropertiesGetter
  if (isset($this->properties[$className])) {
  return $this->properties[$className];
  }
- return $this->properties[$className] = call_user_func_array(
- 'array_merge',
+ return $this->properties[$className] = array_merge(
  // first merge because `array_merge` expects >= 1 params
- array_merge([[]], array_map([$this, 'getClassProperties'], $this->getHierarchyClasses($className)))
+ ...array_merge([[]], array_map([$this, 'getClassProperties'], $this->getHierarchyClasses($className)))
  );
  }
  private function getHierarchyClasses(string $className) : array

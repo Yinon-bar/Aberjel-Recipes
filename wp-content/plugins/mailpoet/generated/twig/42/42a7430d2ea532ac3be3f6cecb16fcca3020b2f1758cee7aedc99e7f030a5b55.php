@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_ee976cebab693058b2c927a174913be7ca1208650de50f1e66f3e2d912a
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <div class=\"mailpoet_content\" data-automation-id=\"divider\" style=\"padding: {{ model.styles.block.padding }} 0; background-color: {{ model.styles.block.backgroundColor }};\">
     <div class=\"mailpoet_divider\" style=\"border-top-width: {{ model.styles.block.borderWidth }}; border-top-style: {{ model.styles.block.borderStyle }}; border-top-color: {{ model.styles.block.borderColor }};\"></div>
     <div class=\"mailpoet_resize_handle_container\">
@@ -45,28 +46,38 @@ class __TwigTemplate_ee976cebab693058b2c927a174913be7ca1208650de50f1e66f3e2d912a
             <span class=\"mailpoet_resize_handle_text\">{{ totalHeight }}</span>
             <span class=\"mailpoet_resize_handle_icon\">";
         // line 7
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-icons/spacer.svg");
-        echo "</span>
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-icons/spacer.svg");
+        yield "</span>
         </div>
     </div>
 </div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/divider/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  45 => 7,  37 => 1,);
+        return array (  46 => 7,  38 => 1,);
     }
 
     public function getSourceContext()

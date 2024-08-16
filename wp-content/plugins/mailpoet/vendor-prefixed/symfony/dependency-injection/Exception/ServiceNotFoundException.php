@@ -7,7 +7,7 @@ class ServiceNotFoundException extends InvalidArgumentException implements NotFo
  private $id;
  private $sourceId;
  private $alternatives;
- public function __construct(string $id, string $sourceId = null, \Throwable $previous = null, array $alternatives = [], string $msg = null)
+ public function __construct(string $id, ?string $sourceId = null, ?\Throwable $previous = null, array $alternatives = [], ?string $msg = null)
  {
  if (null !== $msg) {
  // no-op

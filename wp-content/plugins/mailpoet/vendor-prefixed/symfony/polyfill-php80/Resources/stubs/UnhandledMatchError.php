@@ -1,6 +1,8 @@
 <?php
 namespace MailPoetVendor;
 if (!defined('ABSPATH')) exit;
-class UnhandledMatchError extends \Error
-{
+if (\PHP_VERSION_ID < 80000) {
+ class UnhandledMatchError extends \Error
+ {
+ }
 }

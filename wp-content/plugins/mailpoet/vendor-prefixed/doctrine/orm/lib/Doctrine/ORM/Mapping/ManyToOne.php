@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_PROPERTY)]
-final class ManyToOne implements Annotation
+final class ManyToOne implements MappingAttribute
 {
  public $targetEntity;
  public $cascade;

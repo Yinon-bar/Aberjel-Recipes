@@ -2,15 +2,15 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM;
 if (!defined('ABSPATH')) exit;
+use BadMethodCallException;
 use MailPoetVendor\Doctrine\Common\Annotations\AnnotationReader;
-use MailPoetVendor\Doctrine\Common\Annotations\AnnotationRegistry;
 use MailPoetVendor\Doctrine\Common\Annotations\CachedReader;
 use MailPoetVendor\Doctrine\Common\Annotations\SimpleAnnotationReader;
 use MailPoetVendor\Doctrine\Common\Cache\ArrayCache;
 use MailPoetVendor\Doctrine\Common\Cache\Cache as CacheDriver;
 use MailPoetVendor\Doctrine\Common\Cache\Psr6\CacheAdapter;
 use MailPoetVendor\Doctrine\Common\Cache\Psr6\DoctrineProvider;
-use MailPoetVendor\Doctrine\Common\Proxy\AbstractProxyFactory;
+use MailPoetVendor\Doctrine\Common\Persistence\PersistentObject;
 use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\Cache\CacheConfiguration;
 use MailPoetVendor\Doctrine\ORM\Cache\Exception\CacheException;
@@ -21,6 +21,7 @@ use MailPoetVendor\Doctrine\ORM\Cache\Exception\QueryCacheUsesNonPersistentCache
 use MailPoetVendor\Doctrine\ORM\Exception\InvalidEntityRepository;
 use MailPoetVendor\Doctrine\ORM\Exception\NamedNativeQueryNotFound;
 use MailPoetVendor\Doctrine\ORM\Exception\NamedQueryNotFound;
+use MailPoetVendor\Doctrine\ORM\Exception\NotSupported;
 use MailPoetVendor\Doctrine\ORM\Exception\ProxyClassesAlwaysRegenerating;
 use MailPoetVendor\Doctrine\ORM\Exception\UnknownEntityNamespace;
 use MailPoetVendor\Doctrine\ORM\Internal\Hydration\AbstractHydrator;
@@ -32,18 +33,25 @@ use MailPoetVendor\Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use MailPoetVendor\Doctrine\ORM\Mapping\EntityListenerResolver;
 use MailPoetVendor\Doctrine\ORM\Mapping\NamingStrategy;
 use MailPoetVendor\Doctrine\ORM\Mapping\QuoteStrategy;
+use MailPoetVendor\Doctrine\ORM\Mapping\TypedFieldMapper;
+use MailPoetVendor\Doctrine\ORM\Proxy\ProxyFactory;
+use MailPoetVendor\Doctrine\ORM\Query\AST\Functions\FunctionNode;
+use MailPoetVendor\Doctrine\ORM\Query\Filter\SQLFilter;
 use MailPoetVendor\Doctrine\ORM\Query\ResultSetMapping;
 use MailPoetVendor\Doctrine\ORM\Repository\DefaultRepositoryFactory;
 use MailPoetVendor\Doctrine\ORM\Repository\RepositoryFactory;
 use MailPoetVendor\Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use MailPoetVendor\Doctrine\Persistence\ObjectRepository;
+use MailPoetVendor\Doctrine\Persistence\Reflection\RuntimeReflectionProperty;
 use LogicException;
 use MailPoetVendor\Psr\Cache\CacheItemPoolInterface;
-use ReflectionClass;
+use MailPoetVendor\Symfony\Component\VarExporter\LazyGhostTrait;
 use function class_exists;
+use function is_a;
 use function method_exists;
 use function sprintf;
 use function strtolower;
+use function trait_exists;
 use function trim;
 class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
 {
@@ -58,7 +66,7 @@ class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
  }
  public function getAutoGenerateProxyClasses()
  {
- return $this->_attributes['autoGenerateProxyClasses'] ?? AbstractProxyFactory::AUTOGENERATE_ALWAYS;
+ return $this->_attributes['autoGenerateProxyClasses'] ?? ProxyFactory::AUTOGENERATE_ALWAYS;
  }
  public function setAutoGenerateProxyClasses($autoGenerate)
  {
@@ -78,24 +86,32 @@ class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
  }
  public function newDefaultAnnotationDriver($paths = [], $useSimpleAnnotationReader = \true)
  {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9443', '%s is deprecated, call %s::createDefaultAnnotationDriver() instead.', __METHOD__, ORMSetup::class);
  if (!class_exists(AnnotationReader::class)) {
- throw new LogicException(sprintf('The annotation metadata driver cannot be enabled because the "doctrine/annotations" library' . ' is not installed. Please run "composer require doctrine/annotations" or choose a different' . ' metadata driver.'));
+ throw new LogicException('The annotation metadata driver cannot be enabled because the "doctrine/annotations" library' . ' is not installed. Please run "composer require doctrine/annotations" or choose a different' . ' metadata driver.');
  }
- AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DoctrineAnnotations.php');
  if ($useSimpleAnnotationReader) {
+ if (!class_exists(SimpleAnnotationReader::class)) {
+ throw new BadMethodCallException('SimpleAnnotationReader has been removed in doctrine/annotations 2.' . ' Downgrade to version 1 or set $useSimpleAnnotationReader to false.');
+ }
  // Register the ORM Annotations in the AnnotationRegistry
  $reader = new SimpleAnnotationReader();
  $reader->addNamespace('MailPoetVendor\\Doctrine\\ORM\\Mapping');
  } else {
  $reader = new AnnotationReader();
  }
- if (class_exists(ArrayCache::class)) {
+ if (class_exists(ArrayCache::class) && class_exists(CachedReader::class)) {
  $reader = new CachedReader($reader, new ArrayCache());
  }
  return new AnnotationDriver($reader, (array) $paths);
  }
  public function addEntityNamespace($alias, $namespace)
  {
+ if (class_exists(PersistentObject::class)) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/8818', 'Short namespace aliases such as "%s" are deprecated and will be removed in Doctrine ORM 3.0.', $alias);
+ } else {
+ throw NotSupported::createForPersistence3(sprintf('Using short namespace alias "%s" by calling %s', $alias, __METHOD__));
+ }
  $this->_attributes['entityNamespaces'][$alias] = $namespace;
  }
  public function getEntityNamespace($entityNamespaceAlias)
@@ -231,7 +247,7 @@ class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
  if ($queryCacheImpl instanceof ArrayCache) {
  throw QueryCacheUsesNonPersistentCache::fromDriver($queryCacheImpl);
  }
- if ($this->getAutoGenerateProxyClasses()) {
+ if ($this->getAutoGenerateProxyClasses() !== ProxyFactory::AUTOGENERATE_NEVER) {
  throw ProxyClassesAlwaysRegenerating::create();
  }
  if (!$this->getMetadataCache()) {
@@ -287,6 +303,14 @@ class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
  $this->addCustomDatetimeFunction($name, $className);
  }
  }
+ public function setTypedFieldMapper(?TypedFieldMapper $typedFieldMapper) : void
+ {
+ $this->_attributes['typedFieldMapper'] = $typedFieldMapper;
+ }
+ public function getTypedFieldMapper() : ?TypedFieldMapper
+ {
+ return $this->_attributes['typedFieldMapper'] ?? null;
+ }
  public function setCustomHydrationModes($modes)
  {
  $this->_attributes['customHydrationModes'] = [];
@@ -323,9 +347,11 @@ class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
  }
  public function setDefaultRepositoryClassName($className)
  {
- $reflectionClass = new ReflectionClass($className);
- if (!$reflectionClass->implementsInterface(ObjectRepository::class)) {
+ if (!class_exists($className) || !is_a($className, ObjectRepository::class, \true)) {
  throw InvalidEntityRepository::fromClassName($className);
+ }
+ if (!is_a($className, EntityRepository::class, \true)) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9533', 'Configuring %s as default repository class is deprecated because it does not extend %s.', $className, EntityRepository::class);
  }
  $this->_attributes['defaultRepositoryClassName'] = $className;
  }
@@ -416,5 +442,19 @@ class Configuration extends \MailPoetVendor\Doctrine\DBAL\Configuration
  public function setSchemaIgnoreClasses(array $schemaIgnoreClasses) : void
  {
  $this->_attributes['schemaIgnoreClasses'] = $schemaIgnoreClasses;
+ }
+ public function isLazyGhostObjectEnabled() : bool
+ {
+ return $this->_attributes['isLazyGhostObjectEnabled'] ?? \false;
+ }
+ public function setLazyGhostObjectEnabled(bool $flag) : void
+ {
+ if ($flag && !trait_exists(LazyGhostTrait::class)) {
+ throw new LogicException('Lazy ghost objects cannot be enabled because the "symfony/var-exporter" library' . ' version 6.2 or higher is not installed. Please run "composer require symfony/var-exporter:^6.2".');
+ }
+ if ($flag && !class_exists(RuntimeReflectionProperty::class)) {
+ throw new LogicException('Lazy ghost objects cannot be enabled because the "doctrine/persistence" library' . ' version 3.1 or higher is not installed. Please run "composer update doctrine/persistence".');
+ }
+ $this->_attributes['isLazyGhostObjectEnabled'] = $flag;
  }
 }

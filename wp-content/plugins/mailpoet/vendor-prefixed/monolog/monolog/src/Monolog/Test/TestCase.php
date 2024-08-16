@@ -7,6 +7,13 @@ use MailPoetVendor\Monolog\DateTimeImmutable;
 use MailPoetVendor\Monolog\Formatter\FormatterInterface;
 class TestCase extends \MailPoetVendor\PHPUnit\Framework\TestCase
 {
+ public function tearDown() : void
+ {
+ parent::tearDown();
+ if (isset($this->handler)) {
+ unset($this->handler);
+ }
+ }
  protected function getRecord(int $level = Logger::WARNING, string $message = 'test', array $context = []) : array
  {
  return ['message' => (string) $message, 'context' => $context, 'level' => $level, 'level_name' => Logger::getLevelName($level), 'channel' => 'test', 'datetime' => new DateTimeImmutable(\true), 'extra' => []];

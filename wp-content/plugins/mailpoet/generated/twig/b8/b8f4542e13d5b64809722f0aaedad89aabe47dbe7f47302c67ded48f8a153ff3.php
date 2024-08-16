@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_ad95371f127a37c3fd295b281998d07f4cab28c047de8b441cc7b6b9301
     {
         $macros = $this->macros;
         // line 1
-        echo "<li class=\"clearfix\">
+        yield "<li class=\"clearfix\">
   {{#ifCond type 'in' 'radio,select'}}
     <input class=\"is_checked radio\" type=\"radio\" name=\"\"
     {{#if is_checked}}checked=\"checked\"{{/if}} value=\"1\"/>
@@ -58,25 +59,35 @@ class __TwigTemplate_ad95371f127a37c3fd295b281998d07f4cab28c047de8b441cc7b6b9301
     {{#ifCond type 'in' 'radio,select'}}
       <a class=\"remove\" href=\"javascript:;\">";
         // line 20
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Remove");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Remove");
+        yield "</a>
     {{/ifCond}}
 </li>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/values_item.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  58 => 20,  37 => 1,);
+        return array (  59 => 20,  38 => 1,);
     }
 
     public function getSourceContext()

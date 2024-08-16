@@ -55,6 +55,9 @@ class NotCompromisedPasswordValidator extends ConstraintValidator
  throw $e;
  }
  foreach (\explode("\r\n", $result) as $line) {
+ if (!\str_contains($line, ':')) {
+ continue;
+ }
  [$hashSuffix, $count] = \explode(':', $line);
  if ($hashPrefix . $hashSuffix === $hash && $constraint->threshold <= (int) $count) {
  $this->context->buildViolation($constraint->message)->setCode(NotCompromisedPassword::COMPROMISED_PASSWORD_ERROR)->addViolation();

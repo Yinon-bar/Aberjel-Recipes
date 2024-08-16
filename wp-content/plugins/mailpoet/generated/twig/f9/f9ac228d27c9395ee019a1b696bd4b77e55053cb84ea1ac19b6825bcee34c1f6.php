@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,15 +43,14 @@ class __TwigTemplate_f8cc740392ae60b79073d86d04178d1110950ce925efc059b30bbb77f1d
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("layout.html", "experimental-features.html", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
     public function block_content($context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 4
-        echo "
+        yield "
 <div class=\"wrap\">
   <h1 class=\"mailpoet-h1\">Experimental features</h1>
 
@@ -71,21 +71,31 @@ class __TwigTemplate_f8cc740392ae60b79073d86d04178d1110950ce925efc059b30bbb77f1d
 </div>
 
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "experimental-features.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  50 => 4,  46 => 3,  35 => 1,);
+        return array (  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

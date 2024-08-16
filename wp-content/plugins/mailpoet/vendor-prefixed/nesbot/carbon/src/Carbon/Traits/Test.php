@@ -38,7 +38,7 @@ trait Test
  self::$testDefaultTimezone = null;
  }
  }
- public static function withTestNow($testNow = null, $callback = null)
+ public static function withTestNow($testNow, $callback)
  {
  static::setTestNow($testNow);
  try {

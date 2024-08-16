@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\ORM\Exception\ORMException;
 use MailPoetVendor\Doctrine\ORM\Query\AST\PathExpression;
 use Exception;
+use Stringable;
 class QueryException extends ORMException
 {
  public static function dqlError($dql)

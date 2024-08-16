@@ -2,7 +2,7 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
-final class AttributeOverride implements Annotation
+final class AttributeOverride implements MappingAttribute
 {
  public $name;
  public $column;

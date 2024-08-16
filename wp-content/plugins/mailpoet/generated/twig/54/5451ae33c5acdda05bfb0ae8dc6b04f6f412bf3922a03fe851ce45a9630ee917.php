@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,65 +38,75 @@ class __TwigTemplate_1a503b1b477150cebe094ddd70d8a9f0f9df76c4d7e651ce72ce81dad2c
     {
         $macros = $this->macros;
         // line 1
-        echo "<p>";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Howdy,");
-        echo "
+        yield "<p>";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Howdy,");
+        yield "
 
 <p>";
         // line 3
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_replace_filter($this->extensions['MailPoet\Twig\I18n']->translate("The subscriber %1\$s has just subscribed to your list %2\$s!"), ["%1\$s" =>         // line 4
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(MailPoetVendor\Twig\Extension\CoreExtension::replace($this->extensions['MailPoet\Twig\I18n']->translate("The subscriber %1\$s has just subscribed to your list %2\$s!"), ["%1\$s" =>         // line 4
 ($context["subscriber_email"] ?? null), "%2\$s" => ($context["segments_names"] ?? null)]), "html", null, true);
         // line 5
-        echo "
+        yield "
 
 <p>";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Cheers,");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Cheers,");
+        yield "
 
 <p>";
         // line 9
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("The MailPoet Plugin");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("The MailPoet Plugin");
+        yield "
 
 <p><small>";
         // line 11
-        echo $this->extensions['MailPoet\Twig\I18n']->translate(MailPoet\Util\Helpers::replaceLinkTags("You can disable these emails in your [link]MailPoet Settings.[/link]",         // line 12
+        yield $this->extensions['MailPoet\Twig\I18n']->translate(MailPoet\Util\Helpers::replaceLinkTags("You can disable these emails in your [link]MailPoet Settings.[/link]",         // line 12
 ($context["link_settings"] ?? null)));
         // line 13
-        echo "</small>
+        yield "</small>
 
 ";
         // line 15
-        if ((\MailPoetVendor\twig_date_format_filter($this->env, "now", "Y-m-d") < \MailPoetVendor\twig_date_format_filter($this->env, "2018-11-30", "Y-m-d"))) {
+        if (($this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatDate("now", "Y-m-d") < $this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatDate("2018-11-30", "Y-m-d"))) {
             // line 16
-            echo "  <p>
+            yield "  <p>
     <small>
       ";
             // line 18
-            echo $this->extensions['MailPoet\Twig\I18n']->translate(MailPoet\Util\Helpers::replaceLinkTags("PS. MailPoet annual plans are nearly half price for a limited time.
+            yield $this->extensions['MailPoet\Twig\I18n']->translate(MailPoet\Util\Helpers::replaceLinkTags("PS. MailPoet annual plans are nearly half price for a limited time.
       [link]Find out more in the Premium page in your admin.[/link]",             // line 20
 ($context["link_premium"] ?? null)));
             // line 21
-            echo "
+            yield "
   </small>
 ";
         }
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/newSubscriberNotification.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  77 => 21,  75 => 20,  73 => 18,  69 => 16,  67 => 15,  63 => 13,  61 => 12,  60 => 11,  55 => 9,  50 => 7,  46 => 5,  44 => 4,  43 => 3,  37 => 1,);
+        return array (  78 => 21,  76 => 20,  74 => 18,  70 => 16,  68 => 15,  64 => 13,  62 => 12,  61 => 11,  56 => 9,  51 => 7,  47 => 5,  45 => 4,  44 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

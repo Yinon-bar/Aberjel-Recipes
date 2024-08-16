@@ -1,11 +1,13 @@
 <?php
 namespace MailPoetVendor\Twig\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
 use MailPoetVendor\Twig\Node\Expression\AbstractExpression;
+#[YieldReady]
 class DoNode extends Node
 {
- public function __construct(AbstractExpression $expr, int $lineno, string $tag = null)
+ public function __construct(AbstractExpression $expr, int $lineno, ?string $tag = null)
  {
  parent::__construct(['expr' => $expr], [], $lineno, $tag);
  }

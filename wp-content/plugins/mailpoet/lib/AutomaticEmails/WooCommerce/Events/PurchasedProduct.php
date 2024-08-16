@@ -123,7 +123,8 @@ class PurchasedProduct {
     /** @var \WP_Post[] $woocommerceProducts */
     if (empty($woocommerceProducts)) {
       $this->loggerFactory->getLogger(self::SLUG)->info(
-        'no products found', ['search_query' => $productSearchQuery]
+        'no products found',
+        ['search_query' => $productSearchQuery]
       );
       return;
     }
@@ -178,7 +179,8 @@ class PurchasedProduct {
     };
 
     $this->loggerFactory->getLogger(self::SLUG)->info(
-      'Email scheduled', [
+      'Email scheduled',
+      [
         'order_id' => $orderId,
         'customer_email' => $customerEmail,
         'subscriber_id' => $subscriber->getId(),

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,27 +38,37 @@ class __TwigTemplate_6dcbcb074a0086e1d120697d1ef432c64759ff17be3b2b1a80184bc11e5
     {
         $macros = $this->macros;
         // line 1
-        echo "<p class=\"mailpoet_align_right\">
+        yield "<p class=\"mailpoet_align_right\">
   <input type=\"submit\" value=\"";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Done");
-        echo "\" class=\"button-primary\" />
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Done");
+        yield "\" class=\"button-primary\" />
 </p>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/submit.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  40 => 2,  37 => 1,);
+        return array (  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

@@ -3,9 +3,10 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use Attribute;
+use BackedEnum;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_PROPERTY)]
-final class Column implements Annotation
+final class Column implements MappingAttribute
 {
  public $name;
  public $type;

@@ -3,14 +3,15 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Query;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\Common\Lexer\AbstractLexer;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use function constant;
 use function ctype_alpha;
 use function defined;
 use function is_numeric;
+use function str_contains;
 use function str_replace;
 use function stripos;
 use function strlen;
-use function strpos;
 use function strtoupper;
 use function substr;
 class Lexer extends AbstractLexer
@@ -125,7 +126,7 @@ class Lexer extends AbstractLexer
  switch (\true) {
  // Recognize numeric values
  case is_numeric($value):
- if (strpos($value, '.') !== \false || stripos($value, 'e') !== \false) {
+ if (str_contains($value, '.') || stripos($value, 'e') !== \false) {
  return self::T_FLOAT;
  }
  return self::T_INTEGER;
@@ -142,10 +143,11 @@ class Lexer extends AbstractLexer
  return $type;
  }
  }
- if (strpos($value, ':') !== \false) {
+ if (str_contains($value, ':')) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/8818', 'Short namespace aliases such as "%s" are deprecated and will be removed in Doctrine ORM 3.0.', $value);
  return self::T_ALIASED_NAME;
  }
- if (strpos($value, '\\') !== \false) {
+ if (str_contains($value, '\\')) {
  return self::T_FULLY_QUALIFIED_NAME;
  }
  return self::T_IDENTIFIER;

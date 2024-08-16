@@ -2,7 +2,9 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Repository;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\EntityManagerInterface;
+use MailPoetVendor\Doctrine\ORM\EntityRepository;
 use MailPoetVendor\Doctrine\Persistence\ObjectRepository;
 use function spl_object_id;
 final class DefaultRepositoryFactory implements RepositoryFactory
@@ -20,6 +22,10 @@ final class DefaultRepositoryFactory implements RepositoryFactory
  {
  $metadata = $entityManager->getClassMetadata($entityName);
  $repositoryClassName = $metadata->customRepositoryClassName ?: $entityManager->getConfiguration()->getDefaultRepositoryClassName();
- return new $repositoryClassName($entityManager, $metadata);
+ $repository = new $repositoryClassName($entityManager, $metadata);
+ if (!$repository instanceof EntityRepository) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9533', 'Configuring %s as repository class is deprecated because it does not extend %s.', $repositoryClassName, EntityRepository::class);
+ }
+ return $repository;
  }
 }

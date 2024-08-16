@@ -1,10 +1,12 @@
 <?php
 namespace MailPoetVendor\Twig\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
 use MailPoetVendor\Twig\Node\Expression\AbstractExpression;
 use MailPoetVendor\Twig\Node\Expression\ConstantExpression;
 use MailPoetVendor\Twig\Source;
+#[YieldReady]
 final class ModuleNode extends Node
 {
  public function __construct(Node $body, ?AbstractExpression $parent, Node $blocks, Node $macros, Node $traits, $embeddedTemplates, Source $source)
@@ -64,7 +66,7 @@ final class ModuleNode extends Node
  {
  $compiler->write("\n\n");
  if (!$this->getAttribute('index')) {
- $compiler->write("use MailPoetVendor\\Twig\\Environment;\n")->write("use MailPoetVendor\\Twig\\Error\\LoaderError;\n")->write("use MailPoetVendor\\Twig\\Error\\RuntimeError;\n")->write("use MailPoetVendor\\Twig\\Extension\\SandboxExtension;\n")->write("use MailPoetVendor\\Twig\\Markup;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityError;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityNotAllowedTagError;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityNotAllowedFilterError;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityNotAllowedFunctionError;\n")->write("use MailPoetVendor\\Twig\\Source;\n")->write("use MailPoetVendor\\Twig\\Template;\n\n");
+ $compiler->write("use MailPoetVendor\\Twig\\Environment;\n")->write("use MailPoetVendor\\Twig\\Error\\LoaderError;\n")->write("use MailPoetVendor\\Twig\\Error\\RuntimeError;\n")->write("use MailPoetVendor\\Twig\\Extension\\CoreExtension;\n")->write("use MailPoetVendor\\Twig\\Extension\\SandboxExtension;\n")->write("use MailPoetVendor\\Twig\\Markup;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityError;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityNotAllowedTagError;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityNotAllowedFilterError;\n")->write("use MailPoetVendor\\Twig\\Sandbox\\SecurityNotAllowedFunctionError;\n")->write("use MailPoetVendor\\Twig\\Source;\n")->write("use MailPoetVendor\\Twig\\Template;\n\n");
  }
  $compiler->write('/* ' . \str_replace('*/', '* /', $this->getSourceContext()->getName()) . " */\n")->write('class ' . $compiler->getEnvironment()->getTemplateClass($this->getSourceContext()->getName(), $this->getAttribute('index')))->raw(" extends Template\n")->write("{\n")->indent()->write("private \$source;\n")->write("private \$macros = [];\n\n");
  }
@@ -80,7 +82,7 @@ final class ModuleNode extends Node
  // traits
  foreach ($this->getNode('traits') as $i => $trait) {
  $node = $trait->getNode('template');
- $compiler->addDebugInfo($node)->write(\sprintf('$_trait_%s = $this->loadTemplate(', $i))->subcompile($node)->raw(', ')->repr($node->getTemplateName())->raw(', ')->repr($node->getTemplateLine())->raw(");\n")->write(\sprintf("if (!\$_trait_%s->isTraitable()) {\n", $i))->indent()->write("throw new RuntimeError('Template \"'.")->subcompile($trait->getNode('template'))->raw(".'\" cannot be used as a trait.', ")->repr($node->getTemplateLine())->raw(", \$this->source);\n")->outdent()->write("}\n")->write(\sprintf("\$_trait_%s_blocks = \$_trait_%s->getBlocks();\n\n", $i, $i));
+ $compiler->addDebugInfo($node)->write(\sprintf('$_trait_%s = $this->loadTemplate(', $i))->subcompile($node)->raw(', ')->repr($node->getTemplateName())->raw(', ')->repr($node->getTemplateLine())->raw(");\n")->write(\sprintf("if (!\$_trait_%s->unwrap()->isTraitable()) {\n", $i))->indent()->write("throw new RuntimeError('Template \"'.")->subcompile($trait->getNode('template'))->raw(".'\" cannot be used as a trait.', ")->repr($node->getTemplateLine())->raw(", \$this->source);\n")->outdent()->write("}\n")->write(\sprintf("\$_trait_%s_blocks = \$_trait_%s->unwrap()->getBlocks();\n\n", $i, $i));
  foreach ($trait->getNode('targets') as $key => $value) {
  $compiler->write(\sprintf('if (!isset($_trait_%s_blocks[', $i))->string($key)->raw("])) {\n")->indent()->write("throw new RuntimeError('Block ")->string($key)->raw(' is not defined in trait ')->subcompile($trait->getNode('template'))->raw(".', ")->repr($node->getTemplateLine())->raw(", \$this->source);\n")->outdent()->write("}\n\n")->write(\sprintf('$_trait_%s_blocks[', $i))->subcompile($value)->raw(\sprintf('] = $_trait_%s_blocks[', $i))->string($key)->raw(\sprintf(']; unset($_trait_%s_blocks[', $i))->string($key)->raw("]);\n\n");
  }
@@ -118,13 +120,21 @@ final class ModuleNode extends Node
  $compiler->addDebugInfo($parent);
  if ($parent instanceof ConstantExpression) {
  $compiler->write('$this->parent = $this->loadTemplate(')->subcompile($parent)->raw(', ')->repr($this->getSourceContext()->getName())->raw(', ')->repr($parent->getTemplateLine())->raw(");\n");
- $compiler->write('$this->parent');
+ }
+ $compiler->write('yield from ');
+ if ($parent instanceof ConstantExpression) {
+ $compiler->raw('$this->parent');
  } else {
- $compiler->write('$this->getParent($context)');
+ $compiler->raw('$this->getParent($context)');
  }
- $compiler->raw("->display(\$context, array_merge(\$this->blocks, \$blocks));\n");
+ $compiler->raw("->unwrap()->yield(\$context, array_merge(\$this->blocks, \$blocks));\n");
  }
- $compiler->subcompile($this->getNode('display_end'))->outdent()->write("}\n\n");
+ $compiler->subcompile($this->getNode('display_end'));
+ if (!$this->hasNode('parent')) {
+ $compiler->write("return; yield '';\n");
+ // ensure at least one yield call even for templates with no output
+ }
+ $compiler->outdent()->write("}\n\n");
  }
  protected function compileClassFooter(Compiler $compiler)
  {
@@ -136,7 +146,7 @@ final class ModuleNode extends Node
  }
  protected function compileGetTemplateName(Compiler $compiler)
  {
- $compiler->write("public function getTemplateName()\n", "{\n")->indent()->write('return ')->repr($this->getSourceContext()->getName())->raw(";\n")->outdent()->write("}\n\n");
+ $compiler->write("/**\n")->write(" * @codeCoverageIgnore\n")->write(" */\n")->write("public function getTemplateName()\n", "{\n")->indent()->write('return ')->repr($this->getSourceContext()->getName())->raw(";\n")->outdent()->write("}\n\n");
  }
  protected function compileIsTraitable(Compiler $compiler)
  {
@@ -150,7 +160,7 @@ final class ModuleNode extends Node
  $traitable = !$this->hasNode('parent') && 0 === \count($this->getNode('macros'));
  if ($traitable) {
  if ($this->getNode('body') instanceof BodyNode) {
- $nodes = $this->getNode('body')->getNode(0);
+ $nodes = $this->getNode('body')->getNode('0');
  } else {
  $nodes = $this->getNode('body');
  }
@@ -174,11 +184,11 @@ final class ModuleNode extends Node
  if ($traitable) {
  return;
  }
- $compiler->write("public function isTraitable()\n", "{\n")->indent()->write(\sprintf("return %s;\n", $traitable ? 'true' : 'false'))->outdent()->write("}\n\n");
+ $compiler->write("/**\n")->write(" * @codeCoverageIgnore\n")->write(" */\n")->write("public function isTraitable()\n", "{\n")->indent()->write("return false;\n")->outdent()->write("}\n\n");
  }
  protected function compileDebugInfo(Compiler $compiler)
  {
- $compiler->write("public function getDebugInfo()\n", "{\n")->indent()->write(\sprintf("return %s;\n", \str_replace("\n", '', \var_export(\array_reverse($compiler->getDebugInfo(), \true), \true))))->outdent()->write("}\n\n");
+ $compiler->write("/**\n")->write(" * @codeCoverageIgnore\n")->write(" */\n")->write("public function getDebugInfo()\n", "{\n")->indent()->write(\sprintf("return %s;\n", \str_replace("\n", '', \var_export(\array_reverse($compiler->getDebugInfo(), \true), \true))))->outdent()->write("}\n\n");
  }
  protected function compileGetSourceContext(Compiler $compiler)
  {
@@ -191,5 +201,17 @@ final class ModuleNode extends Node
  } else {
  throw new \LogicException('Trait templates can only be constant nodes.');
  }
+ }
+ private function hasNodeOutputNodes(Node $node) : bool
+ {
+ if ($node instanceof NodeOutputInterface) {
+ return \true;
+ }
+ foreach ($node as $child) {
+ if ($this->hasNodeOutputNodes($child)) {
+ return \true;
+ }
+ }
+ return \false;
  }
 }

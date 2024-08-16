@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_e2b0804ea4690eeb975cc322cc1bf6bddd9f35d7b42b6e0119d98ce5d04
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <div class=\"mailpoet_content\" style=\"{{#ifCond model.styles.block.textAlign '==' 'left'}}margin: 0 auto 0 0; {{/ifCond}}{{#ifCond model.styles.block.textAlign '==' 'center'}}margin: auto; {{/ifCond}}{{#ifCond model.styles.block.textAlign '==' 'right'}}margin: 0 0 0 auto; {{/ifCond}}width: {{model.width}}\">
 \t<div class=\"mailpoet_image\">
 \t\t<a href=\"{{escapeURL model.link }}\" onClick=\"return false;\">
@@ -47,29 +48,39 @@ class __TwigTemplate_e2b0804ea4690eeb975cc322cc1bf6bddd9f35d7b42b6e0119d98ce5d04
 \t\t    <div class=\"mailpoet_image_resize_handle\">
 \t\t        <span class=\"mailpoet_image_resize_handle_icon\">";
         // line 9
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-tools/resize.svg");
-        echo "</span>
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-tools/resize.svg");
+        yield "</span>
 \t\t    </div>
 \t\t</div>
 \t</div>
 </div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/image/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  47 => 9,  37 => 1,);
+        return array (  48 => 9,  38 => 1,);
     }
 
     public function getSourceContext()

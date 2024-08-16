@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,24 +38,34 @@ class __TwigTemplate_f7a4c38fa3d47c8e0c6c275df5fd7c91a8852e62fcc110ef4bcee2f2a74
     {
         $macros = $this->macros;
         // line 1
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("No posts available");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("No posts available");
+        yield "
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/posts/settingsSelectionEmpty.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array (  38 => 1,);
     }
 
     public function getSourceContext()

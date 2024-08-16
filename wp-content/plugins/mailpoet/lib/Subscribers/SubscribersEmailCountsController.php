@@ -63,7 +63,8 @@ class SubscribersEmailCountsController {
     $initUpdateValue = $dateLastProcessed ? 's.email_count' : '';
     $dateLastProcessedSql = $dateLastProcessed ? ' AND st.processed_at >= :dateFrom' : '';
 
-    $connection->executeQuery("
+    $connection->executeQuery(
+      "
       UPDATE {$this->subscribersTable} as s
       JOIN (
           SELECT s.id, COUNT(st.id) as email_count
@@ -94,7 +95,8 @@ class SubscribersEmailCountsController {
     $dayAgoIso = $dayAgo->subDay()->toDateTimeString();
     $queryParams['dayAgo'] = $dayAgoIso;
 
-    $result = $this->entityManager->getConnection()->executeQuery("
+    $result = $this->entityManager->getConnection()->executeQuery(
+      "
       SELECT count(id) FROM {$this->scheduledTasksTable}
       WHERE type = 'sending'
       AND processed_at IS NOT NULL
@@ -109,7 +111,8 @@ class SubscribersEmailCountsController {
   }
 
   private function countAndMaxOfSubscribersInRange(int $startId, int $batchSize): array {
-    $result = $this->entityManager->getConnection()->executeQuery("
+    $result = $this->entityManager->getConnection()->executeQuery(
+      "
       SELECT COUNT(ids.id) as count, COALESCE(MAX(ids.id), 0) as max FROM (
         SELECT s.id FROM {$this->subscribersTable} as s
         WHERE s.id >= :startId
@@ -127,6 +130,7 @@ class SubscribersEmailCountsController {
       ]
     );
 
+    /** @var array{0: array{count:int, max:int}} $subscribersInRange */
     $subscribersInRange = $result->fetchAllAssociative();
 
     return [intval($subscribersInRange[0]['count']), intval($subscribersInRange[0]['max'])];

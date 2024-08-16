@@ -6,6 +6,7 @@ use MailPoetVendor\Carbon\CarbonImmutable;
 use MailPoetVendor\Carbon\CarbonInterface;
 use MailPoetVendor\Carbon\CarbonInterval;
 use MailPoetVendor\Carbon\CarbonPeriod;
+use MailPoetVendor\Carbon\CarbonPeriodImmutable;
 use MailPoetVendor\Carbon\Exceptions\UnitException;
 use Closure;
 use DateTime;
@@ -178,14 +179,14 @@ trait Converter
  if ($unit) {
  $interval = CarbonInterval::make("{$interval} " . static::pluralUnit($unit));
  }
- $period = (new CarbonPeriod())->setDateClass(static::class)->setStartDate($this);
+ $period = ($this->isMutable() ? new CarbonPeriod() : new CarbonPeriodImmutable())->setDateClass(static::class)->setStartDate($this);
  if ($interval) {
- $period->setDateInterval($interval);
+ $period = $period->setDateInterval($interval);
  }
  if (\is_int($end) || \is_string($end) && \ctype_digit($end)) {
- $period->setRecurrences($end);
+ $period = $period->setRecurrences($end);
  } elseif ($end) {
- $period->setEndDate($end);
+ $period = $period->setEndDate($end);
  }
  return $period;
  }

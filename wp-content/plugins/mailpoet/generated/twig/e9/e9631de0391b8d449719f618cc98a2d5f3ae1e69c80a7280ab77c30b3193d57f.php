@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,33 +38,43 @@ class __TwigTemplate_867c90f4a722f130b211e8489bf795d1754a92d92ccc4474499726d083f
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <div class=\"mailpoet_content\">
   <div class=\"mailpoet_automated_latest_content_block_overlay\" data-automation-id=\"alc_overlay\">
     <span class=\"mailpoet_overlay_message\">";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This is only a preview! Your subscribers will see your latest blog posts.");
-        echo "</span>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This is only a preview! Your subscribers will see your latest blog posts.");
+        yield "</span>
   </div>
   <div class=\"mailpoet_automated_latest_content_block_posts\" data-automation-id=\"alc_posts\"></div>
 </div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/automatedLatestContentLayout/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  42 => 4,  37 => 1,);
+        return array (  43 => 4,  38 => 1,);
     }
 
     public function getSourceContext()

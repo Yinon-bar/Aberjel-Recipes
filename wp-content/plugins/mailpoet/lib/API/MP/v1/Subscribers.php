@@ -22,7 +22,6 @@ use MailPoet\Subscribers\SubscriberListingRepository;
 use MailPoet\Subscribers\SubscriberSaveController;
 use MailPoet\Subscribers\SubscriberSegmentRepository;
 use MailPoet\Subscribers\SubscribersRepository;
-use MailPoet\Tasks\Sending;
 use MailPoet\Util\Helpers;
 use MailPoet\WP\Functions as WPFunctions;
 use MailPoetVendor\Carbon\Carbon;
@@ -169,6 +168,52 @@ class Subscribers {
     return $this->subscribersResponseBuilder->build($subscriberEntity);
   }
 
+  public function updateSubscriber($subscriberIdOrEmail, array $data): array {
+    $this->checkSubscriberParam($subscriberIdOrEmail);
+
+    $subscriber = $this->findSubscriber($subscriberIdOrEmail);
+
+    [$defaultFields, $customFields] = $this->extractCustomFieldsFromFromSubscriberData($data);
+
+    $this->requiredCustomFieldsValidator->validate($customFields);
+
+    // filter out all incoming data that we don't want to change, like status ...
+    $defaultFields = array_intersect_key($defaultFields, array_flip(['email', 'first_name', 'last_name', 'subscribed_ip']));
+
+    if ($subscriber->getWpUserId() !== null) {
+      unset($defaultFields['email']);
+      unset($defaultFields['first_name']);
+      unset($defaultFields['last_name']);
+    };
+
+    if (empty($defaultFields['subscribed_ip'])) {
+      $defaultFields['subscribed_ip'] = Helpers::getIP();
+    }
+    $defaultFields['source'] = Source::API;
+
+    try {
+      $subscriberEntity = $this->subscriberSaveController->createOrUpdate($defaultFields, $subscriber);
+    } catch (\Exception $e) {
+      throw new APIException(
+      // translators: %s is an error message.
+        sprintf(__('Failed to update subscriber: %s', 'mailpoet'), $e->getMessage()),
+        APIException::FAILED_TO_SAVE_SUBSCRIBER
+      );
+    }
+
+    try {
+      $this->subscriberSaveController->updateCustomFields($customFields, $subscriberEntity);
+    } catch (\Exception $e) {
+      throw new APIException(
+      // translators: %s is an error message
+        sprintf(__('Failed to save subscriber custom fields: %s', 'mailpoet'), $e->getMessage()),
+        APIException::FAILED_TO_SAVE_SUBSCRIBER
+      );
+    }
+
+    return $this->subscribersResponseBuilder->build($subscriberEntity);
+  }
+
   /**
    * @throws APIException
    */
@@ -185,6 +230,11 @@ class Subscribers {
     $this->checkSubscriberAndListParams($subscriberId, $listIds);
     $subscriber = $this->findSubscriber($subscriberId);
     $foundSegments = $this->getAndValidateSegments($listIds, self::CONTEXT_SUBSCRIBE);
+
+    // restore trashed subscriber
+    if ($subscriber->getDeletedAt()) {
+      $subscriber->setDeletedAt(null);
+    }
 
     $this->subscribersSegmentRepository->subscribeToSegments($subscriber, $foundSegments);
 
@@ -206,6 +256,7 @@ class Subscribers {
       }
 
       // when global status changes to subscribed, fire subscribed hook for all subscribed segments
+      /** @var SubscriberEntity $subscriber - From some reason PHPStan evaluates $subscriber->getStatus() as mixed */
       if ($subscriber->getStatus() === SubscriberEntity::STATUS_SUBSCRIBED) {
         $subscriberSegments = $subscriber->getSubscriberSegments();
         foreach ($subscriberSegments as $subscriberSegment) {
@@ -220,7 +271,8 @@ class Subscribers {
     $foundSegmentsIds = array_map(
       function(SegmentEntity $segment) {
         return $segment->getId();
-      }, $foundSegments
+      },
+      $foundSegments
     );
     if ($scheduleWelcomeEmail && $subscriber->getStatus() === SubscriberEntity::STATUS_SUBSCRIBED) {
       $this->_scheduleWelcomeNotification($subscriber, $foundSegmentsIds);
@@ -317,17 +369,14 @@ class Subscribers {
    * @throws APIException
    */
   protected function _scheduleWelcomeNotification(SubscriberEntity $subscriber, array $segments) {
-    $result = $this->welcomeScheduler->scheduleSubscriberWelcomeNotification($subscriber->getId(), $segments);
-    if (is_array($result)) {
-      foreach ($result as $queue) {
-        if ($queue instanceof Sending && $queue->getErrors()) {
-          throw new APIException(
-            // translators: %s is a comma-separated list of errors
-            sprintf(__('Subscriber added, but welcome email failed to send: %s', 'mailpoet'), strtolower(implode(', ', $queue->getErrors()))),
-            APIException::WELCOME_FAILED_TO_SEND
-          );
-        }
-      }
+    try {
+      $this->welcomeScheduler->scheduleSubscriberWelcomeNotification($subscriber->getId(), $segments);
+    } catch (\Throwable $e) {
+      throw new APIException(
+        // translators: %s is an error message
+        sprintf(__('Subscriber added, but welcome email failed to send: %s', 'mailpoet'), $e->getMessage()),
+        APIException::WELCOME_FAILED_TO_SEND
+      );
     }
   }
 
@@ -402,30 +451,30 @@ class Subscribers {
       if ($foundSegment->getType() === SegmentEntity::TYPE_WP_USERS) {
         if ($context === self::CONTEXT_SUBSCRIBE) {
           // translators: %d is the ID of the segment
-          $message = __("Can't subscribe to a WordPress Users list with ID %d.", 'mailpoet');
+          $message = __("Can't subscribe to a WordPress Users list with ID '%d'.", 'mailpoet');
         } else {
           // translators: %d is the ID of the segment
-          $message = __("Can't unsubscribe from a WordPress Users list with ID %d.", 'mailpoet');
+          $message = __("Can't unsubscribe from a WordPress Users list with ID '%d'.", 'mailpoet');
         }
         throw new APIException(sprintf($message, $foundSegment->getId()), APIException::SUBSCRIBING_TO_WP_LIST_NOT_ALLOWED);
       }
       if ($foundSegment->getType() === SegmentEntity::TYPE_WC_USERS) {
         if ($context === self::CONTEXT_SUBSCRIBE) {
           // translators: %d is the ID of the segment
-          $message = __("Can't subscribe to a WooCommerce Customers list with ID %d.", 'mailpoet');
+          $message = __("Can't subscribe to a WooCommerce Customers list with ID '%d'.", 'mailpoet');
         } else {
           // translators: %d is the ID of the segment
-          $message = __("Can't unsubscribe from a WooCommerce Customers list with ID %d.", 'mailpoet');
+          $message = __("Can't unsubscribe from a WooCommerce Customers list with ID '%d'.", 'mailpoet');
         }
         throw new APIException(sprintf($message, $foundSegment->getId()), APIException::SUBSCRIBING_TO_WC_LIST_NOT_ALLOWED);
       }
       if ($foundSegment->getType() !== SegmentEntity::TYPE_DEFAULT) {
         if ($context === self::CONTEXT_SUBSCRIBE) {
           // translators: %d is the ID of the segment
-          $message = __("Can't subscribe to a list with ID %d.", 'mailpoet');
+          $message = __("Can't subscribe to a list with ID '%d'.", 'mailpoet');
         } else {
           // translators: %d is the ID of the segment
-          $message = __("Can't unsubscribe from a list with ID %d.", 'mailpoet');
+          $message = __("Can't unsubscribe from a list with ID '%d'.", 'mailpoet');
         }
         throw new APIException(sprintf($message, $foundSegment->getId()), APIException::SUBSCRIBING_TO_LIST_NOT_ALLOWED);
       }
@@ -437,7 +486,7 @@ class Subscribers {
       $missingIds = array_values(array_diff($listIds, $foundSegmentsIds));
       $exception = sprintf(
         // translators: %s is the count of lists
-        _n('List with ID %s does not exist.', 'Lists with IDs %s do not exist.', count($missingIds), 'mailpoet'),
+        _n("List with ID '%s' does not exist.", "Lists with IDs '%s' do not exist.", count($missingIds), 'mailpoet'),
         implode(', ', $missingIds)
       );
       throw new APIException(sprintf($exception, implode(', ', $missingIds)), APIException::LIST_NOT_EXISTS);

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,24 +37,30 @@ class __TwigTemplate_ca78fa0f2676e270e42ef1d4c3eb02b54f1eca3634385d076e24f0bef5a
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "<div class=\"mailpoet_settings_products_single_product\">
+        yield "<div class=\"mailpoet_settings_products_single_product\">
     <label>
         <input id=\"mailpoet_select_product_{{ index }}\" class=\"mailpoet_select_product_checkbox\" type=\"checkbox\" class=\"checkbox\" value=\"\" name=\"post_selection\">
         {{#ellipsis model.post_title 40 '...'}}{{/ellipsis}}
     </label>
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/products/settingsSinglePost.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

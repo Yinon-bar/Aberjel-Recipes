@@ -56,7 +56,7 @@ class MultiTableDeleteExecutor extends AbstractSqlExecutor
  foreach ($idColumnNames as $idColumnName) {
  $columnDefinitions[$idColumnName] = ['notnull' => \true, 'type' => Type::getType(PersisterHelper::getTypeOfColumn($idColumnName, $rootClass, $em))];
  }
- $this->_createTempTableSql = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' (' . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
+ $this->_createTempTableSql = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' (' . $platform->getColumnDeclarationListSQL($columnDefinitions) . ', PRIMARY KEY(' . implode(',', $idColumnNames) . '))';
  $this->_dropTempTableSql = $platform->getDropTemporaryTableSQL($tempTable);
  }
  public function execute(Connection $conn, array $params, array $types)

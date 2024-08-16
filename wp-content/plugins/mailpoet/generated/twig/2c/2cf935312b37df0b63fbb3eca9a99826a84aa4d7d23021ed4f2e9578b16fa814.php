@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,13 +38,13 @@ class __TwigTemplate_5af51a553427d7a127e75e710a4e59d5d16e4cc2ee6ba16444fb674882c
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_multiple_values\">
+        yield "<div class=\"mailpoet_multiple_values\">
   <ul></ul>
   {{#ifCond type 'in' 'radio,select'}}
     <a href=\"javascript:;\" class=\"add\"><span></span>";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Add item");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Add item");
+        yield "</a>
   {{/ifCond}}
 </div>
 <script type=\"text/javascript\">
@@ -122,21 +123,31 @@ jQuery(function(\$) {
   });
 });
 <{{!}}/script>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/values.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  42 => 4,  37 => 1,);
+        return array (  43 => 4,  38 => 1,);
     }
 
     public function getSourceContext()

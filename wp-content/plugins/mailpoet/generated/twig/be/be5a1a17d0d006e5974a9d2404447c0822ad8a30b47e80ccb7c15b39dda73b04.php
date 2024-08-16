@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_c96deca159bff652d060c28604f142c91e89f1bcbd66cfad37714d1bb44
     {
         $macros = $this->macros;
         // line 1
-        echo "<style>
+        yield "<style>
   /* Hide WooCommerce section with template styling */
   #email_template_options-description + .form-table {
     opacity: 0.2;
@@ -61,40 +62,50 @@ class __TwigTemplate_c96deca159bff652d060c28604f142c91e89f1bcbd66cfad37714d1bb44
   <a class=\"button button-primary\"
     href=\"?page=mailpoet-newsletter-editor&id=";
         // line 23
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["woocommerce_template_id"] ?? null), "html", null, true);
-        echo "\"
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["woocommerce_template_id"] ?? null), "html", null, true);
+        yield "\"
     data-automation-id=\"mailpoet_woocommerce_customize\"
   >
   \t";
         // line 26
-        echo $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Customize with MailPoet", "Button in WooCommerce settings page");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Customize with MailPoet", "Button in WooCommerce settings page");
+        yield "
   </a>
   <br>
   <br>
   <a href=\"?page=mailpoet-settings#woocommerce\" data-automation-id=\"mailpoet_woocommerce_disable\">
     ";
         // line 31
-        echo $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Disable MailPoet customizer", "Link from WooCommerce plugin to MailPoet");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Disable MailPoet customizer", "Link from WooCommerce plugin to MailPoet");
+        yield "
   </a>
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "woocommerce/settings_overlay.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  75 => 31,  67 => 26,  61 => 23,  37 => 1,);
+        return array (  76 => 31,  68 => 26,  62 => 23,  38 => 1,);
     }
 
     public function getSourceContext()

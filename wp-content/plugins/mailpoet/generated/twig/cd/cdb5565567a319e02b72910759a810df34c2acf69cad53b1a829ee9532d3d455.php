@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,9 +38,9 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
     {
         $macros = $this->macros;
         // line 1
-        echo "<html lang=\"";
-        echo $this->extensions['MailPoet\Twig\Assets']->language();
-        echo "\" style=\"margin:0;padding:0\">
+        yield "<html lang=\"";
+        yield $this->extensions['MailPoet\Twig\Assets']->language();
+        yield "\" style=\"margin:0;padding:0\">
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
@@ -47,8 +48,8 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
   <meta name=\"format-detection\" content=\"telephone=no\" />
   <title>";
         // line 7
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["subject"] ?? null), "html", null, true);
-        echo "</title>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["subject"] ?? null), "html", null, true);
+        yield "</title>
   <style type=\"text/css\">
   @media screen and (max-width: 599px) {
     div, .mailpoet_cols-two {
@@ -85,8 +86,8 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
                       <td class=\"mailpoet_image mailpoet_padded_vertical mailpoet_padded_side\" align=\"center\" valign=\"top\" style=\"border-collapse:collapse;padding-top:10px;padding-bottom:10px;padding-left:20px;padding-right:20px\">
                         <img src=\"";
         // line 42
-        echo $this->extensions['MailPoet\Twig\Assets']->generateCdnUrl("logo-orange-400x122.png");
-        echo "\" width=\"80\" alt=\"new_logo_orange\" style=\"height:auto;max-width:100%;-ms-interpolation-mode:bicubic;border:0;display:block;outline:none;text-align:center\" />
+        yield $this->extensions['MailPoet\Twig\Assets']->generateCdnUrl("logo-orange-400x122.png");
+        yield "\" width=\"80\" alt=\"new_logo_orange\" style=\"height:auto;max-width:100%;-ms-interpolation-mode:bicubic;border:0;display:block;outline:none;text-align:center\" />
                       </td>
                     </tr>
                     <tr>
@@ -96,10 +97,10 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
                       <td class=\"mailpoet_text mailpoet_padded_vertical mailpoet_padded_side\" valign=\"top\" style=\"border-collapse:collapse;padding-top:10px;padding-bottom:10px;padding-left:20px;padding-right:20px;word-break:break-word;word-wrap:break-word\">
                         <h1 style=\"margin:0 0 12px;color:#111111;font-family:'Trebuchet MS','Lucida Grande','Lucida Sans Unicode','Lucida Sans',Tahoma,sans-serif;font-size:40px;line-height:64px;margin-bottom:0;text-align:center;padding:0;font-style:normal;font-weight:normal\"><strong>";
         // line 50
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Congrats!");
-        echo "<br />";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet is now sending your emails");
-        echo "</strong></h1>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Congrats!");
+        yield "<br />";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet is now sending your emails");
+        yield "</strong></h1>
                       </td>
                     </tr>
                     <tr>
@@ -112,8 +113,8 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
                             <td class=\"mailpoet_paragraph\" style=\"border-collapse:collapse;color:#000000;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:16px;line-height:25.6px;word-break:break-word;word-wrap:break-word;text-align:center\">
                               ";
         // line 61
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This email was sent automatically with the MailPoet Sending Service after you activated your key in your MailPoet settings.");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This email was sent automatically with the MailPoet Sending Service after you activated your key in your MailPoet settings.");
+        yield "
                             </td>
                           </tr></table>
                       </td>
@@ -149,8 +150,8 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
                         <td class=\"mailpoet_image mailpoet_padded_vertical mailpoet_padded_side\" align=\"left\" valign=\"top\" style=\"border-collapse:collapse;padding-top:10px;padding-bottom:10px;padding-left:20px;padding-right:20px\">
                           <img src=\"";
         // line 95
-        echo $this->extensions['MailPoet\Twig\Assets']->generateCdnUrl("logo-white-400x122.png");
-        echo "\" width=\"130\" alt=\"new_logo_white\" style=\"height:auto;max-width:100%;-ms-interpolation-mode:bicubic;border:0;display:block;outline:none;text-align:center\" />
+        yield $this->extensions['MailPoet\Twig\Assets']->generateCdnUrl("logo-white-400x122.png");
+        yield "\" width=\"130\" alt=\"new_logo_white\" style=\"height:auto;max-width:100%;-ms-interpolation-mode:bicubic;border:0;display:block;outline:none;text-align:center\" />
                         </td>
                       </tr>
                       <tr>
@@ -197,21 +198,31 @@ class __TwigTemplate_e9532cf0026e4c617bee1d3c81fed011d9d7ae14ad609d02eaa36481262
 </body>
 </html>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/congratulatoryMssEmail.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  149 => 95,  112 => 61,  96 => 50,  85 => 42,  47 => 7,  37 => 1,);
+        return array (  150 => 95,  113 => 61,  97 => 50,  86 => 42,  48 => 7,  38 => 1,);
     }
 
     public function getSourceContext()

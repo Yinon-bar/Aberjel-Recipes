@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,45 +38,55 @@ class __TwigTemplate_1114a669d366cd147bdad7cb9fbcaa0f2a72a035162ab08841589ba0a13
     {
         $macros = $this->macros;
         // line 1
-        echo "<h3>";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Product selection");
-        echo "</h3>
+        yield "<h3>";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Product selection");
+        yield "</h3>
 <div class=\"mailpoet_settings_products_selection\"></div>
 <div class=\"mailpoet_settings_products_display_options mailpoet_closed\"></div>
 <div class=\"mailpoet_settings_products_controls\">
   <div class=\"mailpoet_form_field\">
       <a href=\"javascript:;\" class=\"mailpoet_settings_products_show_product_selection mailpoet_hidden\">";
         // line 6
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Back to selection");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Back to selection");
+        yield "</a>
       <a href=\"javascript:;\" class=\"mailpoet_settings_products_show_display_options\">";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Display options");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Display options");
+        yield "</a>
   </div>
   <div class=\"mailpoet_form_field\">
     <input type=\"button\" class=\"button button-primary mailpoet_settings_products_insert_selected\" value=\"";
         // line 10
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Insert selected"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Insert selected"), "html_attr");
+        yield "\" />
   </div>
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/products/settings.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  56 => 10,  50 => 7,  46 => 6,  37 => 1,);
+        return array (  57 => 10,  51 => 7,  47 => 6,  38 => 1,);
     }
 
     public function getSourceContext()

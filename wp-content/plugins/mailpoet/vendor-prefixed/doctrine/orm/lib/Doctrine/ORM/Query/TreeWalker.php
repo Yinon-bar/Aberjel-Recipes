@@ -3,7 +3,6 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Query;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\ORM\AbstractQuery;
-use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 interface TreeWalker
 {
  public function __construct($query, $parserResult, array $queryComponents);

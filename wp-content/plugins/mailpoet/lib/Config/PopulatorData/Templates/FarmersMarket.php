@@ -4,14 +4,15 @@ namespace MailPoet\Config\PopulatorData\Templates;
 
 if (!defined('ABSPATH')) exit;
 
-use MailPoet\WP\Functions as WPFunctions;
 
 class FarmersMarket {
 
   private $template_image_url;
   private $social_icon_url;
 
-  public function __construct($assets_url) {
+  public function __construct(
+    $assets_url
+  ) {
     $this->template_image_url = 'https://ps.w.org/mailpoet/assets/newsletter-templates/farmers-market';
     $this->social_icon_url = $assets_url . '/img/newsletter_editor/social-icons';
   }
@@ -31,7 +32,7 @@ class FarmersMarket {
   }
 
   private function getBody() {
-    return  [
+    return [
       'content' =>
        [
         'type' => 'container',
@@ -104,7 +105,7 @@ class FarmersMarket {
                   1 =>
                    [
                     'type' => 'header',
-                    'text' => '<p><span style="color: #689f2c;"><a href="[link:newsletter_view_in_browser_url]" style="color: #689f2c;">'.__("View this in your browser.", 'mailpoet').'</a></span></p>',
+                    'text' => '<p><span style="color: #689f2c;"><a href="[link:newsletter_view_in_browser_url]" style="color: #689f2c;">' . __("View this in your browser.", 'mailpoet') . '</a></span></p>',
                     'styles' =>
                      [
                       'block' =>
@@ -1103,7 +1104,7 @@ class FarmersMarket {
                   1 =>
                    [
                     'type' => 'footer',
-                    'text' => '<p><a href="[link:subscription_unsubscribe_url]">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]">'.__("Manage your subscription", 'mailpoet').'</a><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+                    'text' => '<p><a href="[link:subscription_unsubscribe_url]">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]">' . __("Manage your subscription", 'mailpoet') . '</a><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
                     'styles' =>
                      [
                       'block' =>
@@ -1396,7 +1397,7 @@ class FarmersMarket {
          ],
         'footer' =>
          [
-          'text' => '<p><a href="[link:subscription_unsubscribe_url]">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]">'.__("Manage your subscription", 'mailpoet').'</a><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+          'text' => '<p><a href="[link:subscription_unsubscribe_url]">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]">' . __("Manage your subscription", 'mailpoet') . '</a><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
           'styles' =>
            [
             'block' =>
@@ -1533,7 +1534,7 @@ class FarmersMarket {
          ],
         'header' =>
          [
-          'text' => '<a href="[link:newsletter_view_in_browser_url]">'.__("View this in your browser.", 'mailpoet').'</a>',
+          'text' => '<a href="[link:newsletter_view_in_browser_url]">' . __("View this in your browser.", 'mailpoet') . '</a>',
           'styles' =>
            [
             'block' =>
@@ -1558,5 +1559,4 @@ class FarmersMarket {
        ],
     ];
   }
-
 }

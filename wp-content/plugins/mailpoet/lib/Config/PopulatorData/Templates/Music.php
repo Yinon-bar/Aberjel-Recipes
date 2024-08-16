@@ -4,14 +4,15 @@ namespace MailPoet\Config\PopulatorData\Templates;
 
 if (!defined('ABSPATH')) exit;
 
-use MailPoet\WP\Functions as WPFunctions;
 
 class Music {
 
   private $template_image_url;
   private $social_icon_url;
 
-  public function __construct($assets_url) {
+  public function __construct(
+    $assets_url
+  ) {
     $this->template_image_url = 'https://ps.w.org/mailpoet/assets/newsletter-templates/music';
     $this->social_icon_url = $assets_url . '/img/newsletter_editor/social-icons';
   }
@@ -31,7 +32,7 @@ class Music {
   }
 
   private function getBody() {
-    return  [
+    return [
       'content' =>
          [
           'type' => 'container',
@@ -1090,8 +1091,8 @@ class Music {
                               2 =>
                                  [
                                   'type' => 'text',
-                                  'text' => '<p style="text-align: center; font-size: 11px;"><span style="color: #999999;"><em><strong><a href="[link:subscription_unsubscribe_url]" style="color: #999999;">'.__("Unsubscribe", 'mailpoet').'</a></strong></em></span></p>
-<p style="text-align: center; font-size: 11px;"><span style="color: #999999;"><em><strong><a href="[link:subscription_manage_url]" style="color: #999999;">'.__("Manage your subscription", 'mailpoet').'</a></strong></em></span><br /><span style="color: #999999;">'.__("Add your postal address here!", 'mailpoet').'</span></p>',
+                                  'text' => '<p style="text-align: center; font-size: 11px;"><span style="color: #999999;"><em><strong><a href="[link:subscription_unsubscribe_url]" style="color: #999999;">' . __("Unsubscribe", 'mailpoet') . '</a></strong></em></span></p>
+<p style="text-align: center; font-size: 11px;"><span style="color: #999999;"><em><strong><a href="[link:subscription_manage_url]" style="color: #999999;">' . __("Manage your subscription", 'mailpoet') . '</a></strong></em></span><br /><span style="color: #999999;">' . __("Add your postal address here!", 'mailpoet') . '</span></p>',
                                  ],
                              ],
                          ],
@@ -1336,7 +1337,7 @@ class Music {
              ],
           'footer' =>
              [
-              'text' => '<p><a href="[link:subscription_unsubscribe_url]">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]">'.__("Manage your subscription", 'mailpoet').'</a><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+              'text' => '<p><a href="[link:subscription_unsubscribe_url]">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]">' . __("Manage your subscription", 'mailpoet') . '</a><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
               'styles' =>
                  [
                   'block' =>
@@ -1461,7 +1462,7 @@ class Music {
              ],
           'header' =>
              [
-              'text' => '<a href="[link:newsletter_view_in_browser_url]">'.__("View this in your browser.", 'mailpoet').'</a>',
+              'text' => '<a href="[link:newsletter_view_in_browser_url]">' . __("View this in your browser.", 'mailpoet') . '</a>',
               'styles' =>
                  [
                   'block' =>
@@ -1485,5 +1486,4 @@ class Music {
          ],
     ];
   }
-
 }

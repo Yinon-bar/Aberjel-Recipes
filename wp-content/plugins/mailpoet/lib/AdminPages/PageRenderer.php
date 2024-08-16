@@ -24,9 +24,11 @@ use MailPoet\Settings\UserFlagsController;
 use MailPoet\Tags\TagRepository;
 use MailPoet\Tracy\DIPanel\DIPanel;
 use MailPoet\Util\Installation;
+use MailPoet\Util\License\Features\CapabilitiesManager;
 use MailPoet\Util\License\Features\Subscribers as SubscribersFeature;
 use MailPoet\Util\License\License;
 use MailPoet\WooCommerce;
+use MailPoet\WP\DateTime;
 use MailPoet\WP\Functions as WPFunctions;
 use MailPoet\WP\Notice as WPNotice;
 use MailPoetVendor\Carbon\Carbon;
@@ -80,6 +82,11 @@ class PageRenderer {
   /** @var WooCommerce\Helper */
   private $wooCommerceHelper;
 
+  /** @var WooCommerce\WooCommerceSubscriptions\Helper */
+  private $wooCommerceSubscriptionsHelper;
+
+  private CapabilitiesManager $capabilitiesManager;
+
   public function __construct(
     Bridge $bridge,
     Renderer $renderer,
@@ -96,7 +103,9 @@ class PageRenderer {
     TransientCache $transientCache,
     WPFunctions $wp,
     AssetsController $assetsController,
-    WooCommerce\Helper $wooCommerceHelper
+    WooCommerce\Helper $wooCommerceHelper,
+    WooCommerce\WooCommerceSubscriptions\Helper $wooCommerceSubscriptionsHelper,
+    CapabilitiesManager $capabilitiesManager
   ) {
     $this->bridge = $bridge;
     $this->renderer = $renderer;
@@ -114,6 +123,8 @@ class PageRenderer {
     $this->wp = $wp;
     $this->assetsController = $assetsController;
     $this->wooCommerceHelper = $wooCommerceHelper;
+    $this->wooCommerceSubscriptionsHelper = $wooCommerceSubscriptionsHelper;
+    $this->capabilitiesManager = $capabilitiesManager;
   }
 
   /**
@@ -138,10 +149,7 @@ class PageRenderer {
     if ($this->subscribersFeature->isSubscribersCountEnoughForCache($subscriberCount)) {
       $subscribersCacheCreatedAt = $this->transientCache->getOldestCreatedAt(TransientCache::SUBSCRIBERS_STATISTICS_COUNT_KEY) ?: Carbon::now();
     }
-    // Automations are hidden when the subscription is part of a bundle and AutomateWoo is active
-    $showAutomations = !($this->wp->isPluginActive('automatewoo/automatewoo.php') &&
-      $this->servicesChecker->isBundledSubscription());
-    $hideAutomations = !$this->wp->applyFilters('mailpoet_show_automations', $showAutomations);
+
     $defaults = [
       'current_page' => sanitize_text_field(wp_unslash($_GET['page'] ?? '')),
       'site_name' => $this->wp->wpSpecialcharsDecode($this->wp->getOption('blogname'), ENT_QUOTES),
@@ -163,8 +171,10 @@ class PageRenderer {
       'send_transactional_emails' => (bool)$this->settings->get('send_transactional_emails'),
       'transactional_emails_opt_in_notice_dismissed' => (bool)$this->userFlags->get('transactional_emails_opt_in_notice_dismissed'),
       'track_wizard_loaded_via_woocommerce' => (bool)$this->settings->get(WelcomeWizard::TRACK_LOADDED_VIA_WOOCOMMERCE_SETTING_NAME),
+      'track_wizard_loaded_via_woocommerce_marketing_dashboard' => (bool)$this->settings->get(WelcomeWizard::TRACK_LOADDED_VIA_WOOCOMMERCE_MARKETING_DASHBOARD_SETTING_NAME),
       'mail_function_enabled' => function_exists('mail') && is_callable('mail'),
       'admin_plugins_url' => WPFunctions::get()->adminUrl('plugins.php'),
+      'server_timezone_in_minutes' => (new DateTime())->getServerTimezoneInMinutes(),
 
       // Premium & plan upgrade info
       'current_wp_user_email' => $this->wp->wpGetCurrentUser()->user_email,
@@ -182,13 +192,14 @@ class PageRenderer {
       'mss_key_pending_approval' => $this->servicesChecker->isMailPoetAPIKeyPendingApproval(),
       'mss_active' => $this->bridge->isMailpoetSendingServiceEnabled(),
       'plugin_partial_key' => $this->servicesChecker->generatePartialApiKey(),
-      'mailpoet_hide_automations' => $hideAutomations,
       'subscriber_count' => $subscriberCount,
       'subscribers_counts_cache_created_at' => $subscribersCacheCreatedAt->format('Y-m-d\TH:i:sO'),
       'subscribers_limit' => $this->subscribersFeature->getSubscribersLimit(),
       'subscribers_limit_reached' => $this->subscribersFeature->check(),
       'email_volume_limit' => $this->subscribersFeature->getEmailVolumeLimit(),
       'email_volume_limit_reached' => $this->subscribersFeature->checkEmailVolumeLimitIsReached(),
+      'capabilities' => $this->capabilitiesManager->getCapabilities(),
+      'tier' => $this->capabilitiesManager->getTier(),
       'urls' => [
         'automationListing' => admin_url('admin.php?page=mailpoet-automation'),
         'automationEditor' => admin_url('admin.php?page=mailpoet-automation-editor'),
@@ -203,6 +214,8 @@ class PageRenderer {
         ];
       }, $this->tagRepository->findAll()),
       'display_docsbot_widget' => $this->displayDocsBotWidget(),
+      'is_woocommerce_subscriptions_active' => $this->wooCommerceSubscriptionsHelper->isWooCommerceSubscriptionsActive(),
+      'cron_trigger_method' => $this->settings->get('cron_trigger.method'),
     ];
 
     if (!$defaults['premium_plugin_active']) {

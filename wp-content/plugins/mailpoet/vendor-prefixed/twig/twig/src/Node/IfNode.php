@@ -1,10 +1,12 @@
 <?php
 namespace MailPoetVendor\Twig\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
+#[YieldReady]
 class IfNode extends Node
 {
- public function __construct(Node $tests, ?Node $else, int $lineno, string $tag = null)
+ public function __construct(Node $tests, ?Node $else, int $lineno, ?string $tag = null)
  {
  $nodes = ['tests' => $tests];
  if (null !== $else) {
@@ -21,7 +23,11 @@ class IfNode extends Node
  } else {
  $compiler->write('if (');
  }
- $compiler->subcompile($this->getNode('tests')->getNode($i))->raw(") {\n")->indent()->subcompile($this->getNode('tests')->getNode($i + 1));
+ $compiler->subcompile($this->getNode('tests')->getNode((string) $i))->raw(") {\n")->indent();
+ // The node might not exists if the content is empty
+ if ($this->getNode('tests')->hasNode((string) ($i + 1))) {
+ $compiler->subcompile($this->getNode('tests')->getNode((string) ($i + 1)));
+ }
  }
  if ($this->hasNode('else')) {
  $compiler->outdent()->write("} else {\n")->indent()->subcompile($this->getNode('else'));

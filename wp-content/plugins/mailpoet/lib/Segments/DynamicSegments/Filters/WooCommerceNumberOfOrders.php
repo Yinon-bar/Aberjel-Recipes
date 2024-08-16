@@ -17,6 +17,12 @@ use MailPoetVendor\Doctrine\ORM\EntityManager;
 
 class WooCommerceNumberOfOrders implements Filter {
   const ACTION_NUMBER_OF_ORDERS = 'numberOfOrders';
+  const ACTION_NUMBER_OF_ORDERS_WITH_COUPON = 'numberOfOrdersWithCoupon';
+
+  const ACTIONS = [
+    self::ACTION_NUMBER_OF_ORDERS,
+    self::ACTION_NUMBER_OF_ORDERS_WITH_COUPON,
+  ];
 
   /** @var EntityManager */
   private $entityManager;
@@ -41,8 +47,12 @@ class WooCommerceNumberOfOrders implements Filter {
     global $wpdb;
     $subscribersTable = $this->entityManager->getClassMetadata(SubscriberEntity::class)->getTableName();
     $filterData = $filter->getFilterData();
-    $type = strval($filterData->getParam('number_of_orders_type'));
-    $count = intval($filterData->getParam('number_of_orders_count'));
+    /** @var string $type - for PHPStan because strval() doesn't accept a value of mixed */
+    $type = $filterData->getParam('number_of_orders_type');
+    $type = strval($type);
+    /** @var string $count - for PHPStan because intval() doesn't accept a value of mixed */
+    $count = $filterData->getParam('number_of_orders_count');
+    $count = intval($count);
     $isAllTime = $filterData->getParam('timeframe') === DynamicSegmentFilterData::TIMEFRAME_ALL_TIME;
     $parameterSuffix = $filter->getId() ?? Security::generateRandomString();
     $collation = $this->collationChecker->getCollateIfNeeded(
@@ -70,6 +80,12 @@ class WooCommerceNumberOfOrders implements Filter {
         'orderStats',
         $joinCondition
       );
+
+    $action = $filterData->getAction();
+
+    if ($action === self::ACTION_NUMBER_OF_ORDERS_WITH_COUPON) {
+      $subQuery->innerJoin('orderStats', $wpdb->prefix . 'wc_order_coupon_lookup', 'couponLookup', 'orderStats.order_id = couponLookup.order_id');
+    }
 
     $queryBuilder->add('join', [
       $subscribersTable => [

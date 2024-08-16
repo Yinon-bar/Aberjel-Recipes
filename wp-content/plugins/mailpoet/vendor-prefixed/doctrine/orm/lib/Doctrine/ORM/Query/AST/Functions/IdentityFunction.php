@@ -7,6 +7,7 @@ use MailPoetVendor\Doctrine\ORM\Query\Lexer;
 use MailPoetVendor\Doctrine\ORM\Query\Parser;
 use MailPoetVendor\Doctrine\ORM\Query\QueryException;
 use MailPoetVendor\Doctrine\ORM\Query\SqlWalker;
+use function assert;
 use function reset;
 use function sprintf;
 class IdentityFunction extends FunctionNode
@@ -15,14 +16,14 @@ class IdentityFunction extends FunctionNode
  public $fieldMapping;
  public function getSql(SqlWalker $sqlWalker)
  {
- $platform = $sqlWalker->getEntityManager()->getConnection()->getDatabasePlatform();
- $quoteStrategy = $sqlWalker->getEntityManager()->getConfiguration()->getQuoteStrategy();
+ assert($this->pathExpression->field !== null);
+ $entityManager = $sqlWalker->getEntityManager();
+ $platform = $entityManager->getConnection()->getDatabasePlatform();
+ $quoteStrategy = $entityManager->getConfiguration()->getQuoteStrategy();
  $dqlAlias = $this->pathExpression->identificationVariable;
  $assocField = $this->pathExpression->field;
- $qComp = $sqlWalker->getQueryComponent($dqlAlias);
- $class = $qComp['metadata'];
- $assoc = $class->associationMappings[$assocField];
- $targetEntity = $sqlWalker->getEntityManager()->getClassMetadata($assoc['targetEntity']);
+ $assoc = $sqlWalker->getMetadataForDqlAlias($dqlAlias)->associationMappings[$assocField];
+ $targetEntity = $entityManager->getClassMetadata($assoc['targetEntity']);
  $joinColumn = reset($assoc['joinColumns']);
  if ($this->fieldMapping !== null) {
  if (!isset($targetEntity->fieldMappings[$this->fieldMapping])) {
@@ -41,7 +42,7 @@ class IdentityFunction extends FunctionNode
  }
  }
  // The table with the relation may be a subclass, so get the table name from the association definition
- $tableName = $sqlWalker->getEntityManager()->getClassMetadata($assoc['sourceEntity'])->getTableName();
+ $tableName = $entityManager->getClassMetadata($assoc['sourceEntity'])->getTableName();
  $tableAlias = $sqlWalker->getSQLTableAlias($tableName, $dqlAlias);
  $columnName = $quoteStrategy->getJoinColumnName($joinColumn, $targetEntity, $platform);
  return $tableAlias . '.' . $columnName;
@@ -54,7 +55,9 @@ class IdentityFunction extends FunctionNode
  if ($parser->getLexer()->isNextToken(Lexer::T_COMMA)) {
  $parser->match(Lexer::T_COMMA);
  $parser->match(Lexer::T_STRING);
- $this->fieldMapping = $parser->getLexer()->token['value'];
+ $token = $parser->getLexer()->token;
+ assert($token !== null);
+ $this->fieldMapping = $token['value'];
  }
  $parser->match(Lexer::T_CLOSE_PARENTHESIS);
  }

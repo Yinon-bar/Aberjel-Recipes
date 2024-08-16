@@ -3,14 +3,15 @@ namespace MailPoetVendor\Sabberworm\CSS\Property;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Sabberworm\CSS\Comment\Comment;
 use MailPoetVendor\Sabberworm\CSS\OutputFormat;
+use MailPoetVendor\Sabberworm\CSS\Value\CSSString;
 class Charset implements AtRule
 {
- private $sCharset;
+ private $oCharset;
  protected $iLineNo;
  protected $aComments;
- public function __construct($sCharset, $iLineNo = 0)
+ public function __construct(CSSString $oCharset, $iLineNo = 0)
  {
- $this->sCharset = $sCharset;
+ $this->oCharset = $oCharset;
  $this->iLineNo = $iLineNo;
  $this->aComments = [];
  }
@@ -20,11 +21,12 @@ class Charset implements AtRule
  }
  public function setCharset($sCharset)
  {
- $this->sCharset = $sCharset;
+ $sCharset = $sCharset instanceof CSSString ? $sCharset : new CSSString($sCharset);
+ $this->oCharset = $sCharset;
  }
  public function getCharset()
  {
- return $this->sCharset;
+ return $this->oCharset->getString();
  }
  public function __toString()
  {
@@ -32,7 +34,7 @@ class Charset implements AtRule
  }
  public function render(OutputFormat $oOutputFormat)
  {
- return "@charset {$this->sCharset->render($oOutputFormat)};";
+ return "{$oOutputFormat->comments($this)}@charset {$this->oCharset->render($oOutputFormat)};";
  }
  public function atRuleName()
  {
@@ -40,7 +42,7 @@ class Charset implements AtRule
  }
  public function atRuleArgs()
  {
- return $this->sCharset;
+ return $this->oCharset;
  }
  public function addComments(array $aComments)
  {

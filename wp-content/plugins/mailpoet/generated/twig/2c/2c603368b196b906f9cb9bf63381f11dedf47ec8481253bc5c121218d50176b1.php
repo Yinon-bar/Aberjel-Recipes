@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,31 +38,31 @@ class __TwigTemplate_a56b98597185bd94848e20889223b924a6c7613ed81a9303bb7a0ae2663
     {
         $macros = $this->macros;
         // line 1
-        echo "<ul id=\"mailpoet_segment_selection\" class=\"clearfix\"></ul>
+        yield "<ul id=\"mailpoet_segment_selection\" class=\"clearfix\"></ul>
 
 <div id=\"mailpoet_segment_available_container\">
   <h3>";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Select the segment that you want to add:");
-        echo "</h3>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Select the list that you want to add:");
+        yield "</h3>
 
   <select class=\"mailpoet_segment_available\"></select>
 
   <a href=\"javascript:;\" class=\"mailpoet_segment_add\"><span>";
         // line 8
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Add");
-        echo "</span></a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Add");
+        yield "</span></a>
 </div>
 
 <script type=\"text/javascript\">
   jQuery(function(\$) {
     ";
-        // line 14
-        echo "      var selected_segments = {{#if params.values}}{{{ json_encode params.values }}}
+        // line 13
+        yield "      var selected_segments = {{#if params.values}}{{{ json_encode params.values }}}
         {{else}}[]{{/if}};
     ";
         // line 17
-        echo "
+        yield "
     \$(function() {
       mailpoet_segment_available_render();
       mailpoet_segment_selection_render();
@@ -174,22 +175,33 @@ class __TwigTemplate_a56b98597185bd94848e20889223b924a6c7613ed81a9303bb7a0ae2663
       setupSortableSegments();
     }
   });
-<{{!}}/script>";
+<{{!}}/script>
+";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/segment_selection.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  61 => 17,  57 => 14,  49 => 8,  42 => 4,  37 => 1,);
+        return array (  62 => 17,  58 => 13,  50 => 8,  43 => 4,  38 => 1,);
     }
 
     public function getSourceContext()

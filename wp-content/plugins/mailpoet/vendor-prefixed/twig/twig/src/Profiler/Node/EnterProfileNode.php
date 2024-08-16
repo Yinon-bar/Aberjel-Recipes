@@ -1,8 +1,10 @@
 <?php
 namespace MailPoetVendor\Twig\Profiler\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
 use MailPoetVendor\Twig\Node\Node;
+#[YieldReady]
 class EnterProfileNode extends Node
 {
  public function __construct(string $extensionName, string $type, string $name, string $varName)

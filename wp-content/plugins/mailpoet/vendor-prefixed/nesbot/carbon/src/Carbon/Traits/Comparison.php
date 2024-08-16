@@ -135,6 +135,10 @@ trait Comparison
  {
  return static::create($this->year, 12, 28, 0, 0, 0, $this->tz)->weekOfYear === 53;
  }
+ public function isLongIsoYear()
+ {
+ return static::create($this->isoWeekYear, 12, 28, 0, 0, 0, $this->tz)->weekOfYear === 53;
+ }
  public function isSameAs($format, $date = null)
  {
  return $this->rawFormat($format) === $this->resolveCarbon($date)->rawFormat($format);
@@ -244,6 +248,9 @@ trait Comparison
  if (\preg_match('/^\\d+$/', $tester)) {
  return $this->year === (int) $tester;
  }
+ if (\preg_match('/^(?:Jan|January|Feb|February|Mar|March|Apr|April|May|Jun|June|Jul|July|Aug|August|Sep|September|Oct|October|Nov|November|Dec|December)$/i', $tester)) {
+ return $this->isSameMonth(static::parse($tester), \false);
+ }
  if (\preg_match('/^\\d{3,}-\\d{1,2}$/', $tester)) {
  return $this->isSameMonth(static::parse($tester));
  }
@@ -263,10 +270,10 @@ trait Comparison
  if (\preg_match('/\\d:\\d{1,2}$/', $tester)) {
  return $current->startOfMinute()->eq($other);
  }
- if (\preg_match('/\\d(h|am|pm)$/', $tester)) {
+ if (\preg_match('/\\d(?:h|am|pm)$/', $tester)) {
  return $current->startOfHour()->eq($other);
  }
- if (\preg_match('/^(january|february|march|april|may|june|july|august|september|october|november|december)\\s+\\d+$/i', $tester)) {
+ if (\preg_match('/^(?:january|february|march|april|may|june|july|august|september|october|november|december)(?:\\s+\\d+)?$/i', $tester)) {
  return $current->startOfMonth()->eq($other->startOfMonth());
  }
  $units = ['month' => [1, 'year'], 'day' => [1, 'month'], 'hour' => [0, 'day'], 'minute' => [0, 'hour'], 'second' => [0, 'minute'], 'microsecond' => [0, 'second']];

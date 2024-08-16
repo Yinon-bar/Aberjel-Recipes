@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,24 +38,24 @@ class __TwigTemplate_9b0ddf3688f2dc81e331ee62fce3c53bfc8110f9d6615c3cf10d5c5c68f
     {
         $macros = $this->macros;
         // line 1
-        echo "<!DOCTYPE html>
+        yield "<!DOCTYPE html>
 <!--[if IE 7]>
 <html class=\"ie ie7\" ";
         // line 3
-        echo ($context["language_attributes"] ?? null);
-        echo ">
+        yield ($context["language_attributes"] ?? null);
+        yield ">
 <![endif]-->
 <!--[if IE 8]>
 <html class=\"ie ie8\" ";
         // line 6
-        echo ($context["language_attributes"] ?? null);
-        echo ">
+        yield ($context["language_attributes"] ?? null);
+        yield ">
 <![endif]-->
 <!--[if !(IE 7) & !(IE 8)]><!-->
 <html ";
         // line 9
-        echo ($context["language_attributes"] ?? null);
-        echo ">
+        yield ($context["language_attributes"] ?? null);
+        yield ">
 <script>
   var additionalHeight = 10,
     attemptsToAdjust = 3,
@@ -93,8 +94,8 @@ class __TwigTemplate_9b0ddf3688f2dc81e331ee62fce3c53bfc8110f9d6615c3cf10d5c5c68f
     <meta name=\"robots\" content=\"noindex, nofollow\">
     <title>";
         // line 46
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet Subscription Form");
-        echo "</title>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet Subscription Form");
+        yield "</title>
     <style>
       html {
         box-sizing: border-box;
@@ -116,47 +117,57 @@ class __TwigTemplate_9b0ddf3688f2dc81e331ee62fce3c53bfc8110f9d6615c3cf10d5c5c68f
         // line 64
         $context["allowedHtml"] = ["link" => ["href" => [], "rel" => []]];
         // line 65
-        echo "    ";
-        echo $this->extensions['MailPoet\Twig\Filters']->wpKses(($context["fonts_link"] ?? null), ($context["allowedHtml"] ?? null));
-        echo "
+        yield "    ";
+        yield $this->extensions['MailPoet\Twig\Filters']->wpKses(($context["fonts_link"] ?? null), ($context["allowedHtml"] ?? null));
+        yield "
     <link rel=\"stylesheet\" type=\"text/css\" href=\"";
         // line 66
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["mailpoet_public_css_url"] ?? null), "html", null, true);
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["mailpoet_public_css_url"] ?? null), "html", null, true);
+        yield "\" />
     ";
         // line 67
-        echo ($context["scripts"] ?? null);
-        echo "
+        yield ($context["scripts"] ?? null);
+        yield "
   </head>
   <body>
     ";
         // line 70
-        echo ($context["form"] ?? null);
-        echo "
+        yield ($context["form"] ?? null);
+        yield "
     <script type=\"text/javascript\">
       var MailPoetForm = ";
         // line 72
-        echo json_encode(($context["mailpoet_form"] ?? null));
-        echo ";
+        yield json_encode(($context["mailpoet_form"] ?? null));
+        yield ";
     </script>
   </body>
 </html>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/iframe.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  136 => 72,  131 => 70,  125 => 67,  121 => 66,  116 => 65,  114 => 64,  93 => 46,  53 => 9,  47 => 6,  41 => 3,  37 => 1,);
+        return array (  137 => 72,  132 => 70,  126 => 67,  122 => 66,  117 => 65,  115 => 64,  94 => 46,  54 => 9,  48 => 6,  42 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

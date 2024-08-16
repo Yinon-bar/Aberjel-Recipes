@@ -12,8 +12,10 @@ use MailPoet\Util\DateConverter;
  * @property string $name
  * @property string $type
  * @property string|array|null $params
+ *
+ * @deprecated This model is deprecated. Use \MailPoet\CustomFields\CustomFieldsRepository and
+ * \MailPoet\Entities\CustomFieldEntity instead. This class can be removed after 2024-05-30.
  */
-
 class CustomField extends Model {
   public static $_table = MP_CUSTOM_FIELDS_TABLE; // phpcs:ignore PSR2.Classes.PropertyDeclaration
   const TYPE_DATE = CustomFieldEntity::TYPE_DATE;
@@ -23,7 +25,11 @@ class CustomField extends Model {
   const TYPE_CHECKBOX = CustomFieldEntity::TYPE_CHECKBOX;
   const TYPE_SELECT = CustomFieldEntity::TYPE_SELECT;
 
+  /**
+   * @deprecated
+   */
   public function __construct() {
+    self::deprecationError(__METHOD__);
     parent::__construct();
     $this->addValidations('name', [
       'required' => __('Please specify a name.', 'mailpoet'),
@@ -33,7 +39,11 @@ class CustomField extends Model {
     ]);
   }
 
+  /**
+   * @deprecated
+   */
   public function asArray() {
+    self::deprecationError(__METHOD__);
     $model = parent::asArray();
 
     if (isset($model['params'])) {
@@ -44,7 +54,11 @@ class CustomField extends Model {
     return $model;
   }
 
+  /**
+   * @deprecated
+   */
   public function save() {
+    self::deprecationError(__METHOD__);
     if (is_null($this->params)) {
       $this->params = [];
     }
@@ -56,7 +70,11 @@ class CustomField extends Model {
     return parent::save();
   }
 
+  /**
+   * @deprecated
+   */
   public function formatValue($value = null) {
+    self::deprecationError(__METHOD__);
     // format custom field data depending on type
     if (is_array($value) && $this->type === self::TYPE_DATE) {
       $customFieldData = $this->asArray();
@@ -125,7 +143,11 @@ class CustomField extends Model {
     return $value;
   }
 
+  /**
+   * @deprecated
+   */
   public function subscribers() {
+    self::deprecationError(__METHOD__);
     return $this->hasManyThrough(
       __NAMESPACE__ . '\Subscriber',
       __NAMESPACE__ . '\SubscriberCustomField',
@@ -134,11 +156,38 @@ class CustomField extends Model {
     )->selectExpr(MP_SUBSCRIBER_CUSTOM_FIELD_TABLE . '.value');
   }
 
+  /**
+   * @deprecated
+   */
   public static function createOrUpdate($data = []) {
+    self::deprecationError(__METHOD__);
     // set name as label by default
     if (empty($data['params']['label']) && isset($data['name'])) {
       $data['params']['label'] = $data['name'];
     }
     return parent::_createOrUpdate($data);
+  }
+
+  /**
+   * @deprecated This is here for displaying the deprecation warning for properties.
+   */
+  public function __get($key) {
+    self::deprecationError('property "' . $key . '"');
+    return parent::__get($key);
+  }
+
+  /**
+   * @deprecated This is here for displaying the deprecation warning for static calls.
+   */
+  public static function __callStatic($name, $arguments) {
+    self::deprecationError($name);
+    return parent::__callStatic($name, $arguments);
+  }
+
+  private static function deprecationError($methodName) {
+    trigger_error(
+      'Calling ' . esc_html($methodName) . ' is deprecated and will be removed. Use \MailPoet\CustomFields\CustomFieldsRepository and \MailPoet\Entities\CustomFieldEntity instead.',
+      E_USER_DEPRECATED
+    );
   }
 }

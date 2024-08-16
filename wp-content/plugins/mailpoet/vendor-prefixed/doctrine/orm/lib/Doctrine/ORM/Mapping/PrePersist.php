@@ -4,6 +4,6 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use Attribute;
 #[\Attribute(Attribute::TARGET_METHOD)]
-final class PrePersist implements Annotation
+final class PrePersist implements MappingAttribute
 {
 }

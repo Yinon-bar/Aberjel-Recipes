@@ -8,22 +8,12 @@ if (!defined('ABSPATH')) exit;
 use MailPoet\Validator\Builder;
 
 class EmailApiController {
-  /** @var StylesController */
-  private $stylesController;
-
-  public function __construct(
-    StylesController $stylesController
-  ) {
-    $this->stylesController = $stylesController;
-  }
-
   /**
    * @return array - Email specific data such styles.
    */
   public function getEmailData(): array {
-    return [
-      'layout_styles' => $this->stylesController->getEmailLayoutStyles(),
-    ];
+    // Here comes code getting Email specific data that will be passed on 'email_data' attribute
+    return [];
   }
 
   /**
@@ -34,11 +24,6 @@ class EmailApiController {
   }
 
   public function getEmailDataSchema(): array {
-    return Builder::object([
-      'layout_styles' => Builder::object([
-        'width' => Builder::integer(),
-        'background' => Builder::string(),
-      ]),
-    ])->toArray();
+    return Builder::object()->toArray();
   }
 }

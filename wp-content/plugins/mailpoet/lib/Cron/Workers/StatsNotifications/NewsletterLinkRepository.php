@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoet\Doctrine\Repository;
 use MailPoet\Entities\NewsletterLinkEntity;
 use MailPoet\Entities\StatisticsClickEntity;
-use MailPoetVendor\Doctrine\DBAL\Driver\Statement;
+use MailPoetVendor\Doctrine\DBAL\Result;
 
 /**
  * @extends Repository<NewsletterLinkEntity>
@@ -34,7 +34,7 @@ class NewsletterLinkRepository extends Repository {
       ->orderBy('counter', 'desc')
       ->setMaxResults(1)
       ->execute();
-    if (!$topIdQuery instanceof Statement) {
+    if (!$topIdQuery instanceof Result) {
       return null;
     }
     $topId = $topIdQuery->fetch();
@@ -42,5 +42,21 @@ class NewsletterLinkRepository extends Repository {
       return $this->findOneById((int)$topId['link_id']);
     }
     return null;
+  }
+
+  /** @param int[] $ids */
+  public function deleteByNewsletterIds(array $ids): void {
+    $this->entityManager->createQueryBuilder()
+      ->delete(NewsletterLinkEntity::class, 'l')
+      ->where('l.newsletter IN (:ids)')
+      ->setParameter('ids', $ids)
+      ->getQuery()
+      ->execute();
+
+    // delete was done via DQL, make sure the entities are also detached from the entity manager
+    $this->detachAll(function (NewsletterLinkEntity $entity) use ($ids) {
+      $newsletter = $entity->getNewsletter();
+      return $newsletter && in_array($newsletter->getId(), $ids, true);
+    });
   }
 }

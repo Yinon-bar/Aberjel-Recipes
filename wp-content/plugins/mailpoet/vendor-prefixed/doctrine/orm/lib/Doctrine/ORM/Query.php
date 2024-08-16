@@ -30,6 +30,7 @@ use function assert;
 use function count;
 use function get_debug_type;
 use function in_array;
+use function is_int;
 use function ksort;
 use function md5;
 use function method_exists;
@@ -56,7 +57,7 @@ final class Query extends AbstractQuery
  private $parsedTypes = [];
  private $dql = null;
  private $parserResult;
- private $firstResult = null;
+ private $firstResult = 0;
  private $maxResults = null;
  private $queryCache;
  private $expireQueryCache = \false;
@@ -267,10 +268,12 @@ final class Query extends AbstractQuery
  }
  public function setDQL($dqlQuery) : self
  {
- if ($dqlQuery !== null) {
+ if ($dqlQuery === null) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9784', 'Calling %s with null is deprecated and will result in a TypeError in Doctrine 3.0', __METHOD__);
+ return $this;
+ }
  $this->dql = $dqlQuery;
  $this->_state = self::STATE_DIRTY;
- }
  return $this;
  }
  public function getDQL() : ?string
@@ -287,7 +290,8 @@ final class Query extends AbstractQuery
  }
  public function setFirstResult($firstResult) : self
  {
- if ($firstResult !== null) {
+ if (!is_int($firstResult)) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9809', 'Calling %s with %s is deprecated and will result in a TypeError in Doctrine 3.0. Pass an integer.', __METHOD__, get_debug_type($firstResult));
  $firstResult = (int) $firstResult;
  }
  $this->firstResult = $firstResult;

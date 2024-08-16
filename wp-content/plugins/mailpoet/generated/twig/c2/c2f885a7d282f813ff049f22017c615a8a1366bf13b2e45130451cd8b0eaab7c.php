@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,32 +38,42 @@ class __TwigTemplate_9d3ebc379d98def6cffe9cac4900c02ce56f30945ccf48fa2ff44f41c30
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_widget_icon\">
+        yield "<div class=\"mailpoet_widget_icon\">
 ";
         // line 2
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-icons/auto-post.svg");
-        echo "
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-icons/auto-post.svg");
+        yield "
 </div>
 <div class=\"mailpoet_widget_title\">";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Automatic Latest Content");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Automatic Latest Content");
+        yield "</div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/automatedLatestContent/widget.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  45 => 4,  40 => 2,  37 => 1,);
+        return array (  46 => 4,  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

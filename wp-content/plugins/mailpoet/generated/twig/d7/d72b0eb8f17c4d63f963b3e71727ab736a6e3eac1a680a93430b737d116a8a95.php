@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -38,45 +39,56 @@ class __TwigTemplate_d3e8bf2dd0b6f553933582b6cf295d5ab8592820b519068b6de84e6d5df
     {
         $macros = $this->macros;
         // line 1
-        $this->displayBlock('content', $context, $blocks);
+        yield from $this->unwrap()->yieldBlock('content', $context, $blocks);
         // line 2
-        echo "
+        yield "
 ";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("How to improve my open rate?");
-        echo " https://www.mailpoet.com/how-to-improve-open-rates/
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("How to improve my open rate?");
+        yield " https://www.mailpoet.com/how-to-improve-open-rates/
 ";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("And my click rate?");
-        echo " https://www.mailpoet.com/how-to-improve-click-rates/
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("And my click rate?");
+        yield " https://www.mailpoet.com/how-to-improve-click-rates/
 ";
         // line 5
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Disable these emails");
-        echo " ";
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["linkSettings"] ?? null), "html", null, true);
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Disable these emails");
+        yield " ";
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["linkSettings"] ?? null), "html", null, true);
+        yield "
 ";
+        return; yield '';
     }
 
     // line 1
     public function block_content($context, array $blocks = [])
     {
         $macros = $this->macros;
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/statsNotificationLayout.txt";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  59 => 1,  51 => 5,  47 => 4,  43 => 3,  40 => 2,  38 => 1,);
+        return array (  61 => 1,  52 => 5,  48 => 4,  44 => 3,  41 => 2,  39 => 1,);
     }
 
     public function getSourceContext()

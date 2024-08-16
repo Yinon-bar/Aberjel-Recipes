@@ -98,12 +98,18 @@ class Settings {
 
     $data['authorized_emails'] = [];
     $data['verified_sender_domains'] = [];
+    $data['partially_verified_sender_domains'] = [];
     $data['all_sender_domains'] = [];
+    $data['sender_restrictions'] = [];
 
-    if ($this->bridge->isMailpoetSendingServiceEnabled() && $mpApiKeyValid) {
+    if ($this->bridge->isMailpoetSendingServiceEnabled()) {
       $data['authorized_emails'] = $this->bridge->getAuthorizedEmailAddresses();
-      $data['verified_sender_domains'] = $this->senderDomainController->getVerifiedSenderDomains();
+      $data['verified_sender_domains'] = $this->senderDomainController->getFullyVerifiedSenderDomains(true);
+      $data['partially_verified_sender_domains'] = $this->senderDomainController->getPartiallyVerifiedSenderDomains(true);
       $data['all_sender_domains'] = $this->senderDomainController->getAllSenderDomains();
+      $data['sender_restrictions'] = [
+        'lowerLimit' => AuthorizedSenderDomainController::LOWER_LIMIT,
+      ];
     }
 
     $data = array_merge($data, Installer::getPremiumStatus());

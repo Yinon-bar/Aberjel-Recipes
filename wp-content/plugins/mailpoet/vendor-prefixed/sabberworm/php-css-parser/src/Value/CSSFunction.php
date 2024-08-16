@@ -2,6 +2,7 @@
 namespace MailPoetVendor\Sabberworm\CSS\Value;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Sabberworm\CSS\OutputFormat;
+use MailPoetVendor\Sabberworm\CSS\Parsing\ParserState;
 class CSSFunction extends ValueList
 {
  protected $sName;
@@ -14,6 +15,15 @@ class CSSFunction extends ValueList
  $this->sName = $sName;
  $this->iLineNo = $iLineNo;
  parent::__construct($aArguments, $sSeparator, $iLineNo);
+ }
+ public static function parse(ParserState $oParserState, $bIgnoreCase = \false)
+ {
+ $mResult = $oParserState->parseIdentifier($bIgnoreCase);
+ $oParserState->consume('(');
+ $aArguments = Value::parseValue($oParserState, ['=', ' ', ',']);
+ $mResult = new CSSFunction($mResult, $aArguments, ',', $oParserState->currentLine());
+ $oParserState->consume(')');
+ return $mResult;
  }
  public function getName()
  {

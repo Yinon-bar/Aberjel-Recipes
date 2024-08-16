@@ -8,6 +8,7 @@
     var systemInfoData = <%= json_encode(systemInfoData) %>;
     var systemStatusData = <%= json_encode(systemStatusData) %>;
     var actionSchedulerData = <%= json_encode(actionSchedulerData) %>;
+    var dataInconsistencies = <%= json_encode(dataInconsistencies) %>;
   </script>
 
   <div id="help_container"></div>
@@ -19,16 +20,11 @@
     'tabSystemInfoTitle': __('System Info'),
     'tabSystemStatusTitle': __('System Status'),
     'tabYourPrivacyTitle': __('Your Privacy'),
-    'systemStatusIntroCron': __('For the plugin to work, it must be able to establish connection with the task scheduler.'),
     'systemStatusIntroCronMSS': __('For the plugin to work, it must be able to establish connection with the task scheduler and the key activation/MailPoet Sending Service.'),
     'systemStatusCronTitle': __('Task Scheduler'),
     'systemStatusMSSTitle': __('Connection to the MailPoet Sending Service'),
-    'systemStatusConnectionSuccessful': __('Connection successful.'),
-    'systemStatusConnectionUnsuccessful': __('Connection unsuccessful.'),
-    'systemStatusCronConnectionUnsuccessfulInfo': __('Please consult our [link]knowledge base article[/link] for troubleshooting tips.'),
     'systemStatusMSSConnectionUnsuccessfulInfo': __('Please contact our technical support for assistance.'),
     'systemStatusMSSConnectionCanConnect': __('Your installation can connect to our sending service.'),
-    'systemStatusMSSConnectionCanNotConnect': __('Currently, your installation can not reach the sending service. If you want to use our service please consult our [link]knowledge base article[/link] for troubleshooting tips.'),
     'knowledgeBaseIntro': __('Click on one of these categories below to find more information:'),
     'knowledgeBaseButton': __('Visit our Knowledge Base for more articles'),
     'systemInfoIntro': __('The information below is useful when you need to get in touch with our support. Just copy all the text below and paste it into a message to us.'),
@@ -63,16 +59,23 @@
     'error': _x('Error', 'A label in a status table e.g. Error: missing data'),
     'totalCompletedTasks': __('Total completed tasks'),
     'totalScheduledTasks': __('Total scheduled tasks'),
+    'totalCancelledTasks': __('Total cancelled tasks'),
     'totalRunningTasks': __('Total running tasks'),
     'totalPausedTasks': __('Total paused tasks'),
-    'scheduledTasks': __('Scheduled tasks'),
-    'runningTasks': __('Running tasks'),
-    'completedTasks': __('Completed tasks'),
+    'scheduledTasks': __('Scheduled sending tasks'),
+    'runningTasks': __('Running sending tasks'),
+    'completedTasks': __('Completed sending tasks'),
+    'cancelledTasks': __('Cancelled sending tasks'),
+    'pausedTasks': __('Paused sending tasks'),
     'type': _x('Type', 'Table column heading for task type.'),
     'email': __('Email'),
+    'subscriber': __('Subscriber'),
+    'multipleSubscribers': _x('Multiple subscribers', 'Used when multiple subscribers are selected for a task and we don\'t list them all.'),
     'priority': _x('Priority', 'Table column heading for task priority (number).' ),
-    'scheduledAt': __('Scheduled At'),
-    'updatedAt': __('Updated At'),
+    'scheduledAt': __('Scheduled at'),
+    'cancelledAt': __('Cancelled at'),
+    'updatedAt': __('Updated at'),
+    'action': _x('Action', 'Table column heading to perform an action.'),
     'nothingToShow': __('Nothing to show.'),
     'preview': _x('Preview', 'Text of a link to email preview page.'),
     'actionSchedulerStatus': __('WP Cron / Action Scheduler Status'),
@@ -81,6 +84,5 @@
     'latestActionSchedulerTrigger': _x('Next trigger run', 'Label for the next date and time of background job trigger run.'),
     'latestActionSchedulerCompletedTrigger': _x('Last trigger run', 'Label for the last date and time of background job trigger run.'),
     'latestActionSchedulerCompletedRun': _x('Last worker run', 'Label for the last date and time of background job worker run.'),
-    'automationsInfoNotice': __('Looking for <link1>MailPoet Automations</link1>? Read how to <link2>enable them</link2>.'),
   }) %>
 <% endblock %>

@@ -114,6 +114,19 @@ abstract class Repository {
     $this->entityManager->refresh($entity);
   }
 
+  /**
+   * @param callable(T): bool|null $filter
+   */
+  public function refreshAll(callable $filter = null): void {
+    $entities = $this->getAllFromIdentityMap();
+    foreach ($entities as $entity) {
+      if ($filter && !$filter($entity)) {
+        continue;
+      }
+      $this->entityManager->refresh($entity);
+    }
+  }
+
   public function flush() {
     $this->entityManager->flush();
   }
@@ -127,6 +140,34 @@ abstract class Repository {
    */
   public function detach($entity) {
     $this->entityManager->detach($entity);
+  }
+
+  /**
+   * @param callable(T): bool|null $filter
+   */
+  public function detachAll(callable $filter = null): void {
+    $entities = $this->getAllFromIdentityMap();
+    foreach ($entities as $entity) {
+      if ($filter && !$filter($entity)) {
+        continue;
+      }
+      $this->entityManager->detach($entity);
+    }
+  }
+
+  /** @return T[] */
+  public function getAllFromIdentityMap(): array {
+    $className = $this->getEntityClassName();
+    $rootClassName = $this->entityManager->getClassMetadata($className)->rootEntityName;
+    $entities = $this->entityManager->getUnitOfWork()->getIdentityMap()[$rootClassName] ?? [];
+
+    $result = [];
+    foreach ($entities as $entity) {
+      if ($entity instanceof $className) {
+        $result[] = $entity;
+      }
+    }
+    return $result;
   }
 
   /**

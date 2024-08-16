@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,7 +43,7 @@ class __TwigTemplate_72cb81adca1fcada3d740fa851dd9cdc07463639615e596a1f2d37bd9b4
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("layout.html", "form/template_selection.html", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
@@ -50,7 +51,7 @@ class __TwigTemplate_72cb81adca1fcada3d740fa851dd9cdc07463639615e596a1f2d37bd9b4
     {
         $macros = $this->macros;
         // line 4
-        echo "<div class=\"block-editor\">
+        yield "<div class=\"block-editor\">
   <div id=\"mailpoet_form_edit_templates\">
   </div>
 </div>
@@ -58,35 +59,45 @@ class __TwigTemplate_72cb81adca1fcada3d740fa851dd9cdc07463639615e596a1f2d37bd9b4
 <script>
   ";
         // line 11
-        echo "  var mailpoet_templates = ";
-        echo json_encode(($context["templates"] ?? null));
-        echo ";
+        yield "  var mailpoet_templates = ";
+        yield json_encode(($context["templates"] ?? null));
+        yield ";
   var mailpoet_form_edit_url =
     \"";
         // line 13
-        echo admin_url("admin.php?page=mailpoet-form-editor&template_id=");
-        echo "\";
+        yield admin_url("admin.php?page=mailpoet-form-editor&template_id=");
+        yield "\";
   ";
         // line 15
-        echo "</script>
+        yield "</script>
 
 <style id=\"mailpoet-form-editor-form-styles\"></style>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/template_selection.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  68 => 15,  64 => 13,  58 => 11,  50 => 4,  46 => 3,  35 => 1,);
+        return array (  69 => 15,  65 => 13,  59 => 11,  51 => 4,  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

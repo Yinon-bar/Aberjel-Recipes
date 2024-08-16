@@ -4,6 +4,7 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use BackedEnum;
 use MailPoetVendor\Doctrine\ORM\Exception\ORMException;
+use LibXMLError;
 use ReflectionException;
 use ValueError;
 use function array_keys;
@@ -13,6 +14,7 @@ use function get_debug_type;
 use function get_parent_class;
 use function implode;
 use function sprintf;
+use const PHP_EOL;
 class MappingException extends ORMException
 {
  public static function pathRequired()
@@ -268,13 +270,13 @@ class MappingException extends ORMException
  {
  return new self(sprintf('Entity Listener "%s#%s()" in "%s" was already declared, but it must be declared only once.', $listenerName, $methodName, $className));
  }
- public static function invalidFetchMode($className, $annotation)
+ public static function invalidFetchMode(string $className, string $fetchMode) : self
  {
- return new self("Entity '" . $className . "' has a mapping with invalid fetch mode '" . $annotation . "'");
+ return new self("Entity '" . $className . "' has a mapping with invalid fetch mode '" . $fetchMode . "'");
  }
- public static function invalidGeneratedMode(string $annotation) : MappingException
+ public static function invalidGeneratedMode($generatedMode) : self
  {
- return new self("Invalid generated mode '" . $annotation . "'");
+ return new self("Invalid generated mode '" . $generatedMode . "'");
  }
  public static function compositeKeyAssignedIdGeneratorRequired($className)
  {
@@ -331,5 +333,12 @@ Problem: Case "%s" is not listed in enum "%s"
 Solution: Either add the case to the enum type or migrate the database column to use another case of the enum
 EXCEPTION
 , $className, $fieldName, $value, $enumType), 0, $previous);
+ }
+ public static function fromLibXmlErrors(array $errors) : self
+ {
+ $formatter = static function (LibXMLError $error) : string {
+ return sprintf('libxml error: %s in %s at line %d', $error->message, $error->file, $error->line);
+ };
+ return new self(implode(PHP_EOL, array_map($formatter, $errors)));
  }
 }

@@ -1,17 +1,18 @@
 <?php
 namespace MailPoetVendor\Twig\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
 use MailPoetVendor\Twig\Source;
+#[YieldReady]
 class Node implements \Countable, \IteratorAggregate
 {
  protected $nodes;
  protected $attributes;
  protected $lineno;
  protected $tag;
- private $name;
  private $sourceContext;
- public function __construct(array $nodes = [], array $attributes = [], int $lineno = 0, string $tag = null)
+ public function __construct(array $nodes = [], array $attributes = [], int $lineno = 0, ?string $tag = null)
  {
  foreach ($nodes as $name => $node) {
  if (!$node instanceof self) {
@@ -48,7 +49,7 @@ class Node implements \Countable, \IteratorAggregate
  public function compile(Compiler $compiler)
  {
  foreach ($this->nodes as $node) {
- $node->compile($compiler);
+ $compiler->subcompile($node);
  }
  }
  public function getTemplateLine() : int
@@ -91,6 +92,9 @@ class Node implements \Countable, \IteratorAggregate
  }
  public function setNode(string $name, self $node) : void
  {
+ if (null !== $this->sourceContext) {
+ $node->setSourceContext($this->sourceContext);
+ }
  $this->nodes[$name] = $node;
  }
  public function removeNode(string $name) : void

@@ -31,7 +31,7 @@ class Container implements ContainerInterface, ResetInterface
  private $envCache = [];
  private $compiled = \false;
  private $getEnv;
- public function __construct(ParameterBagInterface $parameterBag = null)
+ public function __construct(?ParameterBagInterface $parameterBag = null)
  {
  $this->parameterBag = $parameterBag ?? new EnvPlaceholderParameterBag();
  }
@@ -218,6 +218,9 @@ class Container implements ContainerInterface, ResetInterface
  $localName = $name;
  }
  $processor = $processors->has($prefix) ? $processors->get($prefix) : new EnvVarProcessor($this);
+ if (\false === $i) {
+ $prefix = '';
+ }
  $this->resolving[$envName] = \true;
  try {
  return $this->envCache[$name] = $processor->getEnv($prefix, $localName, $this->getEnv);

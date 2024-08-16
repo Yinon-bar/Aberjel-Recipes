@@ -31,12 +31,13 @@ class EmailApiController {
    * @return array - MailPoet specific email data that will be attached to the post API response
    */
   public function getEmailData($postEmailData): array {
-    $newsletter = $this->newsletterRepository->findOneBy(['wpPostId' => $postEmailData['id']]);
+    $newsletter = $this->newsletterRepository->findOneBy(['wpPost' => $postEmailData['id']]);
     return [
       'id' => $newsletter ? $newsletter->getId() : null,
       'subject' => $newsletter ? $newsletter->getSubject() : '',
       'preheader' => $newsletter ? $newsletter->getPreheader() : '',
       'preview_url' => $this->newsletterUrl->getViewInBrowserUrl($newsletter),
+      'deleted_at' => $newsletter && $newsletter->getDeletedAt() !== null ? $newsletter->getDeletedAt()->format('c') : null,
     ];
   }
 
@@ -54,7 +55,28 @@ class EmailApiController {
 
     $newsletter->setSubject($data['subject']);
     $newsletter->setPreheader($data['preheader']);
+
+    if (isset($data['deleted_at'])) {
+      if (empty($data['deleted_at'])) {
+        $data['deleted_at'] = null;
+      } else {
+        $data['deleted_at'] = new \DateTime($data['deleted_at']);
+      }
+      $newsletter->setDeletedAt($data['deleted_at']);
+    }
+
     $this->newsletterRepository->flush();
+  }
+
+  public function trashEmail(\WP_Post $wpPost) {
+    $newsletter = $this->newsletterRepository->findOneBy(['wpPost' => $wpPost->ID]);
+    if (!$newsletter) {
+      throw new NotFoundException('Newsletter was not found');
+    }
+    if ($newsletter->getWpPostId() !== $wpPost->ID) {
+      throw new UnexpectedValueException('Newsletter ID does not match the post ID');
+    }
+    $this->newsletterRepository->bulkTrash([$newsletter->getId()]);
   }
 
   public function getEmailDataSchema(): array {
@@ -63,6 +85,7 @@ class EmailApiController {
       'subject' => Builder::string(),
       'preheader' => Builder::string(),
       'preview_url' => Builder::string(),
+      'deleted_at' => Builder::string()->nullable(),
     ])->toArray();
   }
 }

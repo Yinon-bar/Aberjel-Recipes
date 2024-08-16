@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,34 +38,44 @@ class __TwigTemplate_aab054d1ce71cebb286bd048e43bc4591e33d0913d0f18c524b7aaf2e00
     {
         $macros = $this->macros;
         // line 1
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Congrats!");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Congrats!");
+        yield "
 
 ";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet is now sending your emails");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet is now sending your emails");
+        yield "
 
 ";
         // line 5
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This email was sent automatically with the MailPoet Sending Service after you activated your key in your MailPoet settings.");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This email was sent automatically with the MailPoet Sending Service after you activated your key in your MailPoet settings.");
+        yield "
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/congratulatoryMssEmail.txt";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  47 => 5,  42 => 3,  37 => 1,);
+        return array (  48 => 5,  43 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

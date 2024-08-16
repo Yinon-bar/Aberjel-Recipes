@@ -39,8 +39,9 @@ abstract class CSSList implements Renderable, Commentable
  $oParserState = new ParserState($oParserState, Settings::create());
  }
  $bLenientParsing = $oParserState->getSettings()->bLenientParsing;
+ $aComments = [];
  while (!$oParserState->isEnd()) {
- $comments = $oParserState->consumeWhiteSpace();
+ $aComments = \array_merge($aComments, $oParserState->consumeWhiteSpace());
  $oListItem = null;
  if ($bLenientParsing) {
  try {
@@ -56,11 +57,12 @@ abstract class CSSList implements Renderable, Commentable
  return;
  }
  if ($oListItem) {
- $oListItem->setComments($comments);
+ $oListItem->addComments($aComments);
  $oList->append($oListItem);
  }
- $oParserState->consumeWhiteSpace();
+ $aComments = $oParserState->consumeWhiteSpace();
  }
+ $oList->addComments($aComments);
  if (!$bIsRoot && !$bLenientParsing) {
  throw new SourceException("Unexpected end of document", $oParserState->currentLine());
  }
@@ -77,13 +79,10 @@ abstract class CSSList implements Renderable, Commentable
  if (\count($oList->getContents()) > 0) {
  throw new UnexpectedTokenException('@charset must be the first parseable token in a document', '', 'custom', $oParserState->currentLine());
  }
- $oParserState->setCharset($oAtRule->getCharset()->getString());
+ $oParserState->setCharset($oAtRule->getCharset());
  }
  return $oAtRule;
  } elseif ($oParserState->comes('}')) {
- if (!$oParserState->getSettings()->bLenientParsing) {
- throw new UnexpectedTokenException('CSS selector', '}', 'identifier', $oParserState->currentLine());
- } else {
  if ($bIsRoot) {
  if ($oParserState->getSettings()->bLenientParsing) {
  return DeclarationBlock::parse($oParserState);
@@ -91,8 +90,8 @@ abstract class CSSList implements Renderable, Commentable
  throw new SourceException("Unopened {", $oParserState->currentLine());
  }
  } else {
+ // End of list
  return null;
- }
  }
  } else {
  return DeclarationBlock::parse($oParserState, $oList);
@@ -114,10 +113,10 @@ abstract class CSSList implements Renderable, Commentable
  $oParserState->consumeUntil([';', ParserState::EOF], \true, \true);
  return new Import($oLocation, $sMediaQuery ?: null, $iIdentifierLineNum);
  } elseif ($sIdentifier === 'charset') {
- $sCharset = CSSString::parse($oParserState);
+ $oCharsetString = CSSString::parse($oParserState);
  $oParserState->consumeWhiteSpace();
  $oParserState->consumeUntil([';', ParserState::EOF], \true, \true);
- return new Charset($sCharset, $iIdentifierLineNum);
+ return new Charset($oCharsetString, $iIdentifierLineNum);
  } elseif (self::identifierIs($sIdentifier, 'keyframes')) {
  $oResult = new KeyFrame($iIdentifierLineNum);
  $oResult->setVendorKeyFrame($sIdentifier);
@@ -253,7 +252,7 @@ abstract class CSSList implements Renderable, Commentable
  {
  return $this->render(new OutputFormat());
  }
- public function render(OutputFormat $oOutputFormat)
+ protected function renderListContents(OutputFormat $oOutputFormat)
  {
  $sResult = '';
  $bIsFirst = \true;

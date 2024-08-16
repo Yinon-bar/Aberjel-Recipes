@@ -1,7 +1,9 @@
 <?php
 namespace MailPoetVendor\Twig\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
+#[YieldReady]
 class AutoEscapeNode extends Node
 {
  public function __construct($value, Node $body, int $lineno, string $tag = 'autoescape')

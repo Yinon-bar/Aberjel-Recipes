@@ -21,9 +21,11 @@ class UlidValidator extends ConstraintValidator
  $value = (string) $value;
  if (26 !== \strlen($value)) {
  $this->context->buildViolation($constraint->message)->setParameter('{{ value }}', $this->formatValue($value))->setCode(26 > \strlen($value) ? Ulid::TOO_SHORT_ERROR : Ulid::TOO_LONG_ERROR)->addViolation();
+ return;
  }
  if (\strlen($value) !== \strspn($value, '0123456789ABCDEFGHJKMNPQRSTVWXYZabcdefghjkmnpqrstvwxyz')) {
  $this->context->buildViolation($constraint->message)->setParameter('{{ value }}', $this->formatValue($value))->setCode(Ulid::INVALID_CHARACTERS_ERROR)->addViolation();
+ return;
  }
  // Largest valid ULID is '7ZZZZZZZZZZZZZZZZZZZZZZZZZ'
  // Cf https://github.com/ulid/spec#overflow-errors-when-parsing-base32-strings

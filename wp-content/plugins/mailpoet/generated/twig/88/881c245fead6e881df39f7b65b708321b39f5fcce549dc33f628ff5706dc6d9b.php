@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,8 +37,7 @@ class __TwigTemplate_66e5c7f2a25bb7ec2578fe784e34b96a021b3bac5a6c8373f944c68964e
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "<style type=\"text/css\">
+        yield "<style type=\"text/css\">
   .mailpoet-deactivate-survey-modal {
     display: none;
     table-layout: fixed;
@@ -78,16 +78,23 @@ class __TwigTemplate_66e5c7f2a25bb7ec2578fe784e34b96a021b3bac5a6c8373f944c68964e
   }
 </style>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "deactivationPoll/css.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

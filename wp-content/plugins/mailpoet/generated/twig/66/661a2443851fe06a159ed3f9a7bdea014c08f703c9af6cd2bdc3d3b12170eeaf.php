@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,25 +38,35 @@ class __TwigTemplate_ef144945da24072956cf965a52a49e213b9cecc6662a1aecc7f22c91630
     {
         $macros = $this->macros;
         // line 1
-        echo $this->extensions['MailPoet\Twig\I18n']->localize(["learnMore" => $this->extensions['MailPoet\Twig\I18n']->translate("Learn more"), "premiumTabPremiumNotActivatedMessage" => $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet Premium is installed but not activated.", "mailpoet"), "premiumTabMssActivateMessage" => $this->extensions['MailPoet\Twig\I18n']->translate("Activate MailPoet Sending Service", "mailpoet")]);
+        yield $this->extensions['MailPoet\Twig\I18n']->localize(["learnMore" => $this->extensions['MailPoet\Twig\I18n']->translate("Learn more"), "premiumTabPremiumNotActivatedMessage" => $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet Premium is installed but not activated.", "mailpoet"), "premiumTabMssActivateMessage" => $this->extensions['MailPoet\Twig\I18n']->translate("Activate MailPoet Sending Service", "mailpoet")]);
         // line 5
-        echo "
+        yield "
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "premium_key_validation_strings.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  39 => 5,  37 => 1,);
+        return array (  40 => 5,  38 => 1,);
     }
 
     public function getSourceContext()

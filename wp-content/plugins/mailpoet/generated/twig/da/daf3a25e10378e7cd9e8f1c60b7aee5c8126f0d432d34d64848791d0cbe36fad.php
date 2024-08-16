@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_3297f258525111f56ede2b0258ec6596abe1eaa0884606e0232c86fa47e
     {
         $macros = $this->macros;
         // line 1
-        echo "
+        yield "
 <form
   id=\"form_field_new\"
   name=\"form_field_new\"
@@ -49,67 +50,67 @@ class __TwigTemplate_3297f258525111f56ede2b0258ec6596abe1eaa0884606e0232c86fa47e
   <p>
     <label for=\"field_type\">";
         // line 11
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Select a field type:");
-        echo "</label>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Select a field type:");
+        yield "</label>
     <select
       id=\"field_type\"
       name=\"type\"
       data-parsley-required=\"true\"
       data-parsley-required-message=\"";
         // line 16
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Please specify a type.");
-        echo "\"
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Please specify a type.");
+        yield "\"
     >
       <option value=\"\">--</option>
       <option
         {{#ifCond type '==' 'text'}}selected=\"selected\"{{/ifCond}}
         value=\"text\">";
         // line 21
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text Input");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text Input");
+        yield "
       </option>
       <option
         {{#ifCond type '==' 'textarea'}}selected=\"selected\"{{/ifCond}}
         value=\"textarea\">";
         // line 25
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text Area");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text Area");
+        yield "
       </option>
       <option
         {{#ifCond type '==' 'radio'}}selected=\"selected\"{{/ifCond}}
         value=\"radio\">";
         // line 29
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Radio buttons");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Radio buttons");
+        yield "
       </option>
       <option
         {{#ifCond type '==' 'checkbox'}}selected=\"selected\"{{/ifCond}}
         value=\"checkbox\">";
         // line 33
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Checkbox");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Checkbox");
+        yield "
       </option>
       <option
         {{#ifCond type '==' 'select'}}selected=\"selected\"{{/ifCond}}
         value=\"select\">";
         // line 37
-        echo $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Select", "Form input type");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Select", "Form input type");
+        yield "
       </option>
       <option
         {{#ifCond type '==' 'date'}}selected=\"selected\"{{/ifCond}}
         value=\"date\">";
         // line 41
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Date");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Date");
+        yield "
       </option>
     </select>
   </p>
   <p>
     <label for=\"field_name\">";
         // line 46
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Field name:");
-        echo "</label>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Field name:");
+        yield "</label>
     <input
       id=\"field_name\"
       type=\"text\"
@@ -118,8 +119,8 @@ class __TwigTemplate_3297f258525111f56ede2b0258ec6596abe1eaa0884606e0232c86fa47e
       data-parsley-required=\"true\"
       data-parsley-required-message=\"";
         // line 53
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Please specify a name.");
-        echo "\"
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Please specify a name.");
+        yield "\"
     />
   </p>
   <hr />
@@ -129,8 +130,8 @@ class __TwigTemplate_3297f258525111f56ede2b0258ec6596abe1eaa0884606e0232c86fa47e
   <p class=\"mailpoet_align_right\">
     <input type=\"submit\" value=\"";
         // line 61
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Done");
-        echo "\" class=\"button-primary\" />
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Done");
+        yield "\" class=\"button-primary\" />
   </p>
 </form>
 
@@ -167,21 +168,31 @@ class __TwigTemplate_3297f258525111f56ede2b0258ec6596abe1eaa0884606e0232c86fa47e
   });
 </script>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/field_form.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  129 => 61,  118 => 53,  108 => 46,  100 => 41,  93 => 37,  86 => 33,  79 => 29,  72 => 25,  65 => 21,  57 => 16,  49 => 11,  37 => 1,);
+        return array (  130 => 61,  119 => 53,  109 => 46,  101 => 41,  94 => 37,  87 => 33,  80 => 29,  73 => 25,  66 => 21,  58 => 16,  50 => 11,  38 => 1,);
     }
 
     public function getSourceContext()

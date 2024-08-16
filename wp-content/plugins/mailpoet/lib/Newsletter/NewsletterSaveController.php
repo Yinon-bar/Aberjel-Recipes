@@ -6,14 +6,15 @@ if (!defined('ABSPATH')) exit;
 
 
 use MailPoet\Cron\Workers\SendingQueue\Tasks\Newsletter as NewsletterQueueTask;
+use MailPoet\EmailEditor\Integrations\MailPoet\EmailEditor;
 use MailPoet\Entities\NewsletterEntity;
 use MailPoet\Entities\NewsletterOptionEntity;
 use MailPoet\Entities\NewsletterOptionFieldEntity;
 use MailPoet\Entities\NewsletterSegmentEntity;
 use MailPoet\Entities\ScheduledTaskEntity;
 use MailPoet\Entities\SegmentEntity;
+use MailPoet\Entities\WpPostEntity;
 use MailPoet\InvalidStateException;
-use MailPoet\Models\Newsletter;
 use MailPoet\Newsletter\Options\NewsletterOptionFieldsRepository;
 use MailPoet\Newsletter\Options\NewsletterOptionsRepository;
 use MailPoet\Newsletter\Scheduler\PostNotificationScheduler;
@@ -125,8 +126,9 @@ class NewsletterSaveController {
     }
 
     if (!empty($data['body'])) {
-      $body = $this->dataSanitizer->sanitizeBody(json_decode($data['body'], true));
-      $data['body'] = $this->emoji->encodeForUTF8Column(MP_NEWSLETTERS_TABLE, 'body', json_encode($body));
+      $body = $this->emoji->encodeForUTF8Column(MP_NEWSLETTERS_TABLE, 'body', $data['body']);
+      $body = $this->dataSanitizer->sanitizeBody(json_decode($body, true));
+      $data['body'] = json_encode($body);
     }
 
     $newsletter = isset($data['id']) ? $this->getNewsletter($data) : $this->createNewsletter($data);
@@ -142,12 +144,6 @@ class NewsletterSaveController {
       $this->updateOptions($newsletter, $data['options']);
     }
 
-    // fetch model with updated options (for back compatibility)
-    $newsletterModel = Newsletter::filter('filterWithOptions', $newsletter->getType())->findOne($newsletter->getId());
-    if (!$newsletterModel) {
-      throw new InvalidStateException();
-    }
-
     // save default sender if needed
     if (!$this->settings->get('sender') && !empty($data['sender_address']) && !empty($data['sender_name'])) {
       $this->settings->set('sender', [
@@ -156,9 +152,12 @@ class NewsletterSaveController {
       ]);
     }
 
-    $this->rescheduleIfNeeded($newsletter, $newsletterModel);
-    $this->updateQueue($newsletter, $newsletterModel, $data['options'] ?? []);
+    $this->rescheduleIfNeeded($newsletter);
+    $this->updateQueue($newsletter, $data['options'] ?? []);
     $this->authorizedEmailsController->onNewsletterSenderAddressUpdate($newsletter, $oldSenderAddress);
+    if (isset($data['new_editor']) && $data['new_editor']) {
+      $this->ensureWpPost($newsletter);
+    }
     return $newsletter;
   }
 
@@ -201,10 +200,26 @@ class NewsletterSaveController {
     $post = $this->wp->getPost($newsletter->getWpPostId());
     if ($post instanceof \WP_Post) {
       $newPostId = $this->wp->wpInsertPost([
+        'post_status' => NewsletterEntity::STATUS_DRAFT,
+        'post_author' => $this->wp->getCurrentUserId(),
         'post_content' => $post->post_content, // @phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
         'post_type' => $post->post_type, // @phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
+        // translators: %s is the campaign name of the mail which has been copied.
+        'post_title' => sprintf(__('Copy of %s', 'mailpoet'), $post->post_title), // @phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
       ]);
-      $duplicate->setWpPostId($newPostId);
+      // Post meta duplication
+      $originalPostMeta = $this->wp->getPostMeta($post->ID);
+      foreach ($originalPostMeta as $key => $values) {
+        foreach ($values as $value) {
+          // Unserialize the value if it was serialized to avoid invalid data format
+          if (is_string($value) && is_serialized($value)) {
+            $value = unserialize($value);
+          }
+          update_post_meta($newPostId, $key, $value);
+        }
+      }
+
+      $duplicate->setWpPost($this->entityManager->getReference(WpPostEntity::class, $newPostId));
     }
 
     // create relationships between duplicate and segments
@@ -383,7 +398,7 @@ class NewsletterSaveController {
     $this->entityManager->flush();
   }
 
-  private function rescheduleIfNeeded(NewsletterEntity $newsletter, Newsletter $newsletterModel) {
+  private function rescheduleIfNeeded(NewsletterEntity $newsletter) {
     if ($newsletter->getType() !== NewsletterEntity::TYPE_NOTIFICATION) {
       return;
     }
@@ -409,7 +424,7 @@ class NewsletterSaveController {
     }
   }
 
-  private function updateQueue(NewsletterEntity $newsletter, Newsletter $newsletterModel, array $options) {
+  private function updateQueue(NewsletterEntity $newsletter, array $options) {
     if ($newsletter->getType() !== NewsletterEntity::TYPE_STANDARD) {
       return;
     }
@@ -424,16 +439,35 @@ class NewsletterSaveController {
       $this->entityManager->remove($queue);
       $newsletter->setStatus(NewsletterEntity::STATUS_DRAFT);
     } else {
-      $queueModel = $newsletterModel->getQueue();
-      $queueModel->newsletterRenderedSubject = null;
-      $queueModel->newsletterRenderedBody = null;
+      $queue->setNewsletterRenderedSubject(null);
+      $queue->setNewsletterRenderedBody(null);
+      $this->entityManager->persist($queue);
 
       $newsletterQueueTask = new NewsletterQueueTask();
-      $newsletterQueueTask->preProcessNewsletter($newsletter, $queueModel);
+      $task = $queue->getTask();
 
-      // 'preProcessNewsletter' modifies queue by old model - let's reload it
-      $this->entityManager->refresh($queue);
+      if (!$task instanceof ScheduledTaskEntity) {
+        throw new InvalidStateException();
+      }
+
+      $newsletterQueueTask->preProcessNewsletter($newsletter, $task);
     }
+    $this->entityManager->flush();
+  }
+
+  private function ensureWpPost(NewsletterEntity $newsletter): void {
+    if ($newsletter->getWpPostId()) {
+      return;
+    }
+
+    $newPostId = $this->wp->wpInsertPost([
+      'post_content' => '',
+      'post_type' => EmailEditor::MAILPOET_EMAIL_POST_TYPE,
+      'post_status' => 'draft',
+      'post_author' => $this->wp->getCurrentUserId(),
+      'post_title' => __('New Email', 'mailpoet'),
+    ]);
+    $newsletter->setWpPost($this->entityManager->getReference(WpPostEntity::class, $newPostId));
     $this->entityManager->flush();
   }
 }

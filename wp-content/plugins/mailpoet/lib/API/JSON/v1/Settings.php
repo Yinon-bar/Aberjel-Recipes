@@ -140,7 +140,8 @@ class Settings extends APIEndpoint {
         [
           APIError::BAD_REQUEST =>
             __('You have not specified any settings to be saved.', 'mailpoet'),
-        ]);
+        ]
+      );
     } else {
       $oldSettings = $this->settings->getAll();
       $meta = [];
@@ -288,22 +289,6 @@ class Settings extends APIEndpoint {
     $emailAddress = trim($emailAddress);
 
     $response = ['isAuthorized' => $this->authorizedEmailsController->isEmailAddressAuthorized($emailAddress)];
-
-    return $this->successResponse($response);
-  }
-
-  public function checkDomainDmarcPolicy($data = []) {
-    $domain = $data['domain'] ?? null;
-
-    if (!$domain) {
-      return $this->badRequest([
-        APIError::BAD_REQUEST => __('No sender domain specified.', 'mailpoet'),
-      ]);
-    }
-
-    $domain = strtolower(trim($domain));
-
-    $response = ['isDmarcPolicyRestricted' => $this->senderDomainController->isDomainDmarcRestricted($domain)];
 
     return $this->successResponse($response);
   }

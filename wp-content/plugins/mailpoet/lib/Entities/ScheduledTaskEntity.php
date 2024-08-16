@@ -23,6 +23,7 @@ use MailPoetVendor\Doctrine\ORM\Mapping as ORM;
 class ScheduledTaskEntity {
   const STATUS_COMPLETED = 'completed';
   const STATUS_SCHEDULED = 'scheduled';
+  const STATUS_CANCELLED = 'cancelled';
   const STATUS_PAUSED = 'paused';
   const STATUS_INVALID = 'invalid';
   const VIRTUAL_STATUS_RUNNING = 'running'; // For historical reasons this is stored as null in DB
@@ -61,6 +62,12 @@ class ScheduledTaskEntity {
    * @var DateTimeInterface|null
    */
   private $scheduledAt;
+
+  /**
+   * @ORM\Column(type="datetimetz", nullable=true)
+   * @var DateTimeInterface|null
+   */
+  private $cancelledAt;
 
   /**
    * @ORM\Column(type="datetimetz", nullable=true)
@@ -127,6 +134,9 @@ class ScheduledTaskEntity {
    * @param string|null $status
    */
   public function setStatus($status) {
+    if ($status === self::VIRTUAL_STATUS_RUNNING) {
+      $status = null;
+    }
     $this->status = $status;
   }
 
@@ -156,6 +166,20 @@ class ScheduledTaskEntity {
    */
   public function setScheduledAt($scheduledAt) {
     $this->scheduledAt = $scheduledAt;
+  }
+
+  /**
+   * @return DateTimeInterface|null
+   */
+  public function getCancelledAt() {
+    return $this->cancelledAt;
+  }
+
+  /**
+   * @param DateTimeInterface|null $cancelledAt
+   */
+  public function setCancelledAt($cancelledAt) {
+    $this->cancelledAt = $cancelledAt;
   }
 
   /**
@@ -222,7 +246,8 @@ class ScheduledTaskEntity {
   public function getSubscribersByProcessed(int $processed): array {
     $criteria = Criteria::create()
       ->where(Criteria::expr()->eq('processed', $processed));
-    $subscribers = $this->subscribers->matching($criteria)->map(function (ScheduledTaskSubscriberEntity $taskSubscriber): ?SubscriberEntity {
+    $subscribers = $this->subscribers->matching($criteria)->map(function (ScheduledTaskSubscriberEntity $taskSubscriber = null): ?SubscriberEntity {
+      if (!$taskSubscriber) return null;
       return $taskSubscriber->getSubscriber();
     });
     return array_filter($subscribers->toArray());

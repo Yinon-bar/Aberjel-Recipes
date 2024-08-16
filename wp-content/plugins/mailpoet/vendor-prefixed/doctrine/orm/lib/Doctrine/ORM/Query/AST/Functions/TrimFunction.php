@@ -7,6 +7,7 @@ use MailPoetVendor\Doctrine\ORM\Query\AST\Node;
 use MailPoetVendor\Doctrine\ORM\Query\Lexer;
 use MailPoetVendor\Doctrine\ORM\Query\Parser;
 use MailPoetVendor\Doctrine\ORM\Query\SqlWalker;
+use function assert;
 use function strcasecmp;
 class TrimFunction extends FunctionNode
 {
@@ -33,6 +34,7 @@ class TrimFunction extends FunctionNode
  $this->parseTrimMode($parser);
  if ($lexer->isNextToken(Lexer::T_STRING)) {
  $parser->match(Lexer::T_STRING);
+ assert($lexer->token !== null);
  $this->trimChar = $lexer->token['value'];
  }
  if ($this->leading || $this->trailing || $this->both || $this->trimChar) {
@@ -57,6 +59,7 @@ class TrimFunction extends FunctionNode
  private function parseTrimMode(Parser $parser) : void
  {
  $lexer = $parser->getLexer();
+ assert($lexer->lookahead !== null);
  $value = $lexer->lookahead['value'];
  if (strcasecmp('leading', $value) === 0) {
  $parser->match(Lexer::T_LEADING);

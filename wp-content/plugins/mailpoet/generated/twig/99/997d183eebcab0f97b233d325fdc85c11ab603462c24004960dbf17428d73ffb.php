@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,7 +43,7 @@ class __TwigTemplate_ab899d530f98e746914257e34f50c70b47be9222f8900b262c8fc7567ef
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("layout.html", "automation/analytics.html", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
@@ -50,50 +51,60 @@ class __TwigTemplate_ab899d530f98e746914257e34f50c70b47be9222f8900b262c8fc7567ef
     {
         $macros = $this->macros;
         // line 4
-        echo "<div id=\"mailpoet_automation_analytics\" class=\"woocommerce-page\"></div>
+        yield "<div id=\"mailpoet_automation_analytics\" class=\"woocommerce-page\"></div>
 
 <script type=\"text/javascript\">
   var mailpoet_locale_full = ";
         // line 7
-        echo json_encode(($context["locale_full"] ?? null));
-        echo ";
+        yield json_encode(($context["locale_full"] ?? null));
+        yield ";
   var mailpoet_automation_api = ";
         // line 8
-        echo json_encode(($context["api"] ?? null));
-        echo ";
+        yield json_encode(($context["api"] ?? null));
+        yield ";
   var mailpoet_json_api = ";
         // line 9
-        echo json_encode(($context["jsonapi"] ?? null));
-        echo ";
+        yield json_encode(($context["jsonapi"] ?? null));
+        yield ";
   var mailpoet_automation_registry = ";
         // line 10
-        echo json_encode(($context["registry"] ?? null));
-        echo ";
+        yield json_encode(($context["registry"] ?? null));
+        yield ";
   var mailpoet_automation_context = ";
         // line 11
-        echo json_encode(($context["context"] ?? null));
-        echo ";
+        yield json_encode(($context["context"] ?? null));
+        yield ";
   var mailpoet_automation = ";
         // line 12
-        echo ((($context["automation"] ?? null)) ? (json_encode(($context["automation"] ?? null))) : ("undefined"));
-        echo ";
+        yield ((($context["automation"] ?? null)) ? (json_encode(($context["automation"] ?? null))) : ("undefined"));
+        yield ";
 </script>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "automation/analytics.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  75 => 12,  71 => 11,  67 => 10,  63 => 9,  59 => 8,  55 => 7,  50 => 4,  46 => 3,  35 => 1,);
+        return array (  76 => 12,  72 => 11,  68 => 10,  64 => 9,  60 => 8,  56 => 7,  51 => 4,  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

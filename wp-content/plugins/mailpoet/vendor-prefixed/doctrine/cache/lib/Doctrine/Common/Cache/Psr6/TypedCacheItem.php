@@ -6,29 +6,21 @@ use DateTime;
 use DateTimeInterface;
 use MailPoetVendor\Psr\Cache\CacheItemInterface;
 use TypeError;
-use function get_class;
-use function gettype;
+use function get_debug_type;
 use function is_int;
-use function is_object;
 use function microtime;
 use function sprintf;
 final class TypedCacheItem implements CacheItemInterface
 {
- private $key;
- private $value;
- private $isHit;
- private $expiry;
- public function __construct(string $key, $data, bool $isHit)
+ private ?float $expiry = null;
+ public function __construct(private string $key, private mixed $value, private bool $isHit)
  {
- $this->key = $key;
- $this->value = $data;
- $this->isHit = $isHit;
  }
  public function getKey() : string
  {
  return $this->key;
  }
- public function get()
+ public function get() : mixed
  {
  return $this->value;
  }
@@ -36,23 +28,23 @@ final class TypedCacheItem implements CacheItemInterface
  {
  return $this->isHit;
  }
- public function set($value) : self
+ public function set(mixed $value) : static
  {
  $this->value = $value;
  return $this;
  }
- public function expiresAt($expiration) : self
+ public function expiresAt($expiration) : static
  {
  if ($expiration === null) {
  $this->expiry = null;
  } elseif ($expiration instanceof DateTimeInterface) {
  $this->expiry = (float) $expiration->format('U.u');
  } else {
- throw new TypeError(sprintf('Expected $expiration to be an instance of DateTimeInterface or null, got %s', is_object($expiration) ? get_class($expiration) : gettype($expiration)));
+ throw new TypeError(sprintf('Expected $expiration to be an instance of DateTimeInterface or null, got %s', get_debug_type($expiration)));
  }
  return $this;
  }
- public function expiresAfter($time) : self
+ public function expiresAfter($time) : static
  {
  if ($time === null) {
  $this->expiry = null;
@@ -61,7 +53,7 @@ final class TypedCacheItem implements CacheItemInterface
  } elseif (is_int($time)) {
  $this->expiry = $time + microtime(\true);
  } else {
- throw new TypeError(sprintf('Expected $time to be either an integer, an instance of DateInterval or null, got %s', is_object($time) ? get_class($time) : gettype($time)));
+ throw new TypeError(sprintf('Expected $time to be either an integer, an instance of DateInterval or null, got %s', get_debug_type($time)));
  }
  return $this;
  }

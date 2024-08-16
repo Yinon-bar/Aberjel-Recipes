@@ -4,7 +4,7 @@ namespace MailPoetVendor\Doctrine\ORM\Query\AST;
 if (!defined('ABSPATH')) exit;
 class WhenClause extends Node
 {
- public $caseConditionExpression = null;
+ public $caseConditionExpression;
  public $thenScalarExpression = null;
  public function __construct($caseConditionExpression, $thenScalarExpression)
  {

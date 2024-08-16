@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,32 +38,42 @@ class __TwigTemplate_a5923bab8f277efe9b3dc620b3436c157fb01191e360c2ba9e700050904
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_widget_icon\">
+        yield "<div class=\"mailpoet_widget_icon\">
 ";
         // line 2
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-icons/text.svg");
-        echo "
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-icons/text.svg");
+        yield "
 </div>
 <div class=\"mailpoet_widget_title\">";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translateWithContext("WooCommerce Email Heading", "Name of a widget in the email editor. This widget is used to display WooCommerce messages (like ”Thanks for your order!”)");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translateWithContext("WooCommerce Email Heading", "Name of a widget in the email editor. This widget is used to display WooCommerce messages (like ”Thanks for your order!”)");
+        yield "</div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/woocommerceHeading/widget.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  45 => 4,  40 => 2,  37 => 1,);
+        return array (  46 => 4,  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

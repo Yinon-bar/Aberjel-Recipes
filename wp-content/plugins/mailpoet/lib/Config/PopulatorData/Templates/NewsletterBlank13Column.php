@@ -5,8 +5,6 @@ namespace MailPoet\Config\PopulatorData\Templates;
 if (!defined('ABSPATH')) exit;
 
 
-use MailPoet\WP\Functions as WPFunctions;
-
 class NewsletterBlank13Column {
 
   private $assets_url;
@@ -14,7 +12,9 @@ class NewsletterBlank13Column {
   private $template_image_url;
   private $social_icon_url;
 
-  public function __construct($assets_url) {
+  public function __construct(
+    $assets_url
+  ) {
     $this->assets_url = $assets_url;
     $this->external_template_image_url = 'https://ps.w.org/mailpoet/assets/newsletter-templates/newsletter-blank-1-3-column';
     $this->template_image_url = $this->assets_url . '/img/blank_templates';
@@ -62,7 +62,7 @@ class NewsletterBlank13Column {
                 "blocks" => [
                   [
                     "type" => "header",
-                    "text" => '<a href="[link:newsletter_view_in_browser_url]">'.__("View this in your browser.", 'mailpoet').'</a>',
+                    "text" => '<a href="[link:newsletter_view_in_browser_url]">' . __("View this in your browser.", 'mailpoet') . '</a>',
                     "styles" => [
                       "block" => [
                         "backgroundColor" => "transparent",
@@ -284,7 +284,7 @@ class NewsletterBlank13Column {
                   ],
                   [
                     "type" => "footer",
-                    "text" => '<p><a href="[link:subscription_unsubscribe_url]">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]">'.__("Manage your subscription", 'mailpoet').'</a><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+                    "text" => '<p><a href="[link:subscription_unsubscribe_url]">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]">' . __("Manage your subscription", 'mailpoet') . '</a><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
                     "styles" => [
                       "block" => [
                         "backgroundColor" => "transparent",

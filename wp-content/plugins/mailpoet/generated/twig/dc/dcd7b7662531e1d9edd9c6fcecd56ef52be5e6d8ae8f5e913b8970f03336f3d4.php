@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,7 +43,7 @@ class __TwigTemplate_be729e36b2f10a697a42c709d5cb98141fdb4921ae8c74bd2bb09c70675
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("layout.html", "blank.html", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
@@ -50,25 +51,35 @@ class __TwigTemplate_be729e36b2f10a697a42c709d5cb98141fdb4921ae8c74bd2bb09c70675
     {
         $macros = $this->macros;
         // line 4
-        echo "  ";
-        echo do_action(("mailpoet_pages_" . ($context["page_name"] ?? null)));
-        echo "
+        yield "  ";
+        yield do_action(("mailpoet_pages_" . ($context["page_name"] ?? null)));
+        yield "
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "blank.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  50 => 4,  46 => 3,  35 => 1,);
+        return array (  51 => 4,  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

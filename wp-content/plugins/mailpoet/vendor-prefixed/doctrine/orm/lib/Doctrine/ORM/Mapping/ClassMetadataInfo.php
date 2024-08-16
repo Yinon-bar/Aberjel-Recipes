@@ -4,12 +4,8 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use BackedEnum;
 use BadMethodCallException;
-use DateInterval;
-use DateTime;
-use DateTimeImmutable;
 use MailPoetVendor\Doctrine\DBAL\Platforms\AbstractPlatform;
 use MailPoetVendor\Doctrine\DBAL\Types\Type;
-use MailPoetVendor\Doctrine\DBAL\Types\Types;
 use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\Instantiator\Instantiator;
 use MailPoetVendor\Doctrine\Instantiator\InstantiatorInterface;
@@ -21,7 +17,6 @@ use MailPoetVendor\Doctrine\Persistence\Mapping\ReflectionService;
 use InvalidArgumentException;
 use LogicException;
 use ReflectionClass;
-use ReflectionEnum;
 use ReflectionNamedType;
 use ReflectionProperty;
 use RuntimeException;
@@ -46,8 +41,8 @@ use function is_subclass_of;
 use function ltrim;
 use function method_exists;
 use function spl_object_id;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function trait_exists;
 use function trim;
@@ -111,6 +106,7 @@ class ClassMetadataInfo implements ClassMetadata
  public $associationMappings = [];
  public $isIdentifierComposite = \false;
  public $containsForeignIdentifier = \false;
+ public $containsEnumIdentifier = \false;
  public $idGenerator;
  public $sequenceGeneratorDefinition;
  public $tableGeneratorDefinition;
@@ -124,12 +120,14 @@ class ClassMetadataInfo implements ClassMetadata
  protected $namingStrategy;
  public $reflFields = [];
  private $instantiator;
- public function __construct($entityName, ?NamingStrategy $namingStrategy = null)
+ private $typedFieldMapper;
+ public function __construct($entityName, ?NamingStrategy $namingStrategy = null, ?TypedFieldMapper $typedFieldMapper = null)
  {
  $this->name = $entityName;
  $this->rootEntityName = $entityName;
- $this->namingStrategy = $namingStrategy ?: new DefaultNamingStrategy();
+ $this->namingStrategy = $namingStrategy ?? new DefaultNamingStrategy();
  $this->instantiator = new Instantiator();
+ $this->typedFieldMapper = $typedFieldMapper ?? new DefaultTypedFieldMapper();
  }
  public function getReflectionProperties()
  {
@@ -232,6 +230,9 @@ class ClassMetadataInfo implements ClassMetadata
  }
  if ($this->containsForeignIdentifier) {
  $serialized[] = 'containsForeignIdentifier';
+ }
+ if ($this->containsEnumIdentifier) {
+ $serialized[] = 'containsEnumIdentifier';
  }
  if ($this->isVersioned) {
  $serialized[] = 'isVersioned';
@@ -475,43 +476,8 @@ class ClassMetadataInfo implements ClassMetadata
  }
  private function validateAndCompleteTypedFieldMapping(array $mapping) : array
  {
- $type = $this->reflClass->getProperty($mapping['fieldName'])->getType();
- if ($type) {
- if (!isset($mapping['type']) && $type instanceof ReflectionNamedType) {
- if (PHP_VERSION_ID >= 80100 && !$type->isBuiltin() && enum_exists($type->getName())) {
- $mapping['enumType'] = $type->getName();
- $reflection = new ReflectionEnum($type->getName());
- $type = $reflection->getBackingType();
- assert($type instanceof ReflectionNamedType);
- }
- switch ($type->getName()) {
- case DateInterval::class:
- $mapping['type'] = Types::DATEINTERVAL;
- break;
- case DateTime::class:
- $mapping['type'] = Types::DATETIME_MUTABLE;
- break;
- case DateTimeImmutable::class:
- $mapping['type'] = Types::DATETIME_IMMUTABLE;
- break;
- case 'array':
- $mapping['type'] = Types::JSON;
- break;
- case 'bool':
- $mapping['type'] = Types::BOOLEAN;
- break;
- case 'float':
- $mapping['type'] = Types::FLOAT;
- break;
- case 'int':
- $mapping['type'] = Types::INTEGER;
- break;
- case 'string':
- $mapping['type'] = Types::STRING;
- break;
- }
- }
- }
+ $field = $this->reflClass->getProperty($mapping['fieldName']);
+ $mapping = $this->typedFieldMapper->validateAndComplete($mapping, $field);
  return $mapping;
  }
  private function validateAndCompleteTypedAssociationMapping(array $mapping) : array
@@ -584,6 +550,9 @@ class ClassMetadataInfo implements ClassMetadata
  }
  if (!enum_exists($mapping['enumType'])) {
  throw MappingException::nonEnumTypeMapped($this->name, $mapping['fieldName'], $mapping['enumType']);
+ }
+ if (!empty($mapping['id'])) {
+ $this->containsEnumIdentifier = \true;
  }
  }
  return $mapping;
@@ -1047,7 +1016,7 @@ class ClassMetadataInfo implements ClassMetadata
  {
  if (isset($table['name'])) {
  // Split schema and table name from a table name like "myschema.mytable"
- if (strpos($table['name'], '.') !== \false) {
+ if (str_contains($table['name'], '.')) {
  [$this->table['schema'], $table['name']] = explode('.', $table['name'], 2);
  }
  if ($table['name'][0] === '`') {
@@ -1169,7 +1138,7 @@ class ClassMetadataInfo implements ClassMetadata
  }
  if (!isset($field['column'])) {
  $fieldName = $field['name'];
- if (strpos($fieldName, '.')) {
+ if (str_contains($fieldName, '.')) {
  [, $fieldName] = explode('.', $fieldName);
  }
  $resultMapping['entities'][$key]['fields'][$k]['column'] = $fieldName;
@@ -1304,6 +1273,18 @@ class ClassMetadataInfo implements ClassMetadata
  if (!(class_exists($className) || interface_exists($className))) {
  throw MappingException::invalidClassInDiscriminatorMap($className, $this->name);
  }
+ $this->addSubClass($className);
+ }
+ public function addSubClasses(array $classes) : void
+ {
+ foreach ($classes as $className) {
+ $this->addSubClass($className);
+ }
+ }
+ public function addSubClass(string $className) : void
+ {
+ // By ignoring classes that are not subclasses of the current class, we simplify inheriting
+ // the subclass list from a parent class at the beginning of \MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadataFactory::doLoadMetadata.
  if (is_subclass_of($className, $this->name) && !in_array($className, $this->subClasses, \true)) {
  $this->subClasses[] = $className;
  }
@@ -1490,7 +1471,7 @@ class ClassMetadataInfo implements ClassMetadata
  if (empty($className)) {
  return $className;
  }
- if (strpos($className, '\\') === \false && $this->namespace) {
+ if (!str_contains($className, '\\') && $this->namespace) {
  return $this->namespace . '\\' . $className;
  }
  return $className;

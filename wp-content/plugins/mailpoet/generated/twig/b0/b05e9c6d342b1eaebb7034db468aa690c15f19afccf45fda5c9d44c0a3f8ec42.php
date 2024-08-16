@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_c9698819ba62cbd2a50d0d8966b632b15dab68db5924228afc7775b0b33
     {
         $macros = $this->macros;
         // line 1
-        echo "<script type=\"text/javascript\">
+        yield "<script type=\"text/javascript\">
   jQuery(function(\$){
     \$('#mailpoet_woocommerce_customize_button')
       .insertAfter(\$('#email_notification_settings-description'))
@@ -49,32 +50,42 @@ class __TwigTemplate_c9698819ba62cbd2a50d0d8966b632b15dab68db5924228afc7775b0b33
   <a class=\"button button-primary\"
     href=\"?page=mailpoet-newsletter-editor&id=";
         // line 11
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["woocommerce_template_id"] ?? null), "html", null, true);
-        echo "\"
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["woocommerce_template_id"] ?? null), "html", null, true);
+        yield "\"
     data-automation-id=\"mailpoet_woocommerce_customize_button\"
   >
     ";
         // line 14
-        echo $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Customize with MailPoet", "Button in WooCommerce settings page");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Customize with MailPoet", "Button in WooCommerce settings page");
+        yield "
   </a>
 </p>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "woocommerce/settings_button.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  55 => 14,  49 => 11,  37 => 1,);
+        return array (  56 => 14,  50 => 11,  38 => 1,);
     }
 
     public function getSourceContext()

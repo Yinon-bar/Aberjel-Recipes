@@ -6,7 +6,7 @@ use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 #[\Attribute(Attribute::TARGET_PROPERTY)]
-final class ManyToMany implements Annotation
+final class ManyToMany implements MappingAttribute
 {
  public $targetEntity;
  public $mappedBy;

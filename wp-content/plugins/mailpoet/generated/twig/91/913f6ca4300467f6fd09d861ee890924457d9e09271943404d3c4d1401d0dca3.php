@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,18 +38,18 @@ class __TwigTemplate_a6bc3737d02c4217a15108cd3f8addf2e33ea8546e47c75fe38c1b5ca5b
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_social_icon_settings\">
+        yield "<div class=\"mailpoet_social_icon_settings\">
     <div class=\"mailpoet_social_icon_settings_tool mailpoet_social_icon_settings_move_icon\">
         <a href=\"javascript:;\" class=\"mailpoet_move_block\">";
         // line 3
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-tools/move-without-bg.svg");
-        echo "</a>
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-tools/move-without-bg.svg");
+        yield "</a>
     </div>
     <div class=\"mailpoet_social_icon_settings_tool mailpoet_social_icon_settings_delete_icon\">
         <a href=\"javascript:;\" class=\"mailpoet_delete_block\">";
         // line 6
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-tools/trash-without-bg.svg");
-        echo "</a>
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-tools/trash-without-bg.svg");
+        yield "</a>
     </div>
     <div class=\"mailpoet_social_icon_settings_row\">
         <label>
@@ -71,8 +72,8 @@ class __TwigTemplate_a6bc3737d02c4217a15108cd3f8addf2e33ea8546e47c75fe38c1b5ca5b
         <div class=\"mailpoet_social_icon_settings_label\">
             ";
         // line 27
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Image");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Image");
+        yield "
         </div>
         <div class=\"mailpoet_social_icon_settings_form_element\">
             <input type=\"text\" name=\"image\" class=\"mailpoet_social_icon_field_image\" value=\"{{ model.image }}\" placeholder=\"http://\" />
@@ -102,8 +103,8 @@ class __TwigTemplate_a6bc3737d02c4217a15108cd3f8addf2e33ea8546e47c75fe38c1b5ca5b
         <div class=\"mailpoet_social_icon_settings_label\">
             ";
         // line 55
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text");
+        yield "
         </div>
         <div class=\"mailpoet_social_icon_settings_form_element\">
             <input type=\"text\" name=\"text\" class=\"mailpoet_social_icon_field_text\" value=\"{{ model.text }}\" />
@@ -113,21 +114,31 @@ class __TwigTemplate_a6bc3737d02c4217a15108cd3f8addf2e33ea8546e47c75fe38c1b5ca5b
     {{/ifCond}}
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/social/settingsIcon.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  102 => 55,  71 => 27,  47 => 6,  41 => 3,  37 => 1,);
+        return array (  103 => 55,  72 => 27,  48 => 6,  42 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

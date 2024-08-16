@@ -101,14 +101,18 @@ class Bridge {
     return !empty($key);
   }
 
-  public static function pingBridge() {
+  public function pingBridge() {
     $params = [
       'blocking' => true,
       'timeout' => 10,
     ];
     $wp = new WPFunctions();
     $result = $wp->wpRemoteGet(self::BRIDGE_URL, $params);
-    return $wp->wpRemoteRetrieveResponseCode($result) === 200;
+    return $wp->wpRemoteRetrieveResponseCode($result);
+  }
+
+  public function validateBridgePingResponse($responseCode) {
+    return $responseCode === 200;
   }
 
   /**
@@ -159,12 +163,11 @@ class Bridge {
   public function getAuthorizedSenderDomains($domain = 'all'): array {
     $domain = strtolower($domain);
 
-    $data = $this
-      ->getApi($this->settings->get(self::API_KEY_SETTING_NAME))
-      ->getAuthorizedSenderDomains();
-    $data = $data ?? [];
-
     $allSenderDomains = [];
+    $data = $this->getRawSenderDomainData();
+    if ($data === null) {
+      return [];
+    }
 
     foreach ($data as $subarray) {
       if (isset($subarray['domain'])) {
@@ -178,6 +181,12 @@ class Bridge {
     }
 
     return $allSenderDomains;
+  }
+
+  public function getRawSenderDomainData(): ?array {
+    return $this
+      ->getApi($this->settings->get(self::API_KEY_SETTING_NAME))
+      ->getAuthorizedSenderDomains();
   }
 
   /**
@@ -341,8 +350,8 @@ class Bridge {
     $key = $this->settings->get(self::API_KEY_SETTING_NAME);
     $this->storeMSSKeyAndState($key, $this->buildKeyState(
       self::KEY_INVALID,
-      [ 'code' => API::RESPONSE_CODE_KEY_INVALID ],
-      null)
-    );
+      ['code' => API::RESPONSE_CODE_KEY_INVALID],
+      null
+    ));
   }
 }

@@ -712,7 +712,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function removeDeprecatedStatisticsIndexes(): bool {
     global $wpdb;
     // skip the migration if the DB version is higher than 3.67.1 or is not set (a new install)
-    if (version_compare($this->getDbVersion( '3.67.1'), '3.67.1', '>')) {
+    if (version_compare($this->getDbVersion('3.67.1'), '3.67.1', '>')) {
       return false;
     }
 
@@ -744,7 +744,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function migrateSerializedFilterDataToNewColumns(): bool {
     global $wpdb;
     // skip the migration if the DB version is higher than 3.73.1 or is not set (a new install)
-    if (version_compare($this->getDbVersion( '3.73.1'), '3.73.0', '>')) {
+    if (version_compare($this->getDbVersion('3.73.1'), '3.73.0', '>')) {
       return false;
     }
 
@@ -775,7 +775,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function migratePurchasedProductDynamicFilters(): bool {
     global $wpdb;
     // skip the migration if the DB version is higher than 3.74.3 or is not set (a new install)
-    if (version_compare($this->getDbVersion( '3.74.3'), '3.74.2', '>')) {
+    if (version_compare($this->getDbVersion('3.74.3'), '3.74.2', '>')) {
       return false;
     }
 
@@ -816,7 +816,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function migratePurchasedInCategoryDynamicFilters(): bool {
     global $wpdb;
     // skip the migration if the DB version is higher than 3.75.1 or is not set (a new install)
-    if (version_compare($this->getDbVersion( '3.76.0'), '3.75.1', '>')) {
+    if (version_compare($this->getDbVersion('3.76.0'), '3.75.1', '>')) {
       return false;
     }
 
@@ -857,7 +857,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function migrateWooSubscriptionsDynamicFilters(): bool {
     global $wpdb;
     // skip the migration if the DB version is higher than 3.75.1 or is not set (a new installation)
-    if (version_compare($this->getDbVersion( '3.76.0'), '3.75.1', '>')) {
+    if (version_compare($this->getDbVersion('3.76.0'), '3.75.1', '>')) {
       return false;
     }
 
@@ -897,7 +897,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function migrateEmailActionsFilters(): bool {
     global $wpdb;
     // skip the migration if the DB version is higher than 3.77.1 or is not set (a new installation)
-    if (version_compare($this->getDbVersion( '3.77.2'), '3.77.1', '>')) {
+    if (version_compare($this->getDbVersion('3.77.2'), '3.77.1', '>')) {
       return false;
     }
 
@@ -971,7 +971,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function updateMetaFields() {
     global $wpdb;
     // perform once for versions below or equal to 3.26.0
-    if (version_compare($this->getDbVersion( '3.26.1'), '3.26.0', '>')) {
+    if (version_compare($this->getDbVersion('3.26.1'), '3.26.0', '>')) {
       return false;
     }
     $scheduledTaskTable = $this->getTableName(ScheduledTaskEntity::class);
@@ -997,7 +997,7 @@ class Migration_20221028_105818 extends DbMigration {
   }
 
   private function pauseTasksForPausedNewsletters() {
-    if (version_compare($this->getDbVersion( '3.60.5'), '3.60.4', '>')) {
+    if (version_compare($this->getDbVersion('3.60.5'), '3.60.4', '>')) {
       return;
     }
 
@@ -1026,7 +1026,7 @@ class Migration_20221028_105818 extends DbMigration {
 
   private function moveGoogleAnalyticsFromPremium() {
     global $wpdb;
-    if (version_compare($this->getDbVersion( '3.38.2'), '3.38.1', '>')) {
+    if (version_compare($this->getDbVersion('3.38.2'), '3.38.1', '>')) {
       return;
     }
     $premiumTableName = $wpdb->prefix . 'mailpoet_premium_newsletter_extra_data';
@@ -1053,7 +1053,7 @@ class Migration_20221028_105818 extends DbMigration {
   private function updateLastSubscribedAt() {
     global $wpdb;
     // perform once for versions below or equal to 3.42.0
-    if (version_compare($this->getDbVersion( '3.42.1'), '3.42.0', '>')) {
+    if (version_compare($this->getDbVersion('3.42.1'), '3.42.0', '>')) {
       return false;
     }
     $table = esc_sql($this->getTableName(SubscriberEntity::class));
@@ -1066,20 +1066,19 @@ class Migration_20221028_105818 extends DbMigration {
   }
 
   private function moveNewsletterTemplatesThumbnailData() {
-    if (version_compare($this->getDbVersion( '3.73.3'), '3.73.2', '>')) {
+    if (version_compare($this->getDbVersion('3.73.3'), '3.73.2', '>')) {
       return;
     }
     $newsletterTemplatesTable = $this->getTableName(NewsletterTemplateEntity::class);
     $this->connection->executeQuery("
       UPDATE " . $newsletterTemplatesTable . "
       SET thumbnail_data = thumbnail, thumbnail = NULL
-      WHERE thumbnail LIKE 'data:image%';"
-    );
+      WHERE thumbnail LIKE 'data:image%';");
   }
 
   private function fixNotificationHistoryRecordsStuckAtSending() {
     // perform once for versions below or equal to 3.99.0
-    if (version_compare($this->getDbVersion( '3.99.1'), '3.99.0', '>')) {
+    if (version_compare($this->getDbVersion('3.99.1'), '3.99.0', '>')) {
       return false;
     }
 

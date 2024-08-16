@@ -4,6 +4,6 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use Attribute;
 #[\Attribute(Attribute::TARGET_CLASS)]
-final class Embeddable implements Annotation
+final class Embeddable implements MappingAttribute
 {
 }

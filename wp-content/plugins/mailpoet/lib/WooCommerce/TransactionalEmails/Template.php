@@ -337,6 +337,7 @@ class Template {
          [
           'brandingColor' => $wcEmailSettings['base_color'],
           'headingFontColor' => $wcEmailSettings['base_text_color'],
+          'headingFontFamily' => 'Arial',
          ],
        ],
       'blockDefaults' =>

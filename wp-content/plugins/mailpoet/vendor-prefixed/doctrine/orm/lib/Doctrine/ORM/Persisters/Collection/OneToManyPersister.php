@@ -11,7 +11,9 @@ use MailPoetVendor\Doctrine\ORM\Utility\PersisterHelper;
 use function array_merge;
 use function array_reverse;
 use function array_values;
+use function assert;
 use function implode;
+use function is_string;
 class OneToManyPersister extends AbstractCollectionPersister
 {
  public function delete(PersistentCollection $collection)
@@ -126,7 +128,9 @@ class OneToManyPersister extends AbstractCollectionPersister
  $this->conn->executeStatement($statement);
  // 2) Build insert table records into temporary table
  $query = $this->em->createQuery(' SELECT t0.' . implode(', t0.', $rootClass->getIdentifierFieldNames()) . ' FROM ' . $targetClass->name . ' t0 WHERE t0.' . $mapping['mappedBy'] . ' = :owner')->setParameter('owner', $collection->getOwner());
- $statement = 'INSERT INTO ' . $tempTable . ' (' . $idColumnList . ') ' . $query->getSQL();
+ $sql = $query->getSQL();
+ assert(is_string($sql));
+ $statement = 'INSERT INTO ' . $tempTable . ' (' . $idColumnList . ') ' . $sql;
  $parameters = array_values($sourceClass->getIdentifierValues($collection->getOwner()));
  $numDeleted = $this->conn->executeStatement($statement, $parameters);
  // 3) Delete records on each table in the hierarchy

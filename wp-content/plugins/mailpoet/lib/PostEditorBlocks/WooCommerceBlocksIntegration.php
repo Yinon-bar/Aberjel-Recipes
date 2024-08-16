@@ -55,7 +55,8 @@ class WooCommerceBlocksIntegration {
   public function init() {
     $this->wp->addAction(
       'woocommerce_blocks_checkout_block_registration',
-      [$this, 'registerCheckoutFrontendBlocks']
+      [$this, 'registerCheckoutFrontendBlocks'],
+      15 // Run after AutomateWoo hooks
     );
     $addDataAttributesToBlockHook = '__experimental_woocommerce_blocks_checkout_update_order_from_request';
     $hooksVersionMatrix = [
@@ -73,7 +74,7 @@ class WooCommerceBlocksIntegration {
     $this->wp->addAction(
       $addDataAttributesToBlockHook,
       [$this, 'processCheckoutBlockOptin'],
-      10,
+      5, // Run before AutomateWoo hooks
       2
     );
     $this->wp->addFilter(
@@ -82,7 +83,7 @@ class WooCommerceBlocksIntegration {
     );
     $block = $this->wp->registerBlockTypeFromMetadata(Env::$assetsPath . '/dist/js/marketing-optin-block');
     // We need to force the script to load in the footer. register_block_type always adds the script to the header.
-    if ($block instanceof \WP_Block_Type && $block->editor_script) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
+    if ($block instanceof \WP_Block_Type && isset($block->editor_script) && $block->editor_script) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
       $wpScripts = $this->wp->getWpScripts();
       $wpScripts->add_data($block->editor_script, 'group', 1); // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
     }
@@ -101,6 +102,21 @@ class WooCommerceBlocksIntegration {
       ],
       $this->wp
     ));
+
+    $this->unregisterAutomateWooCheckoutBlock($integration_registry);
+  }
+
+  public function unregisterAutomateWooCheckoutBlock($integration_registry) {
+    if (!$this->settings->get('woocommerce.optin_on_checkout.enabled', false)) {
+      return;
+    }
+
+    $blockName = 'automatewoo';
+
+    $isAutomateWooRegistered = $integration_registry->is_registered($blockName);
+    if ($isAutomateWooRegistered) {
+      $integration_registry->unregister($blockName);
+    }
   }
 
   public function addDataAttributesToBlock(array $blocks) {
@@ -128,10 +144,32 @@ class WooCommerceBlocksIntegration {
         },
       ]
     );
+
+    $this->unregisterAutomateWooCheckoutApiEndpoint();
+  }
+
+  public function unregisterAutomateWooCheckoutApiEndpoint() {
+    $extend = StoreApi::container()->get(ExtendSchema::class);
+    $extend->register_endpoint_data(
+      [
+        'endpoint' => CheckoutSchema::IDENTIFIER,
+        'namespace' => 'automatewoo',
+        'schema_callback' => null,
+      ]
+    );
   }
 
   public function processCheckoutBlockOptin(\WC_Order $order, $request) {
     $checkoutOptin = isset($request['extensions']['mailpoet']['optin']) ? (bool)$request['extensions']['mailpoet']['optin'] : false;
+
+    // Emulate checkout opt-in triggering for AutomateWoo
+    if ($checkoutOptin) {
+      // Multi-dimensional array inside an ArrayAccess object
+      // cannot be modified directly, so an intermediate variable is used
+      $requestExtensions = $request['extensions'];
+      $requestExtensions['automatewoo']['optin'] = 'On';
+      $request['extensions'] = $requestExtensions;
+    }
 
     if (!$order->get_billing_email()) {
       return;
@@ -139,10 +177,10 @@ class WooCommerceBlocksIntegration {
 
     // Fetch existing woo subscriber and in case there is not any sync as guest
     $email = $order->get_billing_email();
-    $subscriber = $this->subscribersRepository->findOneBy(['email' => $email , 'isWoocommerceUser' => true]);
+    $subscriber = $this->subscribersRepository->findOneBy(['email' => $email, 'isWoocommerceUser' => true]);
     if (!$subscriber instanceof SubscriberEntity) {
       $this->wooSegment->synchronizeGuestCustomer($order->get_id());
-      $subscriber = $this->subscribersRepository->findOneBy(['email' => $email , 'isWoocommerceUser' => true]);
+      $subscriber = $this->subscribersRepository->findOneBy(['email' => $email, 'isWoocommerceUser' => true]);
     }
 
     // Subscriber not found and guest sync failed

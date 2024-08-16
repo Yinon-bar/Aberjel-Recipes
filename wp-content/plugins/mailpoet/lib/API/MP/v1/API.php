@@ -83,6 +83,10 @@ class API {
     return $this->subscribers->addSubscriber($subscriber, $listIds, $options);
   }
 
+  public function updateSubscriber($subscriberIdOrEmail, array $subscriber): array {
+    return $this->subscribers->updateSubscriber($subscriberIdOrEmail, $subscriber);
+  }
+
   public function addList(array $list) {
     return $this->segments->addList($list);
   }

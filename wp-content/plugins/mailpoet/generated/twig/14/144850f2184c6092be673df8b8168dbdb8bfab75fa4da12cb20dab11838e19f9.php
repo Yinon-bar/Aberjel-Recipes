@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,11 +38,11 @@ class __TwigTemplate_7dc405d107b9ef946cdf9bdce5875c7d5e40f17176bd24a0ccb45f3a720
     {
         $macros = $this->macros;
         // line 1
-        echo "<p class=\"clearfix\">
+        yield "<p class=\"clearfix\">
   <label>";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Is this field mandatory?");
-        echo "</label>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Is this field mandatory?");
+        yield "</label>
   <span class=\"group\">
     <label>
       <input type=\"radio\"
@@ -50,8 +51,8 @@ class __TwigTemplate_7dc405d107b9ef946cdf9bdce5875c7d5e40f17176bd24a0ccb45f3a720
         value=\"1\"
         {{#if params.required}}checked=\"checked\"{{/if}} />";
         // line 9
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Yes");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Yes");
+        yield "
     </label>
     <label>
       <input
@@ -61,26 +62,36 @@ class __TwigTemplate_7dc405d107b9ef946cdf9bdce5875c7d5e40f17176bd24a0ccb45f3a720
         value=\"\"
         {{#unless params.required}}checked=\"checked\"{{/unless}} />";
         // line 17
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("No");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("No");
+        yield "
     </label>
   </span>
 </p>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/required.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  61 => 17,  50 => 9,  40 => 2,  37 => 1,);
+        return array (  62 => 17,  51 => 9,  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

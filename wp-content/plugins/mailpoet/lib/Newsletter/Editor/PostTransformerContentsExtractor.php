@@ -168,6 +168,11 @@ class PostTransformerContentsExtractor {
       'h1' => $commonAttributes,
       'h2' => $commonAttributes,
       'h3' => $commonAttributes,
+      'b' => [],
+      'i' => [],
+      'strong' => [],
+      'em' => [],
+      'small' => [],
     ];
 
     return [

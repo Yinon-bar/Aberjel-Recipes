@@ -20,33 +20,33 @@ abstract class Node
  {
  return $this->dump($this);
  }
- public function dump($obj)
+ public function dump($value)
  {
  static $ident = 0;
  $str = '';
- if ($obj instanceof Node) {
- $str .= get_debug_type($obj) . '(' . PHP_EOL;
- $props = get_object_vars($obj);
+ if ($value instanceof Node) {
+ $str .= get_debug_type($value) . '(' . PHP_EOL;
+ $props = get_object_vars($value);
  foreach ($props as $name => $prop) {
  $ident += 4;
  $str .= str_repeat(' ', $ident) . '"' . $name . '": ' . $this->dump($prop) . ',' . PHP_EOL;
  $ident -= 4;
  }
  $str .= str_repeat(' ', $ident) . ')';
- } elseif (is_array($obj)) {
+ } elseif (is_array($value)) {
  $ident += 4;
  $str .= 'array(';
  $some = \false;
- foreach ($obj as $k => $v) {
+ foreach ($value as $k => $v) {
  $str .= PHP_EOL . str_repeat(' ', $ident) . '"' . $k . '" => ' . $this->dump($v) . ',';
  $some = \true;
  }
  $ident -= 4;
  $str .= ($some ? PHP_EOL . str_repeat(' ', $ident) : '') . ')';
- } elseif (is_object($obj)) {
- $str .= 'instanceof(' . get_debug_type($obj) . ')';
+ } elseif (is_object($value)) {
+ $str .= 'instanceof(' . get_debug_type($value) . ')';
  } else {
- $str .= var_export($obj, \true);
+ $str .= var_export($value, \true);
  }
  return $str;
  }

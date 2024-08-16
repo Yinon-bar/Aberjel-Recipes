@@ -15,7 +15,7 @@ class FilterCollection
  private $config;
  private $em;
  private $enabledFilters = [];
- private $filterHash;
+ private $filterHash = '';
  private $filtersState = self::FILTERS_STATE_CLEAN;
  public function __construct(EntityManagerInterface $em)
  {

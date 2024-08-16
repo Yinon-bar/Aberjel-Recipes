@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,28 +38,38 @@ class __TwigTemplate_988bff1dab18e4a9fc1682f0deca0fbcffaad5afb9f1d4cb9e02875450d
     {
         $macros = $this->macros;
         // line 1
-        echo "<p class=\"clearfix\">
+        yield "<p class=\"clearfix\">
   <label for=\"label\">";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Label:");
-        echo "</label>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Label:");
+        yield "</label>
   <input id=\"label\" type=\"text\" name=\"params[label]\" value=\"{{ params.label }}\" />
 </p>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/label.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  40 => 2,  37 => 1,);
+        return array (  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

@@ -6,9 +6,10 @@ class ConditionalFactor extends Node
 {
  public $not = \false;
  public $conditionalPrimary;
- public function __construct($conditionalPrimary)
+ public function __construct($conditionalPrimary, bool $not = \false)
  {
  $this->conditionalPrimary = $conditionalPrimary;
+ $this->not = $not;
  }
  public function dispatch($sqlWalker)
  {

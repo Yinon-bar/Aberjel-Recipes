@@ -5,45 +5,41 @@ namespace MailPoet\EmailEditor\Integrations\MailPoet;
 if (!defined('ABSPATH')) exit;
 
 
-use MailPoet\Entities\NewsletterEntity;
+use MailPoet\Config\Menu;
 use MailPoet\Features\FeaturesController;
-use MailPoet\Newsletter\NewslettersRepository;
-use MailPoet\Util\Security;
 use MailPoet\WP\Functions as WPFunctions;
 
 class EmailEditor {
   const MAILPOET_EMAIL_POST_TYPE = 'mailpoet_email';
 
-  /** @var WPFunctions */
-  private $wp;
+  private WPFunctions $wp;
 
-  /** @var FeaturesController */
-  private $featuresController;
+  private FeaturesController $featuresController;
 
-  /** @var NewslettersRepository */
-  private $newsletterRepository;
+  private EmailApiController $emailApiController;
 
-  /** @var EmailApiController */
-  private $emailApiController;
+  private Cli $cli;
 
   public function __construct(
     WPFunctions $wp,
     FeaturesController $featuresController,
-    NewslettersRepository $newsletterRepository,
-    EmailApiController $emailApiController
+    EmailApiController $emailApiController,
+    Cli $cli
   ) {
     $this->wp = $wp;
     $this->featuresController = $featuresController;
-    $this->newsletterRepository = $newsletterRepository;
     $this->emailApiController = $emailApiController;
+    $this->cli = $cli;
   }
 
   public function initialize(): void {
     if (!$this->featuresController->isSupported(FeaturesController::GUTENBERG_EMAIL_EDITOR)) {
       return;
     }
+    $this->cli->initialize();
     $this->wp->addFilter('mailpoet_email_editor_post_types', [$this, 'addEmailPostType']);
-    $this->wp->addFilter('save_post', [$this, 'onEmailSave'], 10, 2);
+    $this->wp->addAction('rest_delete_mailpoet_email', [$this->emailApiController, 'trashEmail'], 10, 1);
+    $this->wp->addFilter('mailpoet_is_email_editor_page', [$this, 'isEditorPage'], 10, 1);
     $this->extendEmailPostApi();
   }
 
@@ -61,25 +57,8 @@ class EmailEditor {
     return $postTypes;
   }
 
-  /**
-   * This method ensures that saved email has an associated newsletter entity.
-   * In the future we will also need to save additional parameters like subject, type, etc.
-   */
-  public function onEmailSave($postId, \WP_Post $post): void {
-    if ($post->post_type !== self::MAILPOET_EMAIL_POST_TYPE) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
-      return;
-    }
-    $newsletter = $this->newsletterRepository->findOneBy(['wpPostId' => $postId]);
-    if ($newsletter) {
-      return;
-    }
-    $newsletter = new NewsletterEntity();
-    $newsletter->setWpPostId($postId);
-    $newsletter->setSubject('New Editor Email ' . $postId);
-    $newsletter->setType(NewsletterEntity::TYPE_STANDARD); // We allow only standard emails in the new editor for now
-    $newsletter->setHash(Security::generateHash());
-    $this->newsletterRepository->persist($newsletter);
-    $this->newsletterRepository->flush();
+  public function isEditorPage(bool $isEditorPage): bool {
+    return $isEditorPage || (isset($_GET['page']) && $_GET['page'] === Menu::EMAIL_EDITOR_V2_PAGE_SLUG);
   }
 
   public function extendEmailPostApi() {

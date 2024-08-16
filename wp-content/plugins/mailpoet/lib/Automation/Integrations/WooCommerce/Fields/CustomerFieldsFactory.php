@@ -32,8 +32,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Billing company', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_billing_company() : null;
+            return $payload->getBillingCompany();
           }
         ),
         new Field(
@@ -41,8 +40,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Billing phone', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_billing_phone() : null;
+            return $payload->getBillingPhone();
           }
         ),
         new Field(
@@ -50,8 +48,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Billing city', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_billing_city() : null;
+            return $payload->getBillingCity();
           }
         ),
         new Field(
@@ -59,8 +56,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Billing postcode', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_billing_postcode() : null;
+            return $payload->getBillingPostcode();
           }
         ),
         new Field(
@@ -68,8 +64,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Billing state/county', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_billing_state() : null;
+            return $payload->getBillingState();
           }
         ),
         new Field(
@@ -77,8 +72,7 @@ class CustomerFieldsFactory {
           Field::TYPE_ENUM,
           __('Billing country', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_billing_country() : null;
+            return $payload->getBillingCountry();
           },
           [
             'options' => $this->getBillingCountryOptions(),
@@ -89,8 +83,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Shipping company', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_shipping_company() : null;
+            return $payload->getShippingCompany();
           }
         ),
         new Field(
@@ -98,8 +91,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Shipping phone', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_shipping_phone() : null;
+            return $payload->getShippingPhone();
           }
         ),
         new Field(
@@ -107,8 +99,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Shipping city', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_shipping_city() : null;
+            return $payload->getShippingCity();
           }
         ),
         new Field(
@@ -116,8 +107,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Shipping postcode', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_shipping_postcode() : null;
+            return $payload->getShippingPostcode();
           }
         ),
         new Field(
@@ -125,8 +115,7 @@ class CustomerFieldsFactory {
           Field::TYPE_STRING,
           __('Shipping state/county', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_shipping_state() : null;
+            return $payload->getShippingState();
           }
         ),
         new Field(
@@ -134,8 +123,7 @@ class CustomerFieldsFactory {
           Field::TYPE_ENUM,
           __('Shipping country', 'mailpoet'),
           function (CustomerPayload $payload) {
-            $customer = $payload->getCustomer();
-            return $customer ? $customer->get_shipping_country() : null;
+            return $payload->getShippingCountry();
           },
           [
             'options' => $this->getShippingCountryOptions(),

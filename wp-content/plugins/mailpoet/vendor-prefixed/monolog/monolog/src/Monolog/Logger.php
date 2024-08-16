@@ -21,18 +21,27 @@ class Logger implements LoggerInterface, ResettableInterface
  public const EMERGENCY = 600;
  public const API = 2;
  protected static $levels = [self::DEBUG => 'DEBUG', self::INFO => 'INFO', self::NOTICE => 'NOTICE', self::WARNING => 'WARNING', self::ERROR => 'ERROR', self::CRITICAL => 'CRITICAL', self::ALERT => 'ALERT', self::EMERGENCY => 'EMERGENCY'];
+ private const RFC_5424_LEVELS = [7 => self::DEBUG, 6 => self::INFO, 5 => self::NOTICE, 4 => self::WARNING, 3 => self::ERROR, 2 => self::CRITICAL, 1 => self::ALERT, 0 => self::EMERGENCY];
  protected $name;
  protected $handlers;
  protected $processors;
  protected $microsecondTimestamps = \true;
  protected $timezone;
  protected $exceptionHandler;
+ private $logDepth = 0;
+ private $fiberLogDepth;
+ private $detectCycles = \true;
  public function __construct(string $name, array $handlers = [], array $processors = [], ?DateTimeZone $timezone = null)
  {
  $this->name = $name;
  $this->setHandlers($handlers);
  $this->processors = $processors;
  $this->timezone = $timezone ?: new DateTimeZone(\date_default_timezone_get() ?: 'UTC');
+ if (\PHP_VERSION_ID >= 80100) {
+ // Local variable for phpstan, see https://github.com/phpstan/phpstan/issues/6732#issuecomment-1111118412
+ $fiberLogDepth = new \WeakMap();
+ $this->fiberLogDepth = $fiberLogDepth;
+ }
  }
  public function getName() : string
  {
@@ -89,8 +98,34 @@ class Logger implements LoggerInterface, ResettableInterface
  $this->microsecondTimestamps = $micro;
  return $this;
  }
- public function addRecord(int $level, string $message, array $context = []) : bool
+ public function useLoggingLoopDetection(bool $detectCycles) : self
  {
+ $this->detectCycles = $detectCycles;
+ return $this;
+ }
+ public function addRecord(int $level, string $message, array $context = [], ?DateTimeImmutable $datetime = null) : bool
+ {
+ if (isset(self::RFC_5424_LEVELS[$level])) {
+ $level = self::RFC_5424_LEVELS[$level];
+ }
+ if ($this->detectCycles) {
+ if (\PHP_VERSION_ID >= 80100 && ($fiber = \Fiber::getCurrent())) {
+ $this->fiberLogDepth[$fiber] = $this->fiberLogDepth[$fiber] ?? 0;
+ $logDepth = ++$this->fiberLogDepth[$fiber];
+ } else {
+ $logDepth = ++$this->logDepth;
+ }
+ } else {
+ $logDepth = 0;
+ }
+ if ($logDepth === 3) {
+ $this->warning('A possible infinite logging loop was detected and aborted. It appears some of your handler code is triggering logging, see the previous log record for a hint as to what may be the cause.');
+ return \false;
+ } elseif ($logDepth >= 5) {
+ // log depth 4 is let through, so we can log the warning above
+ return \false;
+ }
+ try {
  $record = null;
  foreach ($this->handlers as $handler) {
  if (null === $record) {
@@ -99,7 +134,7 @@ class Logger implements LoggerInterface, ResettableInterface
  continue;
  }
  $levelName = static::getLevelName($level);
- $record = ['message' => $message, 'context' => $context, 'level' => $level, 'level_name' => $levelName, 'channel' => $this->name, 'datetime' => new DateTimeImmutable($this->microsecondTimestamps, $this->timezone), 'extra' => []];
+ $record = ['message' => $message, 'context' => $context, 'level' => $level, 'level_name' => $levelName, 'channel' => $this->name, 'datetime' => $datetime ?? new DateTimeImmutable($this->microsecondTimestamps, $this->timezone), 'extra' => []];
  try {
  foreach ($this->processors as $processor) {
  $record = $processor($record);
@@ -117,6 +152,15 @@ class Logger implements LoggerInterface, ResettableInterface
  } catch (Throwable $e) {
  $this->handleException($e, $record);
  return \true;
+ }
+ }
+ } finally {
+ if ($this->detectCycles) {
+ if (isset($fiber)) {
+ $this->fiberLogDepth[$fiber]--;
+ } else {
+ $this->logDepth--;
+ }
  }
  }
  return null !== $record;
@@ -194,6 +238,9 @@ class Logger implements LoggerInterface, ResettableInterface
  if (!\is_int($level) && !\is_string($level)) {
  throw new \InvalidArgumentException('$level is expected to be a string or int');
  }
+ if (isset(self::RFC_5424_LEVELS[$level])) {
+ $level = self::RFC_5424_LEVELS[$level];
+ }
  $level = static::toMonologLevel($level);
  $this->addRecord($level, (string) $message, $context);
  }
@@ -244,5 +291,22 @@ class Logger implements LoggerInterface, ResettableInterface
  throw $e;
  }
  ($this->exceptionHandler)($e, $record);
+ }
+ public function __serialize() : array
+ {
+ return ['name' => $this->name, 'handlers' => $this->handlers, 'processors' => $this->processors, 'microsecondTimestamps' => $this->microsecondTimestamps, 'timezone' => $this->timezone, 'exceptionHandler' => $this->exceptionHandler, 'logDepth' => $this->logDepth, 'detectCycles' => $this->detectCycles];
+ }
+ public function __unserialize(array $data) : void
+ {
+ foreach (['name', 'handlers', 'processors', 'microsecondTimestamps', 'timezone', 'exceptionHandler', 'logDepth', 'detectCycles'] as $property) {
+ if (isset($data[$property])) {
+ $this->{$property} = $data[$property];
+ }
+ }
+ if (\PHP_VERSION_ID >= 80100) {
+ // Local variable for phpstan, see https://github.com/phpstan/phpstan/issues/6732#issuecomment-1111118412
+ $fiberLogDepth = new \WeakMap();
+ $this->fiberLogDepth = $fiberLogDepth;
+ }
  }
 }

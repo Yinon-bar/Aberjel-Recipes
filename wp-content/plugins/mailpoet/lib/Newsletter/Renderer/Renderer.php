@@ -6,16 +6,16 @@ if (!defined('ABSPATH')) exit;
 
 
 use MailPoet\Config\Env;
-use MailPoet\Config\ServicesChecker;
 use MailPoet\EmailEditor\Engine\Renderer\Renderer as GuntenbergRenderer;
 use MailPoet\Entities\NewsletterEntity;
+use MailPoet\Entities\SendingQueueEntity;
 use MailPoet\Features\FeaturesController;
 use MailPoet\Logging\LoggerFactory;
 use MailPoet\Newsletter\NewslettersRepository;
 use MailPoet\Newsletter\Renderer\EscapeHelper as EHelper;
 use MailPoet\Newsletter\Sending\SendingQueuesRepository;
 use MailPoet\NewsletterProcessingException;
-use MailPoet\Tasks\Sending as SendingTask;
+use MailPoet\Util\License\Features\CapabilitiesManager;
 use MailPoet\Util\pQuery\DomNode;
 use MailPoet\WP\Functions as WPFunctions;
 use MailPoetVendor\Html2Text\Html2Text;
@@ -36,9 +36,6 @@ class Renderer {
   /** @var \MailPoetVendor\CSS */
   private $cSSInliner;
 
-  /** @var ServicesChecker */
-  private $servicesChecker;
-
   /** @var WPFunctions */
   private $wp;
 
@@ -54,43 +51,46 @@ class Renderer {
   /** @var FeaturesController */
   private $featuresController;
 
+  private CapabilitiesManager $capabilitiesManager;
+
   public function __construct(
     BodyRenderer $bodyRenderer,
     GuntenbergRenderer $guntenbergRenderer,
     Preprocessor $preprocessor,
     \MailPoetVendor\CSS $cSSInliner,
-    ServicesChecker $servicesChecker,
     WPFunctions $wp,
     LoggerFactory $loggerFactory,
     NewslettersRepository $newslettersRepository,
     SendingQueuesRepository $sendingQueuesRepository,
-    FeaturesController $featuresController
+    FeaturesController $featuresController,
+    CapabilitiesManager $capabilitiesManager
   ) {
     $this->bodyRenderer = $bodyRenderer;
     $this->guntenbergRenderer = $guntenbergRenderer;
     $this->preprocessor = $preprocessor;
     $this->cSSInliner = $cSSInliner;
-    $this->servicesChecker = $servicesChecker;
     $this->wp = $wp;
     $this->loggerFactory = $loggerFactory;
     $this->newslettersRepository = $newslettersRepository;
     $this->sendingQueuesRepository = $sendingQueuesRepository;
     $this->featuresController = $featuresController;
+    $this->capabilitiesManager = $capabilitiesManager;
   }
 
-  public function render(NewsletterEntity $newsletter, SendingTask $sendingTask = null, $type = false) {
-    return $this->_render($newsletter, $sendingTask, $type);
+  public function render(NewsletterEntity $newsletter, SendingQueueEntity $sendingQueue = null, $type = false) {
+    return $this->_render($newsletter, $sendingQueue, $type);
   }
 
   public function renderAsPreview(NewsletterEntity $newsletter, $type = false, ?string $subject = null) {
     return $this->_render($newsletter, null, $type, true, $subject);
   }
 
-  private function _render(NewsletterEntity $newsletter, SendingTask $sendingTask = null, $type = false, $preview = false, $subject = null) {
+  private function _render(NewsletterEntity $newsletter, SendingQueueEntity $sendingQueue = null, $type = false, $preview = false, $subject = null) {
     $language = $this->wp->getBloginfo('language');
     $metaRobots = $preview ? '<meta name="robots" content="noindex, nofollow" />' : '';
     $subject = $subject ?: $newsletter->getSubject();
-    $wpPost = $newsletter->getWpPost();
+    $wpPostEntity = $newsletter->getWpPost();
+    $wpPost = $wpPostEntity ? $wpPostEntity->getWpPostInstance() : null;
     if ($this->featuresController->isSupported(FeaturesController::GUTENBERG_EMAIL_EDITOR) && $wpPost instanceof \WP_Post) {
       $renderedNewsletter = $this->guntenbergRenderer->render($wpPost, $subject, $newsletter->getPreheader(), $language, $metaRobots);
     } else {
@@ -104,15 +104,16 @@ class Renderer {
         ? $body['globalStyles']
         : [];
 
+      $mailPoetLogoInEmails = $this->capabilitiesManager->getCapability('mailpoetLogoInEmails');
       if (
-        !$this->servicesChecker->isUserActivelyPaying() && !$preview
+        (isset($mailPoetLogoInEmails) && $mailPoetLogoInEmails->isRestricted) && !$preview
       ) {
         $content = $this->addMailpoetLogoContentBlock($content, $styles);
       }
 
       $renderedBody = "";
       try {
-        $content = $this->preprocessor->process($newsletter, $content, $preview, $sendingTask);
+        $content = $this->preprocessor->process($newsletter, $content, $preview, $sendingQueue);
         $renderedBody = $this->bodyRenderer->renderBody($newsletter, $content);
       } catch (NewsletterProcessingException $e) {
         $this->loggerFactory->getLogger(LoggerFactory::TOPIC_COUPONS)->error(
@@ -120,8 +121,8 @@ class Renderer {
           ['newsletter_id' => $newsletter->getId()]
         );
         $this->newslettersRepository->setAsCorrupt($newsletter);
-        if ($newsletter->getLatestQueue()) {
-          $this->sendingQueuesRepository->pause($newsletter->getLatestQueue());
+        if ($sendingQueue) {
+          $this->sendingQueuesRepository->pause($sendingQueue);
         }
       }
       $renderedStyles = $this->renderStyles($styles);

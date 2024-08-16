@@ -6,6 +6,7 @@ use MailPoetVendor\Egulias\EmailValidator\Validation\EmailValidation;
 use MailPoetVendor\Egulias\EmailValidator\Validation\NoRFCWarningsValidation;
 use MailPoetVendor\Symfony\Component\Validator\Constraint;
 use MailPoetVendor\Symfony\Component\Validator\ConstraintValidator;
+use MailPoetVendor\Symfony\Component\Validator\Exception\LogicException;
 use MailPoetVendor\Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use MailPoetVendor\Symfony\Component\Validator\Exception\UnexpectedValueException;
 class EmailValidator extends ConstraintValidator
@@ -40,6 +41,9 @@ class EmailValidator extends ConstraintValidator
  $value = ($constraint->normalizer)($value);
  }
  if (null === $constraint->mode) {
+ if (Email::VALIDATION_MODE_STRICT === $this->defaultMode && !\class_exists(EguliasEmailValidator::class)) {
+ throw new LogicException(\sprintf('The "egulias/email-validator" component is required to make the "%s" constraint default to strict mode.', Email::class));
+ }
  $constraint->mode = $this->defaultMode;
  }
  if (!\in_array($constraint->mode, Email::$validationModes, \true)) {

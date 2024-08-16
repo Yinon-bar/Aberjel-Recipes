@@ -14,6 +14,8 @@ use MailPoet\Automation\Integrations\WooCommerce\Payloads\CustomerPayload;
 use MailPoet\NotFoundException;
 use MailPoet\Validator\Builder;
 use MailPoet\Validator\Schema\ObjectSchema;
+use WC_Customer;
+use WC_Order;
 
 /**
  * @implements Subject<CustomerPayload>
@@ -31,6 +33,7 @@ class CustomerSubject implements Subject {
   }
 
   public function getName(): string {
+    // translators: automation subject (entity entering automation) title
     return __('WooCommerce customer', 'mailpoet');
   }
 
@@ -45,16 +48,24 @@ class CustomerSubject implements Subject {
   }
 
   public function getPayload(SubjectData $subjectData): Payload {
-    $id = $subjectData->getArgs()['customer_id'];
-    if (!$id) {
-      return new CustomerPayload(null);
+    $args = $subjectData->getArgs();
+    $customerId = isset($args['customer_id']) ? (int)$args['customer_id'] : null;
+    $orderId = isset($args['order_id']) ? (int)$args['order_id'] : null;
+
+    $order = $orderId === null ? null : wc_get_order($orderId);
+    $order = $order instanceof WC_Order ? $order : null;
+
+    if (!$customerId) {
+      return new CustomerPayload(null, $order);
     }
-    $customer = new \WC_Customer($id);
+
+    $customer = new WC_Customer($customerId);
     if (!$customer->get_id()) {
       // translators: %d is the ID of the customer.
-      throw NotFoundException::create()->withMessage(sprintf(__("Customer with ID '%d' not found.", 'mailpoet'), $id));
+      throw NotFoundException::create()->withMessage(sprintf(__("Customer with ID '%d' not found.", 'mailpoet'), $customerId));
     }
-    return new CustomerPayload($customer);
+
+    return new CustomerPayload($customer, $order);
   }
 
   /** @return Field[] */

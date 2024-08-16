@@ -7,8 +7,10 @@ if (!defined('ABSPATH')) exit;
 
 use MailPoet\Entities\NewsletterEntity;
 use MailPoet\Newsletter\Links\Links as NewsletterLinks;
+use MailPoet\Settings\TrackingConfig;
 use MailPoet\Util\Helpers;
 use MailPoet\Util\SecondLevelDomainNames;
+use MailPoet\WP\Functions;
 
 class GATracking {
 
@@ -18,24 +20,35 @@ class GATracking {
   /** @var NewsletterLinks */
   private $newsletterLinks;
 
+  /** @var Functions */
+  private $wp;
+
+  /** @var TrackingConfig */
+  private $tackingConfig;
+
   public function __construct(
-    NewsletterLinks $newsletterLinks
+    NewsletterLinks $newsletterLinks,
+    Functions $wp,
+    TrackingConfig $trackingConfig
   ) {
     $this->secondLevelDomainNames = new SecondLevelDomainNames();
     $this->newsletterLinks = $newsletterLinks;
+    $this->wp = $wp;
+    $this->tackingConfig = $trackingConfig;
   }
 
   public function applyGATracking($renderedNewsletter, NewsletterEntity $newsletter, $internalHost = null) {
+    if (!$this->tackingConfig->isEmailTrackingEnabled()) {
+      return $renderedNewsletter;
+    }
     if ($newsletter->getType() == NewsletterEntity::TYPE_NOTIFICATION_HISTORY && $newsletter->getParent() instanceof NewsletterEntity) {
       $parentNewsletter = $newsletter->getParent();
       $field = $parentNewsletter->getGaCampaign();
     } else {
       $field = $newsletter->getGaCampaign();
     }
-    if (!empty($field)) {
-      $renderedNewsletter = $this->addGAParamsToLinks($renderedNewsletter, $field, $internalHost);
-    }
-    return $renderedNewsletter;
+
+    return $this->addGAParamsToLinks($renderedNewsletter, $field, $internalHost);
   }
 
   private function addGAParamsToLinks($renderedNewsletter, $gaCampaign, $internalHost = null) {
@@ -52,7 +65,14 @@ class GATracking {
 
   private function addParams($extractedLinks, $gaCampaign, $internalHost = null) {
     $processedLinks = [];
-    $params = 'utm_source=mailpoet&utm_medium=email&utm_campaign=' . urlencode($gaCampaign);
+    $params = [
+      'utm_source' => 'mailpoet',
+      'utm_medium' => 'email',
+      'utm_source_platform' => 'mailpoet',
+    ];
+    if ($gaCampaign) {
+      $params['utm_campaign'] = $gaCampaign;
+    }
     $internalHost = $internalHost ?: parse_url(home_url(), PHP_URL_HOST);
     $internalHost = $this->secondLevelDomainNames->get($internalHost);
     foreach ($extractedLinks as $extractedLink) {
@@ -62,10 +82,27 @@ class GATracking {
         // Process only internal links (i.e. pointing to current site)
         continue;
       }
-      list($path, $search, $hash) = $this->splitLink($extractedLink['link']);
-      $search = empty($search) ? $params : $search . '&' . $params;
-      $processedLink = $path . '?' . $search . ($hash ? '#' . $hash : '');
+
       $link = $extractedLink['link'];
+
+      // Do not overwrite existing query parameters
+      $parsedUrl = parse_url($link);
+      $linkParams = $params;
+      if (isset($parsedUrl['query'])) {
+        foreach (array_keys($params) as $param) {
+          if (strpos($parsedUrl['query'], $param . '=') !== false) {
+            unset($linkParams[$param]);
+          }
+        }
+      }
+
+      $processedLink = $this->wp->applyFilters(
+        'mailpoet_ga_tracking_link',
+        $this->wp->addQueryArg($linkParams, $link),
+        $extractedLink['link'],
+        $linkParams,
+        $extractedLink['type']
+      );
       $processedLinks[$link] = [
         'type' => $extractedLink['type'],
         'link' => $link,
@@ -73,14 +110,5 @@ class GATracking {
       ];
     }
     return $processedLinks;
-  }
-
-  private function splitLink($link) {
-    $parts = explode('#', $link);
-    $hash = implode('#', array_slice($parts, 1));
-    $parts = explode('?', $parts[0]);
-    $path = $parts[0];
-    $search = implode('?', array_slice($parts, 1));
-    return [$path, $search, $hash];
   }
 }

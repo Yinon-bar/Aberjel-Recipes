@@ -6,9 +6,10 @@ class ExistsExpression extends Node
 {
  public $not;
  public $subselect;
- public function __construct($subselect)
+ public function __construct($subselect, bool $not = \false)
  {
  $this->subselect = $subselect;
+ $this->not = $not;
  }
  public function dispatch($sqlWalker)
  {

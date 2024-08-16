@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,7 +43,7 @@ class __TwigTemplate_176225ef6518abb3a235b9f1785c332f068c4c798b602f397b3f290225c
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("layout.html", "logs.html", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
@@ -50,7 +51,7 @@ class __TwigTemplate_176225ef6518abb3a235b9f1785c332f068c4c798b602f397b3f290225c
     {
         $macros = $this->macros;
         // line 4
-        echo "
+        yield "
 <div class=\"wrap\">
   <h1 class=\"mailpoet-h1\">Logs</h1>
 
@@ -59,36 +60,46 @@ class __TwigTemplate_176225ef6518abb3a235b9f1785c332f068c4c798b602f397b3f290225c
   <script type=\"text/javascript\">
     ";
         // line 12
-        echo "      var mailpoet_logs = ";
-        echo json_encode(($context["logs"] ?? null));
-        echo ";
+        yield "      var mailpoet_logs = ";
+        yield json_encode(($context["logs"] ?? null));
+        yield ";
     ";
         // line 14
-        echo "  </script>
+        yield "  </script>
 </div>
 
 ";
         // line 17
-        echo $this->extensions['MailPoet\Twig\I18n']->localize(["pageTitle" => $this->extensions['MailPoet\Twig\I18n']->translate("Logs"), "tableHeaderName" => $this->extensions['MailPoet\Twig\I18n']->translate("Name"), "tableHeaderMessage" => $this->extensions['MailPoet\Twig\I18n']->translate("Message"), "tableHeaderCreatedOn" => $this->extensions['MailPoet\Twig\I18n']->translate("Created On"), "searchLabel" => $this->extensions['MailPoet\Twig\I18n']->translate("Search"), "offsetLabel" => $this->extensions['MailPoet\Twig\I18n']->translate("Offset"), "limitLabel" => $this->extensions['MailPoet\Twig\I18n']->translate("Limit"), "from" => $this->extensions['MailPoet\Twig\I18n']->translateWithContext("From", "date from"), "to" => $this->extensions['MailPoet\Twig\I18n']->translateWithContext("To", "date to"), "filter" => $this->extensions['MailPoet\Twig\I18n']->translate("Filter")]);
+        yield $this->extensions['MailPoet\Twig\I18n']->localize(["pageTitle" => $this->extensions['MailPoet\Twig\I18n']->translate("Logs"), "tableHeaderName" => $this->extensions['MailPoet\Twig\I18n']->translate("Name"), "tableHeaderMessage" => $this->extensions['MailPoet\Twig\I18n']->translate("Message"), "tableHeaderCreatedOn" => $this->extensions['MailPoet\Twig\I18n']->translate("Created On"), "searchLabel" => $this->extensions['MailPoet\Twig\I18n']->translate("Search"), "offsetLabel" => $this->extensions['MailPoet\Twig\I18n']->translate("Offset"), "limitLabel" => $this->extensions['MailPoet\Twig\I18n']->translate("Limit"), "from" => $this->extensions['MailPoet\Twig\I18n']->translateWithContext("From", "date from"), "to" => $this->extensions['MailPoet\Twig\I18n']->translateWithContext("To", "date to"), "filter" => $this->extensions['MailPoet\Twig\I18n']->translate("Filter")]);
         // line 28
-        echo "
+        yield "
 
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "logs.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  71 => 28,  69 => 17,  64 => 14,  59 => 12,  50 => 4,  46 => 3,  35 => 1,);
+        return array (  72 => 28,  70 => 17,  65 => 14,  60 => 12,  51 => 4,  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

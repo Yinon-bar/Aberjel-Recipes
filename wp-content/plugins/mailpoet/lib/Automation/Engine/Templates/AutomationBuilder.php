@@ -107,6 +107,7 @@ class AutomationBuilder {
    *       field: string,
    *       condition: string,
    *       value: mixed,
+   *       params?: array<string, mixed>,
    *     }[],
    *   }[],
    * } $filters
@@ -129,7 +130,7 @@ class AutomationBuilder {
               $field->getType(),
               $filter['field'],
               $filter['condition'],
-              ['value' => $filter['value']]
+              array_merge(['value' => $filter['value']], isset($filter['params']) ? ['params' => $filter['params']] : []),
             );
           },
           $group['filters']

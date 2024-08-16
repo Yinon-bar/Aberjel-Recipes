@@ -12,7 +12,7 @@ final class EmbedTokenParser extends IncludeTokenParser
  {
  $stream = $this->parser->getStream();
  $parent = $this->parser->getExpressionParser()->parseExpression();
- list($variables, $only, $ignoreMissing) = $this->parseArguments();
+ [$variables, $only, $ignoreMissing] = $this->parseArguments();
  $parentToken = $fakeParentToken = new Token(
  7,
  '__parent__',

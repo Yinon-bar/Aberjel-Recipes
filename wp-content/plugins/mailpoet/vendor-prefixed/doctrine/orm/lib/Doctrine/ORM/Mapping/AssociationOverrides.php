@@ -3,9 +3,10 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use Attribute;
+use function array_values;
 use function is_array;
 #[\Attribute(Attribute::TARGET_CLASS)]
-final class AssociationOverrides implements Annotation
+final class AssociationOverrides implements MappingAttribute
 {
  public $overrides = [];
  public function __construct($overrides)
@@ -17,7 +18,7 @@ final class AssociationOverrides implements Annotation
  if (!$override instanceof AssociationOverride) {
  throw MappingException::invalidOverrideType('AssociationOverride', $override);
  }
- $this->overrides[] = $override;
  }
+ $this->overrides = array_values($overrides);
  }
 }

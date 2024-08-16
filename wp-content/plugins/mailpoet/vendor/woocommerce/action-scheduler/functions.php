@@ -118,8 +118,9 @@ function as_unschedule_action( $hook, $args = array(), $group = '' ) {
  ActionScheduler::logger()->log(
  $action_id,
  sprintf(
- __( 'Caught exception while cancelling action: %s', 'action-scheduler' ),
- esc_attr( $hook )
+ __( 'Caught exception while cancelling action "%1$s": %2$s', 'action-scheduler' ),
+ $hook,
+ $exception->getMessage()
  )
  );
  $action_id = null;

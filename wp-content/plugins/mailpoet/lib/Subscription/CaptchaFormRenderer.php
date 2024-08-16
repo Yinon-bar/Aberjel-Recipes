@@ -10,6 +10,7 @@ use MailPoet\Entities\FormEntity;
 use MailPoet\Form\FormsRepository;
 use MailPoet\Form\Renderer as FormRenderer;
 use MailPoet\Form\Util\Styles;
+use MailPoet\Subscription\Captcha\CaptchaPhrase;
 use MailPoet\Subscription\Captcha\CaptchaSession;
 use MailPoet\Util\Url as UrlHelper;
 
@@ -19,6 +20,9 @@ class CaptchaFormRenderer {
 
   /** @var CaptchaSession */
   private $captchaSession;
+
+  /** @var CaptchaPhrase */
+  private $captchaPhrase;
 
   /** @var SubscriptionUrlFactory */
   private $subscriptionUrlFactory;
@@ -35,6 +39,7 @@ class CaptchaFormRenderer {
   public function __construct(
     UrlHelper $urlHelper,
     CaptchaSession $captchaSession,
+    CaptchaPhrase $captchaPhrase,
     SubscriptionUrlFactory $subscriptionUrlFactory,
     FormsRepository $formsRepository,
     FormRenderer $formRenderer,
@@ -42,6 +47,7 @@ class CaptchaFormRenderer {
   ) {
     $this->urlHelper = $urlHelper;
     $this->captchaSession = $captchaSession;
+    $this->captchaPhrase = $captchaPhrase;
     $this->subscriptionUrlFactory = $subscriptionUrlFactory;
     $this->formRenderer = $formRenderer;
     $this->formsRepository = $formsRepository;
@@ -52,10 +58,9 @@ class CaptchaFormRenderer {
     return __("Confirm you’re not a robot", 'mailpoet');
   }
 
-  public function getCaptchaPageContent($sessionId) {
-
-    $this->captchaSession->init($sessionId);
-    $captchaSessionForm = $this->captchaSession->getFormData();
+  public function getCaptchaPageContent(string $sessionId) {
+    $this->captchaPhrase->createPhrase($sessionId);
+    $captchaSessionForm = $this->captchaSession->getFormData($sessionId);
     $showSuccessMessage = !empty($_GET['mailpoet_success']);
     $showErrorMessage = !empty($_GET['mailpoet_error']);
     $formId = 0;
@@ -110,7 +115,7 @@ class CaptchaFormRenderer {
       'id="mailpoet_captcha_form" ' .
       'novalidate>';
     $formHtml .= '<input type="hidden" name="data[form_id]" value="' . $formId . '" />';
-    $formHtml .= '<input type="hidden" name="data[captcha_session_id]" value="' . htmlspecialchars((string)$this->captchaSession->getId()) . '" />';
+    $formHtml .= '<input type="hidden" name="data[captcha_session_id]" value="' . htmlspecialchars($sessionId) . '" />';
     $formHtml .= '<input type="hidden" name="api_version" value="v1" />';
     $formHtml .= '<input type="hidden" name="endpoint" value="subscribers" />';
     $formHtml .= '<input type="hidden" name="mailpoet_method" value="subscribe" />';
@@ -119,8 +124,8 @@ class CaptchaFormRenderer {
 
     $width = 220;
     $height = 60;
-    $captchaUrl = $this->subscriptionUrlFactory->getCaptchaImageUrl($width, $height, $this->captchaSession->getId());
-    $mp3CaptchaUrl = $this->subscriptionUrlFactory->getCaptchaAudioUrl($this->captchaSession->getId());
+    $captchaUrl = $this->subscriptionUrlFactory->getCaptchaImageUrl($width, $height, $sessionId);
+    $mp3CaptchaUrl = $this->subscriptionUrlFactory->getCaptchaAudioUrl($sessionId);
 
     $reloadIcon = Env::$assetsUrl . '/img/icons/image-rotate.svg';
     $playIcon = Env::$assetsUrl . '/img/icons/controls-volumeon.svg';

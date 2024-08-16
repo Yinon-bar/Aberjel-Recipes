@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -38,9 +39,9 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
     {
         $macros = $this->macros;
         // line 1
-        echo "<html lang=\"";
-        echo $this->extensions['MailPoet\Twig\Assets']->language();
-        echo "\" style=\"margin:0;padding:0\">
+        yield "<html lang=\"";
+        yield $this->extensions['MailPoet\Twig\Assets']->language();
+        yield "\" style=\"margin:0;padding:0\">
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
@@ -48,8 +49,8 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
   <meta name=\"format-detection\" content=\"telephone=no\" />
   <title>";
         // line 7
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["subject"] ?? null), "html", null, true);
-        echo "</title>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["subject"] ?? null), "html", null, true);
+        yield "</title>
   <style type=\"text/css\"> @media screen and (max-width: 480px) {
     .mailpoet_button {width:100% !important;}
   }
@@ -77,16 +78,16 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
         // line 31
         if (array_key_exists("preheader", $context)) {
             // line 32
-            echo "      <td class=\"mailpoet_preheader\" style=\"-webkit-text-size-adjust:none;font-size:1px;line-height:1px;color:#ffffff;border-collapse:collapse;display:none;visibility:hidden;mso-hide:all;max-height:0;max-width:0;opacity:0;overflow:hidden\" height=\"1\">
+            yield "      <td class=\"mailpoet_preheader\" style=\"-webkit-text-size-adjust:none;font-size:1px;line-height:1px;color:#ffffff;border-collapse:collapse;display:none;visibility:hidden;mso-hide:all;max-height:0;max-width:0;opacity:0;overflow:hidden\" height=\"1\">
     ";
             // line 33
-            echo \MailPoetVendor\twig_escape_filter($this->env, ($context["preheader"] ?? null), "html", null, true);
-            echo "
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["preheader"] ?? null), "html", null, true);
+            yield "
   </td>
     ";
         }
         // line 36
-        echo "  </tr>
+        yield "  </tr>
   <tr>
     <td align=\"center\" class=\"mailpoet-wrapper\" valign=\"top\" style=\"border-collapse:collapse;background-color:#f0f0f0\"><!--[if mso]>
       <table align=\"center\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"
@@ -98,9 +99,9 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
 
         ";
         // line 46
-        $this->displayBlock('content', $context, $blocks);
+        yield from $this->unwrap()->yieldBlock('content', $context, $blocks);
         // line 47
-        echo "
+        yield "
         <tr>
           <td class=\"mailpoet_content-cols-two\" align=\"left\" style=\"border-collapse:collapse;background-color:#fe5301\" bgcolor=\"#fe5301\">
             <table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-spacing:0;mso-table-lspace:0;mso-table-rspace:0;border-collapse:collapse\">
@@ -121,8 +122,8 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
                         <td class=\"mailpoet_image mailpoet_padded_vertical mailpoet_padded_side\" align=\"left\" valign=\"top\" style=\"border-collapse:collapse;padding-bottom:20px;padding-left:20px;padding-right:20px\">
                           <img src=\"";
         // line 66
-        echo $this->extensions['MailPoet\Twig\Assets']->generateCdnUrl("logo-white-400x122.png");
-        echo "\" width=\"130\" alt=\"new_logo_white\" style=\"height:auto;max-width:100%;-ms-interpolation-mode:bicubic;border:0;display:block;outline:none;text-align:center\" />
+        yield $this->extensions['MailPoet\Twig\Assets']->generateCdnUrl("logo-white-400x122.png");
+        yield "\" width=\"130\" alt=\"new_logo_white\" style=\"height:auto;max-width:100%;-ms-interpolation-mode:bicubic;border:0;display:block;outline:none;text-align:center\" />
                         </td>
                       </tr>
                       </tbody>
@@ -144,12 +145,12 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
                                 <span style=\"color: #ffffff;\">
                                   <a href=\"https://www.mailpoet.com/how-to-improve-open-rates/\" title=\"";
         // line 86
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("How to Improve Open and Click Rates");
-        echo "\" style=\"color:#fff;text-decoration:underline\">
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("How to Improve Open and Click Rates");
+        yield "\" style=\"color:#fff;text-decoration:underline\">
                                     ";
         // line 87
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("How to improve my open rate?");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("How to improve my open rate?");
+        yield "
                                   </a>
                                 </span>
                               </td>
@@ -159,12 +160,12 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
                               <td class=\"mailpoet_paragraph\" style=\"word-break:break-word;word-wrap:break-word;text-align:right;border-collapse:collapse;color:#000000;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:16px;line-height:25.6px\">
                                 <span style=\"color: #ffffff;\"><a href=\"https://www.mailpoet.com/how-to-improve-click-rates/\" title=\"";
         // line 95
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("How to Improve Open and Click Rates");
-        echo "\" style=\"color:#fff;text-decoration:underline\">
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("How to Improve Open and Click Rates");
+        yield "\" style=\"color:#fff;text-decoration:underline\">
                                   ";
         // line 96
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("And my click rate?");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("And my click rate?");
+        yield "
                                 </a></span>
                               </td>
                             </tr></table>
@@ -173,12 +174,12 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
                               <td class=\"mailpoet_paragraph\" style=\"word-break:break-word;word-wrap:break-word;text-align:right;border-collapse:collapse;color:#000000;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-size:16px;line-height:25.6px\">
                                 <a href=\"";
         // line 103
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["linkSettings"] ?? null), "html", null, true);
-        echo "\" style=\"color:#fff;text-decoration:underline\">
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["linkSettings"] ?? null), "html", null, true);
+        yield "\" style=\"color:#fff;text-decoration:underline\">
                                   ";
         // line 104
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Disable these emails");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Disable these emails");
+        yield "
                                 </a>
                               </td>
                             </tr></table>
@@ -209,27 +210,38 @@ class __TwigTemplate_983c70cc527e9ec7b888be667e99a11703d8dd9de70fb8285afd14f53c3
 </body>
 </html>
 ";
+        return; yield '';
     }
 
     // line 46
     public function block_content($context, array $blocks = [])
     {
         $macros = $this->macros;
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/statsNotificationLayout.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  212 => 46,  177 => 104,  173 => 103,  163 => 96,  159 => 95,  148 => 87,  144 => 86,  121 => 66,  100 => 47,  98 => 46,  86 => 36,  80 => 33,  77 => 32,  75 => 31,  48 => 7,  38 => 1,);
+        return array (  214 => 46,  178 => 104,  174 => 103,  164 => 96,  160 => 95,  149 => 87,  145 => 86,  122 => 66,  101 => 47,  99 => 46,  87 => 36,  81 => 33,  78 => 32,  76 => 31,  49 => 7,  39 => 1,);
     }
 
     public function getSourceContext()

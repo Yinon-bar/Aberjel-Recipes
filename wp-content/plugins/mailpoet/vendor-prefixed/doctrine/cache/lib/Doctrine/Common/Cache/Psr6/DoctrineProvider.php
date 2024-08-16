@@ -5,6 +5,7 @@ use MailPoetVendor\Doctrine\Common\Cache\Cache;
 use MailPoetVendor\Doctrine\Common\Cache\CacheProvider;
 use MailPoetVendor\Psr\Cache\CacheItemPoolInterface;
 use MailPoetVendor\Symfony\Component\Cache\Adapter\DoctrineAdapter as SymfonyDoctrineAdapter;
+use MailPoetVendor\Symfony\Contracts\Service\ResetInterface;
 use function rawurlencode;
 final class DoctrineProvider extends CacheProvider
 {
@@ -30,6 +31,13 @@ final class DoctrineProvider extends CacheProvider
  public function getPool() : CacheItemPoolInterface
  {
  return $this->pool;
+ }
+ public function reset() : void
+ {
+ if ($this->pool instanceof ResetInterface) {
+ $this->pool->reset();
+ }
+ $this->setNamespace($this->getNamespace());
  }
  protected function doFetch($id)
  {

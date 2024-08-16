@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,56 +38,66 @@ class __TwigTemplate_bb51173393bd115fb73852f25a9771bba45407f3bab35cc8c1403263a5e
     {
         $macros = $this->macros;
         // line 1
-        $context["currentYear"] = \MailPoetVendor\twig_date_format_filter($this->env, "now", "Y");
+        $context["currentYear"] = $this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatDate("now", "Y");
         // line 2
         $context["minYear"] = (($context["currentYear"] ?? null) - 100);
         // line 3
-        echo "
+        yield "
 <select id=\"{{ id }}_years\">
   <option value=\"\">";
         // line 5
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Year");
-        echo "</option>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Year");
+        yield "</option>
   ";
         // line 6
         $context['_parent'] = $context;
-        $context['_seq'] = \MailPoetVendor\twig_ensure_traversable(range(($context["currentYear"] ?? null), ($context["minYear"] ?? null)));
+        $context['_seq'] = CoreExtension::ensureTraversable(range(($context["currentYear"] ?? null), ($context["minYear"] ?? null)));
         foreach ($context['_seq'] as $context["_key"] => $context["year"]) {
             // line 7
-            echo "    <option
+            yield "    <option
       ";
             // line 8
             if ((($context["currentYear"] ?? null) == $context["year"])) {
                 // line 9
-                echo "      {{#if params.is_default_today}}selected=\"selected\"{{/if}}
+                yield "      {{#if params.is_default_today}}selected=\"selected\"{{/if}}
       ";
             }
             // line 11
-            echo "    >";
-            echo \MailPoetVendor\twig_escape_filter($this->env, $context["year"], "html", null, true);
-            echo "</option>
+            yield "    >";
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($context["year"], "html", null, true);
+            yield "</option>
   ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['year'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
         // line 13
-        echo "</select>";
+        yield "</select>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/blocks/date_years.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  71 => 13,  62 => 11,  58 => 9,  56 => 8,  53 => 7,  49 => 6,  45 => 5,  41 => 3,  39 => 2,  37 => 1,);
+        return array (  72 => 13,  63 => 11,  59 => 9,  57 => 8,  54 => 7,  50 => 6,  46 => 5,  42 => 3,  40 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

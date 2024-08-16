@@ -72,7 +72,7 @@ class Document extends CSSBlockList
  if ($oOutputFormat === null) {
  $oOutputFormat = new OutputFormat();
  }
- return parent::render($oOutputFormat);
+ return $oOutputFormat->comments($this) . $this->renderListContents($oOutputFormat);
  }
  public function isRootList()
  {

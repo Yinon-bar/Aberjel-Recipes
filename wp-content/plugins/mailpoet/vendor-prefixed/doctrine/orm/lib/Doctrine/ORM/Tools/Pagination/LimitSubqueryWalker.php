@@ -3,7 +3,7 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Tools\Pagination;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\DBAL\Types\Type;
-use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadataInfo;
+use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\Query;
 use MailPoetVendor\Doctrine\ORM\Query\AST\Functions\IdentityFunction;
 use MailPoetVendor\Doctrine\ORM\Query\AST\Node;
@@ -22,12 +22,11 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
  private $_aliasCounter = 0;
  public function walkSelectStatement(SelectStatement $AST)
  {
- $queryComponents = $this->_getQueryComponents();
  // Get the root entity and alias from the AST fromClause
  $from = $AST->fromClause->identificationVariableDeclarations;
  $fromRoot = reset($from);
  $rootAlias = $fromRoot->rangeVariableDeclaration->aliasIdentificationVariable;
- $rootClass = $queryComponents[$rootAlias]['metadata'];
+ $rootClass = $this->getMetadataForDqlAlias($rootAlias);
  $this->validate($AST);
  $identifier = $rootClass->getSingleIdentifierFieldName();
  if (isset($rootClass->associationMappings[$identifier])) {
@@ -42,6 +41,7 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
  if (!isset($AST->orderByClause)) {
  return;
  }
+ $queryComponents = $this->_getQueryComponents();
  foreach ($AST->orderByClause->orderByItems as $item) {
  if ($item->expression instanceof PathExpression) {
  $AST->selectClause->selectExpressions[] = new SelectExpression($this->createSelectExpressionItem($item->expression), '_dctrn_ord' . $this->_aliasCounter++);
@@ -71,7 +71,7 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
  $expression = $orderByItem->expression;
  if ($orderByItem->expression instanceof PathExpression && isset($queryComponents[$expression->identificationVariable])) {
  $queryComponent = $queryComponents[$expression->identificationVariable];
- if (isset($queryComponent['parent']) && $queryComponent['relation']['type'] & ClassMetadataInfo::TO_MANY) {
+ if (isset($queryComponent['parent']) && isset($queryComponent['relation']) && $queryComponent['relation']['type'] & ClassMetadata::TO_MANY) {
  throw new RuntimeException('Cannot select distinct identifiers from query with LIMIT and ORDER BY on a column from a fetch joined to-many association. Use output walkers.');
  }
  }

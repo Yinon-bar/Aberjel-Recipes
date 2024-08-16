@@ -12,20 +12,25 @@ use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\EscaperExtension;
 use MailPoetVendor\Twig\Extension\ExtensionInterface;
 use MailPoetVendor\Twig\Extension\OptimizerExtension;
+use MailPoetVendor\Twig\Extension\YieldNotReadyExtension;
 use MailPoetVendor\Twig\Loader\ArrayLoader;
 use MailPoetVendor\Twig\Loader\ChainLoader;
 use MailPoetVendor\Twig\Loader\LoaderInterface;
+use MailPoetVendor\Twig\Node\Expression\Binary\AbstractBinary;
+use MailPoetVendor\Twig\Node\Expression\Unary\AbstractUnary;
 use MailPoetVendor\Twig\Node\ModuleNode;
 use MailPoetVendor\Twig\Node\Node;
 use MailPoetVendor\Twig\NodeVisitor\NodeVisitorInterface;
+use MailPoetVendor\Twig\Runtime\EscaperRuntime;
+use MailPoetVendor\Twig\RuntimeLoader\FactoryRuntimeLoader;
 use MailPoetVendor\Twig\RuntimeLoader\RuntimeLoaderInterface;
 use MailPoetVendor\Twig\TokenParser\TokenParserInterface;
 class Environment
 {
- public const VERSION = '3.4.3';
- public const VERSION_ID = 30403;
+ public const VERSION = '3.10.3';
+ public const VERSION_ID = 301003;
  public const MAJOR_VERSION = 3;
- public const MINOR_VERSION = 4;
+ public const MINOR_VERSION = 10;
  public const RELEASE_VERSION = 3;
  public const EXTRA_VERSION = '';
  private $charset;
@@ -46,19 +51,34 @@ class Environment
  private $runtimeLoaders = [];
  private $runtimes = [];
  private $optionsHash;
+ private $useYield;
+ private $defaultRuntimeLoader;
  public function __construct(LoaderInterface $loader, $options = [])
  {
  $this->setLoader($loader);
- $options = \array_merge(['debug' => \false, 'charset' => 'UTF-8', 'strict_variables' => \false, 'autoescape' => 'html', 'cache' => \false, 'auto_reload' => null, 'optimizations' => -1], $options);
+ $options = \array_merge(['debug' => \false, 'charset' => 'UTF-8', 'strict_variables' => \false, 'autoescape' => 'html', 'cache' => \false, 'auto_reload' => null, 'optimizations' => -1, 'use_yield' => \false], $options);
+ $this->useYield = (bool) $options['use_yield'];
  $this->debug = (bool) $options['debug'];
  $this->setCharset($options['charset'] ?? 'UTF-8');
  $this->autoReload = null === $options['auto_reload'] ? $this->debug : (bool) $options['auto_reload'];
  $this->strictVariables = (bool) $options['strict_variables'];
  $this->setCache($options['cache']);
  $this->extensionSet = new ExtensionSet();
+ $this->defaultRuntimeLoader = new FactoryRuntimeLoader([EscaperRuntime::class => function () {
+ return new EscaperRuntime($this->charset);
+ }]);
  $this->addExtension(new CoreExtension());
- $this->addExtension(new EscaperExtension($options['autoescape']));
+ $escaperExt = new EscaperExtension($options['autoescape']);
+ $escaperExt->setEnvironment($this, \false);
+ $this->addExtension($escaperExt);
+ if (\PHP_VERSION_ID >= 80000) {
+ $this->addExtension(new YieldNotReadyExtension($this->useYield));
+ }
  $this->addExtension(new OptimizerExtension($options['optimizations']));
+ }
+ public function useYield() : bool
+ {
+ return $this->useYield;
  }
  public function enableDebug()
  {
@@ -118,7 +138,7 @@ class Environment
  throw new \LogicException('Cache can only be a string, false, or a \\Twig\\Cache\\CacheInterface implementation.');
  }
  }
- public function getTemplateClass(string $name, int $index = null) : string
+ public function getTemplateClass(string $name, ?int $index = null) : string
  {
  $key = $this->getLoader()->getCacheKey($name) . $this->optionsHash;
  return $this->templateClassPrefix . \hash(\PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128', $key) . (null === $index ? '' : '___' . $index);
@@ -136,9 +156,13 @@ class Environment
  if ($name instanceof TemplateWrapper) {
  return $name;
  }
+ if ($name instanceof Template) {
+ trigger_deprecation('twig/twig', '3.9', 'Passing a "%s" instance to "%s" is deprecated.', self::class, __METHOD__);
+ return $name;
+ }
  return new TemplateWrapper($this, $this->loadTemplate($this->getTemplateClass($name), $name));
  }
- public function loadTemplate(string $cls, string $name, int $index = null) : Template
+ public function loadTemplate(string $cls, string $name, ?int $index = null) : Template
  {
  $mainCls = $cls;
  if (null !== $index) {
@@ -152,7 +176,6 @@ class Environment
  if (!$this->isAutoReload() || $this->isTemplateFresh($name, $this->cache->getTimestamp($key))) {
  $this->cache->load($key);
  }
- $source = null;
  if (!\class_exists($cls, \false)) {
  $source = $this->getLoader()->getSourceContext($name);
  $content = $this->compileSource($source);
@@ -169,7 +192,7 @@ class Environment
  $this->extensionSet->initRuntime();
  return $this->loadedTemplates[$cls] = new $cls($this);
  }
- public function createTemplate(string $template, string $name = null) : TemplateWrapper
+ public function createTemplate(string $template, ?string $name = null) : TemplateWrapper
  {
  $hash = \hash(\PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128', $template, \false);
  if (null !== $name) {
@@ -197,7 +220,8 @@ class Environment
  $count = \count($names);
  foreach ($names as $name) {
  if ($name instanceof Template) {
- return $name;
+ trigger_deprecation('twig/twig', '3.9', 'Passing a "%s" instance to "%s" is deprecated.', Template::class, __METHOD__);
+ return new TemplateWrapper($this, $name);
  }
  if ($name instanceof TemplateWrapper) {
  return $name;
@@ -263,7 +287,7 @@ class Environment
  }
  public function setCharset(string $charset)
  {
- if ('UTF8' === ($charset = null === $charset ? null : \strtoupper($charset))) {
+ if ('UTF8' === ($charset = \strtoupper($charset ?: ''))) {
  // iconv on Windows requires "UTF-8" instead of "UTF8"
  $charset = 'UTF-8';
  }
@@ -294,6 +318,9 @@ class Environment
  if (null !== ($runtime = $loader->load($class))) {
  return $this->runtimes[$class] = $runtime;
  }
+ }
+ if (null !== ($runtime = $this->defaultRuntimeLoader->load($class))) {
+ return $this->runtimes[$class] = $runtime;
  }
  throw new RuntimeError(\sprintf('Unable to load the "%s" runtime.', $class));
  }
@@ -421,6 +448,6 @@ class Environment
  }
  private function updateOptionsHash() : void
  {
- $this->optionsHash = \implode(':', [$this->extensionSet->getSignature(), \PHP_MAJOR_VERSION, \PHP_MINOR_VERSION, self::VERSION, (int) $this->debug, (int) $this->strictVariables]);
+ $this->optionsHash = \implode(':', [$this->extensionSet->getSignature(), \PHP_MAJOR_VERSION, \PHP_MINOR_VERSION, self::VERSION, (int) $this->debug, (int) $this->strictVariables, $this->useYield ? '1' : '0']);
  }
 }

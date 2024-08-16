@@ -6,6 +6,6 @@ class TimestampCacheKey extends CacheKey
 {
  public function __construct($space)
  {
- $this->hash = (string) $space;
+ parent::__construct((string) $space);
  }
 }

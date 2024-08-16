@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 
 
 use MailPoet\AutomaticEmails\WooCommerce\Events\AbandonedCart;
+use MailPoet\Automation\Engine\Control\AutomationController;
 use MailPoet\Automation\Engine\Control\StepRunController;
 use MailPoet\Automation\Engine\Data\Automation;
 use MailPoet\Automation\Engine\Data\Step;
@@ -20,6 +21,7 @@ use MailPoet\Automation\Integrations\WooCommerce\Payloads\AbandonedCartPayload;
 use MailPoet\Entities\NewsletterEntity;
 use MailPoet\Entities\NewsletterOptionEntity;
 use MailPoet\Entities\NewsletterOptionFieldEntity;
+use MailPoet\Entities\ScheduledTaskSubscriberEntity;
 use MailPoet\Entities\SubscriberEntity;
 use MailPoet\InvalidStateException;
 use MailPoet\Newsletter\NewslettersRepository;
@@ -35,6 +37,36 @@ use Throwable;
 
 class SendEmailAction implements Action {
   const KEY = 'mailpoet:send-email';
+
+  // Intervals to poll for email status after sending. These are only
+  // used when immediate status sync fails or the email is never sent.
+  private const POLL_INTERVALS = [
+    5 * MINUTE_IN_SECONDS, // ~5 minutes
+    10 * MINUTE_IN_SECONDS, // ~15 minutes
+    45 * MINUTE_IN_SECONDS, // ~1 hour
+    4 * HOUR_IN_SECONDS, // ~5 hours           ...from email scheduling
+    19 * HOUR_IN_SECONDS, // ~1 day
+    4 * DAY_IN_SECONDS, // ~5 days
+    25 * DAY_IN_SECONDS, // ~1 month
+  ];
+
+  private const TRANSACTIONAL_TRIGGERS = [
+    'woocommerce:order-status-changed',
+    'woocommerce:order-created',
+    'woocommerce:order-completed',
+    'woocommerce:order-cancelled',
+    'woocommerce:abandoned-cart',
+    'woocommerce-subscriptions:subscription-created',
+    'woocommerce-subscriptions:subscription-expired',
+    'woocommerce-subscriptions:subscription-payment-failed',
+    'woocommerce-subscriptions:subscription-renewed',
+    'woocommerce-subscriptions:subscription-status-changed',
+    'woocommerce-subscriptions:trial-ended',
+    'woocommerce-subscriptions:trial-started',
+  ];
+
+  /** @var AutomationController */
+  private $automationController;
 
   /** @var SettingsController */
   private $settings;
@@ -58,6 +90,7 @@ class SendEmailAction implements Action {
   private $newsletterOptionFieldsRepository;
 
   public function __construct(
+    AutomationController $automationController,
     SettingsController $settings,
     NewslettersRepository $newslettersRepository,
     SubscriberSegmentRepository $subscriberSegmentRepository,
@@ -66,6 +99,7 @@ class SendEmailAction implements Action {
     NewsletterOptionsRepository $newsletterOptionsRepository,
     NewsletterOptionFieldsRepository $newsletterOptionFieldsRepository
   ) {
+    $this->automationController = $automationController;
     $this->settings = $settings;
     $this->newslettersRepository = $newslettersRepository;
     $this->subscriberSegmentRepository = $subscriberSegmentRepository;
@@ -80,6 +114,7 @@ class SendEmailAction implements Action {
   }
 
   public function getName(): string {
+    // translators: automation action title
     return __('Send email', 'mailpoet');
   }
 
@@ -136,59 +171,142 @@ class SendEmailAction implements Action {
 
   public function run(StepRunArgs $args, StepRunController $controller): void {
     $newsletter = $this->getEmailForStep($args->getStep());
-
     $subscriber = $this->getSubscriber($args);
 
-    $subscriberStatus = $subscriber->getStatus();
-    if ($newsletter->getType() !== NewsletterEntity::TYPE_AUTOMATION_TRANSACTIONAL && $subscriberStatus !== SubscriberEntity::STATUS_SUBSCRIBED) {
-      throw InvalidStateException::create()->withMessage(sprintf("Cannot schedule a newsletter for subscriber ID '%s' because their status is '%s'.", $subscriber->getId(), $subscriberStatus));
+    if ($args->isFirstRun()) {
+      // run #1: schedule email sending
+      $subscriberStatus = $subscriber->getStatus();
+      if ($newsletter->getType() !== NewsletterEntity::TYPE_AUTOMATION_TRANSACTIONAL && $subscriberStatus !== SubscriberEntity::STATUS_SUBSCRIBED) {
+        throw InvalidStateException::create()->withMessage(sprintf("Cannot schedule a newsletter for subscriber ID '%s' because their status is '%s'.", $subscriber->getId(), $subscriberStatus));
+      }
+
+      if ($subscriberStatus === SubscriberEntity::STATUS_BOUNCED) {
+        throw InvalidStateException::create()->withMessage(sprintf("Cannot schedule an email for subscriber ID '%s' because their status is '%s'.", $subscriber->getId(), $subscriberStatus));
+      }
+
+      $meta = $this->getNewsletterMeta($args);
+      try {
+        $this->automationEmailScheduler->createSendingTask($newsletter, $subscriber, $meta);
+      } catch (Throwable $e) {
+        throw InvalidStateException::create()->withMessage('Could not create sending task.');
+      }
+
+    } else {
+      // run #N: check/sync sending status with the automation step
+      $success = $this->checkSendingStatus($args, $newsletter, $subscriber);
+      if ($success) {
+        return;
+      }
     }
 
-    if ($subscriberStatus === SubscriberEntity::STATUS_BOUNCED) {
-      throw InvalidStateException::create()->withMessage(sprintf("Cannot schedule an email for subscriber ID '%s' because their status is '%s'.", $subscriber->getId(), $subscriberStatus));
+    // Schedule a progress run to sync the email sending status to the automation step.
+    // Normally, a progress run is executed immediately after sending; we're scheduling
+    // these runs to poll for the status if sync fails or email never sends (timeout).
+    $nextInterval = self::POLL_INTERVALS[$args->getRunNumber() - 1] ?? 0;
+    $controller->scheduleProgress(time() + $nextInterval);
+  }
+
+  /** @param mixed $data */
+  public function handleEmailSent($data): void {
+    if (!is_array($data)) {
+      throw InvalidStateException::create()->withMessage(
+        sprintf('Invalid automation step data. Array expected, got: %s', gettype($data))
+      );
     }
 
-    $meta = $this->getNewsletterMeta($args);
-    try {
-      $this->automationEmailScheduler->createSendingTask($newsletter, $subscriber, $meta);
-    } catch (Throwable $e) {
-      throw InvalidStateException::create()->withMessage('Could not create sending task.');
+    $runId = $data['run_id'] ?? null;
+    if (!is_int($runId)) {
+      throw InvalidStateException::create()->withMessage(
+        sprintf("Invalid automation step data. Expected 'run_id' to be an integer, got: %s", gettype($runId))
+      );
     }
+
+    $stepId = $data['step_id'] ?? null;
+    if (!is_string($stepId)) {
+      throw InvalidStateException::create()->withMessage(
+        sprintf("Invalid automation step data. Expected 'step_id' to be a string, got: %s", gettype($runId))
+      );
+    }
+
+    $this->automationController->enqueueProgress($runId, $stepId);
+  }
+
+  private function checkSendingStatus(StepRunArgs $args, NewsletterEntity $newsletter, SubscriberEntity $subscriber): bool {
+    $scheduledTaskSubscriber = $this->automationEmailScheduler->getScheduledTaskSubscriber($newsletter, $subscriber, $args->getAutomationRun());
+    if (!$scheduledTaskSubscriber) {
+      throw InvalidStateException::create()->withMessage('Email failed to schedule.');
+    }
+
+    // email sending failed
+    if ($scheduledTaskSubscriber->getFailed() === ScheduledTaskSubscriberEntity::FAIL_STATUS_FAILED) {
+      throw InvalidStateException::create()->withMessage(
+        sprintf('Email failed to send. Error: %s', $scheduledTaskSubscriber->getError() ?: 'Unknown error')
+      );
+    }
+
+    $wasSent = $scheduledTaskSubscriber->getProcessed() === ScheduledTaskSubscriberEntity::STATUS_PROCESSED;
+    $isLastRun = $args->getRunNumber() >= count(self::POLL_INTERVALS);
+
+    // email was never sent
+    if (!$wasSent && $isLastRun) {
+      $error = 'Email sending process timed out.';
+      $this->automationEmailScheduler->saveError($scheduledTaskSubscriber, $error);
+      throw InvalidStateException::create()->withMessage($error);
+    }
+
+    return $wasSent;
   }
 
   private function getNewsletterMeta(StepRunArgs $args): array {
-    if (!$this->automationHasAbandonedCartTrigger($args->getAutomation())) {
-      return [];
+    $meta = [
+      'automation' => [
+        'id' => $args->getAutomation()->getId(),
+        'run_id' => $args->getAutomationRun()->getId(),
+        'step_id' => $args->getStep()->getId(),
+        'run_number' => $args->getRunNumber(),
+      ],
+    ];
+
+    if ($this->automationHasAbandonedCartTrigger($args->getAutomation())) {
+      $payload = $args->getSinglePayloadByClass(AbandonedCartPayload::class);
+      $meta[AbandonedCart::TASK_META_NAME] = $payload->getProductIds();
     }
 
-    $payload = $args->getSinglePayloadByClass(AbandonedCartPayload::class);
-    return [AbandonedCart::TASK_META_NAME => $payload->getProductIds()];
+    return $meta;
   }
 
   private function getSubscriber(StepRunArgs $args): SubscriberEntity {
     $subscriberId = $args->getSinglePayloadByClass(SubscriberPayload::class)->getId();
     try {
       $segmentId = $args->getSinglePayloadByClass(SegmentPayload::class)->getId();
-
-      $subscriberSegment = $this->subscriberSegmentRepository->findOneBy([
-        'subscriber' => $subscriberId,
-        'segment' => $segmentId,
-        'status' => SubscriberEntity::STATUS_SUBSCRIBED,
-      ]);
-
-      if (!$subscriberSegment) {
-        throw InvalidStateException::create()->withMessage(sprintf("Subscriber ID '%s' is not subscribed to segment ID '%s'.", $subscriberId, $segmentId));
-      }
-
-      $subscriber = $subscriberSegment->getSubscriber();
-      if (!$subscriber) {
-        throw InvalidStateException::create();
-      }
     } catch (NotFoundException $e) {
+      $segmentId = null;
+    }
+
+    // Without segment, fetch subscriber by ID (needed e.g. for "mailpoet:custom-trigger").
+    // Transactional emails don't need to be checked against segment, no matter if it's set.
+    if (!$segmentId || $this->isTransactional($args->getStep(), $args->getAutomation())) {
       $subscriber = $this->subscribersRepository->findOneById($subscriberId);
       if (!$subscriber) {
         throw InvalidStateException::create();
       }
+      return $subscriber;
+    }
+
+    // With segment, fetch subscriber segment and check if they are subscribed.
+    $subscriberSegment = $this->subscriberSegmentRepository->findOneBy([
+      'subscriber' => $subscriberId,
+      'segment' => $segmentId,
+      'status' => SubscriberEntity::STATUS_SUBSCRIBED,
+    ]);
+
+    if (!$subscriberSegment) {
+      throw InvalidStateException::create()->withMessage(sprintf("Subscriber ID '%s' is not subscribed to segment ID '%s'.", $subscriberId, $segmentId));
+    }
+
+    $subscriber = $subscriberSegment->getSubscriber();
+    if (!$subscriber) {
+      throw InvalidStateException::create();
     }
     return $subscriber;
   }
@@ -260,7 +378,7 @@ class SendEmailAction implements Action {
     $transactionalTriggers = array_filter(
       $triggers,
       function(Step $step): bool {
-        return in_array($step->getKey(), ['woocommerce:order-status-changed'], true);
+        return in_array($step->getKey(), self::TRANSACTIONAL_TRIGGERS, true);
       }
     );
 
@@ -280,7 +398,7 @@ class SendEmailAction implements Action {
     return (bool)array_filter(
       $automation->getTriggers(),
       function(Step $step): bool {
-        return in_array($step->getKey(), ['woocommerce:order-status-changed', 'woocommerce:abandoned-cart'], true);
+        return strpos($step->getKey(), 'woocommerce:') === 0;
       }
     );
   }

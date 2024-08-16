@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_CLASS)]
-final class Table implements Annotation
+final class Table implements MappingAttribute
 {
  public $name;
  public $schema;

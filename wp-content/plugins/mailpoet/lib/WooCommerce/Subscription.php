@@ -5,11 +5,9 @@ namespace MailPoet\WooCommerce;
 if (!defined('ABSPATH')) exit;
 
 
-use MailPoet\Entities\StatisticsUnsubscribeEntity;
 use MailPoet\Entities\SubscriberEntity;
 use MailPoet\Segments\SegmentsRepository;
 use MailPoet\Settings\SettingsController;
-use MailPoet\Statistics\Track\Unsubscribes;
 use MailPoet\Subscribers\ConfirmationEmailMailer;
 use MailPoet\Subscribers\Source;
 use MailPoet\Subscribers\SubscriberSegmentRepository;
@@ -24,6 +22,7 @@ class Subscription {
   const OPTIN_ENABLED_SETTING_NAME = 'woocommerce.optin_on_checkout.enabled';
   const OPTIN_SEGMENTS_SETTING_NAME = 'woocommerce.optin_on_checkout.segments';
   const OPTIN_MESSAGE_SETTING_NAME = 'woocommerce.optin_on_checkout.message';
+  const OPTIN_POSITION_SETTING_NAME = 'woocommerce.optin_on_checkout.position';
 
   private $allowedHtml = [
     'input' => [
@@ -64,9 +63,6 @@ class Subscription {
   /** @var SubscribersRepository */
   private $subscribersRepository;
 
-  /** @var Unsubscribes */
-  private $unsubscribesTracker;
-
   /** @var SegmentsRepository */
   private $segmentsRepository;
 
@@ -79,7 +75,6 @@ class Subscription {
     WPFunctions $wp,
     Helper $wcHelper,
     SubscribersRepository $subscribersRepository,
-    Unsubscribes $unsubscribesTracker,
     SegmentsRepository $segmentsRepository,
     SubscriberSegmentRepository $subscriberSegmentRepository
   ) {
@@ -88,13 +83,11 @@ class Subscription {
     $this->wcHelper = $wcHelper;
     $this->confirmationEmailMailer = $confirmationEmailMailer;
     $this->subscribersRepository = $subscribersRepository;
-    $this->unsubscribesTracker = $unsubscribesTracker;
     $this->segmentsRepository = $segmentsRepository;
     $this->subscriberSegmentRepository = $subscriberSegmentRepository;
   }
 
   public function extendWooCommerceCheckoutForm() {
-    $this->hideAutomateWooOptinCheckbox();
     $inputName = self::CHECKOUT_OPTIN_INPUT_NAME;
     $checked = false;
     if (!empty($_POST[self::CHECKOUT_OPTIN_INPUT_NAME])) {
@@ -221,14 +214,14 @@ class Subscription {
     }
   }
 
-  private function hideAutomateWooOptinCheckbox(): void {
+  public function hideAutomateWooOptinCheckbox(): void {
     if (!$this->wp->isPluginActive('automatewoo/automatewoo.php')) {
       return;
     }
     // Hide AutomateWoo checkout opt-in so we won't end up with two opt-ins
     $this->wp->removeAction(
       'woocommerce_checkout_after_terms_and_conditions',
-      [ 'AutomateWoo\Frontend', 'output_checkout_optin_checkbox' ]
+      ['AutomateWoo\Frontend', 'output_checkout_optin_checkbox']
     );
   }
 
@@ -263,17 +256,6 @@ class Subscription {
       $this->confirmationEmailMailer->sendConfirmationEmailOnce($subscriber);
     } catch (\Exception $e) {
       // ignore errors
-    }
-  }
-
-  private function updateSubscriberStatus(SubscriberEntity $subscriber) {
-    $segmentsCount = $subscriber->getSubscriberSegments(SubscriberEntity::STATUS_SUBSCRIBED)->count();
-
-    if (!$segmentsCount) {
-      $subscriber->setStatus(SubscriberEntity::STATUS_UNSUBSCRIBED);
-      $this->subscribersRepository->persist($subscriber);
-      $this->subscribersRepository->flush();
-      $this->unsubscribesTracker->track((int)$subscriber->getId(), StatisticsUnsubscribeEntity::SOURCE_ORDER_CHECKOUT);
     }
   }
 }

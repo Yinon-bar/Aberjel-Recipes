@@ -2,12 +2,13 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Utility;
 if (!defined('ABSPATH')) exit;
+use BackedEnum;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\UnitOfWork;
 use MailPoetVendor\Doctrine\Persistence\Mapping\ClassMetadataFactory;
 use function assert;
 use function implode;
-use function is_object;
+use function is_a;
 final class IdentifierFlattener
 {
  private $unitOfWork;
@@ -21,7 +22,7 @@ final class IdentifierFlattener
  {
  $flatId = [];
  foreach ($class->identifier as $field) {
- if (isset($class->associationMappings[$field]) && isset($id[$field]) && is_object($id[$field])) {
+ if (isset($class->associationMappings[$field]) && isset($id[$field]) && is_a($id[$field], $class->associationMappings[$field]['targetEntity'])) {
  $targetClassMetadata = $this->metadataFactory->getMetadataFor($class->associationMappings[$field]['targetEntity']);
  assert($targetClassMetadata instanceof ClassMetadata);
  if ($this->unitOfWork->isInIdentityMap($id[$field])) {
@@ -37,7 +38,11 @@ final class IdentifierFlattener
  }
  $flatId[$field] = implode(' ', $associatedId);
  } else {
+ if ($id[$field] instanceof BackedEnum) {
+ $flatId[$field] = $id[$field]->value;
+ } else {
  $flatId[$field] = $id[$field];
+ }
  }
  }
  return $flatId;

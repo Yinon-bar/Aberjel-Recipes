@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,8 +37,7 @@ class __TwigTemplate_042329f1c0fb8078aa6e91c00feb5fb0ef8b51da862bdffbd8a41930e7d
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "<style type=\"text/css\">
+        yield "<style type=\"text/css\">
     .mailpoet_text_block .mailpoet_content,
     .mailpoet_text_block .mailpoet_content p {
         color: {{ text.fontColor }};
@@ -74,6 +74,27 @@ class __TwigTemplate_042329f1c0fb8078aa6e91c00feb5fb0ef8b51da862bdffbd8a41930e7d
         background-color: {{ body.backgroundColor }};
     }
     {{#if isWoocommerceTransactional}}
+      .mailpoet_text_block .mailpoet_content,
+      .mailpoet_text_block .mailpoet_content p {
+         font-family: {{fontWithFallback text.fontFamily }};
+      }
+      .mailpoet_text_block .mailpoet_content h1,
+      .mailpoet_text_block .mailpoet_content h2,
+      .mailpoet_text_block .mailpoet_content h3 {
+          color: {{#if woocommerce.contentHeadingFontColor }}{{ woocommerce.contentHeadingFontColor }}{{else}}{{ woocommerce.brandingColor }}{{/if}};
+      }
+      .mailpoet_content h1 {
+        font-size: {{ h1.fontSize }} !important;
+        font-family: {{ woocommerce.headingFontFamily }} !important;
+      }
+      .mailpoet_content h2 {
+        font-size: {{ h2.fontSize }} !important;
+        font-family: {{ woocommerce.headingFontFamily }} !important;
+      }
+      .mailpoet_content h3 {
+        font-size: {{ h3.fontSize }} !important;
+        font-family: {{ woocommerce.headingFontFamily }} !important;
+      }
       .mailpoet_woocommerce_heading {
         padding: 30px 20px;
         background: {{ woocommerce.brandingColor }};
@@ -81,12 +102,15 @@ class __TwigTemplate_042329f1c0fb8078aa6e91c00feb5fb0ef8b51da862bdffbd8a41930e7d
       .mailpoet_woocommerce_heading h1 {
         line-height: 1.2em;
         font-family: {{fontWithFallback text.fontFamily }};
-        font-size: 36px;
         color: {{ woocommerce.headingFontColor }};
         margin: 0;
       }
       .mailpoet_woocommerce_content {
         color: {{ text.fontColor }};
+      }
+      .mailpoet_woocommerce_content * {
+        font-family: {{fontWithFallback text.fontFamily }} !important;
+        font-size: {{ text.fontSize }};
       }
       .mailpoet_woocommerce_content a {
         color: {{ link.fontColor }};
@@ -94,7 +118,7 @@ class __TwigTemplate_042329f1c0fb8078aa6e91c00feb5fb0ef8b51da862bdffbd8a41930e7d
       .mailpoet_woocommerce_content h1,
       .mailpoet_woocommerce_content h2,
       .mailpoet_woocommerce_content h3 {
-        color: {{ woocommerce.brandingColor }};
+        color: {{#if woocommerce.contentHeadingFontColor }}{{ woocommerce.contentHeadingFontColor }}{{else}}{{ woocommerce.brandingColor }}{{/if}};
       }
     {{/if}}
     .mailpoet_editor_confirmation_email_section {
@@ -108,16 +132,23 @@ class __TwigTemplate_042329f1c0fb8078aa6e91c00feb5fb0ef8b51da862bdffbd8a41930e7d
     }
 </style>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/components/styles.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

@@ -44,6 +44,14 @@ class Functions {
     return did_action($hookName);
   }
 
+  /**
+   * @param string $hookName
+   * @return int
+   */
+  public function didFilter($hookName) {
+    return did_filter($hookName);
+  }
+
   public function trailingslashit(string $url) {
     return trailingslashit($url);
   }
@@ -77,7 +85,7 @@ class Functions {
   }
 
   /**
-   * @param bool|array $crop
+   * @param bool|array{string, string} $crop
    */
   public function addImageSize($name, $width = 0, $height = 0, $crop = false) {
     return add_image_size($name, $width, $height, $crop);
@@ -102,11 +110,11 @@ class Functions {
   }
 
   public function addScreenOption($option, $args = []) {
-    return add_screen_option($option, $args);
+    add_screen_option($option, $args);
   }
 
   public function addShortcode($tag, callable $callback) {
-    return add_shortcode($tag, $callback);
+    add_shortcode($tag, $callback);
   }
 
   /**
@@ -253,6 +261,10 @@ class Functions {
 
   public function getPost($post = null, $output = OBJECT, $filter = 'raw') {
     return get_post($post, $output, $filter);
+  }
+
+  public function wpUpdatePost($postarr = [], bool $wp_error = false, bool $fire_after_hooks = true) {
+    return wp_update_post($postarr, $wp_error, $fire_after_hooks);
   }
 
   public function hasCategory($category = '', $post = null): bool {
@@ -486,7 +498,7 @@ class Functions {
   }
 
   public function statusHeader($code, $description = '') {
-    return status_header($code, $description);
+    status_header($code, $description);
   }
 
   public function stripslashesDeep($value) {
@@ -522,7 +534,7 @@ class Functions {
   }
 
   public function wpEnqueueMedia(array $args = []) {
-    return wp_enqueue_media($args);
+    wp_enqueue_media($args);
   }
 
   public function wpEnqueueScript($handle, $src = '', array $deps = [], $ver = false, $inFooter = false) {
@@ -552,6 +564,10 @@ class Functions {
 
   public function wpGetCurrentUser() {
     return wp_get_current_user();
+  }
+
+  public function wpGetImageMime($file) {
+    return wp_get_image_mime($file);
   }
 
   public function wpGetPostTerms($postId, $taxonomy = 'post_tag', array $args = []) {
@@ -663,7 +679,7 @@ class Functions {
   }
 
   /**
-   * @param string $action
+   * @param 'hot_categories'|'hot_tags'|'plugin_information'|'query_plugins' $action
    * @param array|object $args
    * @return object|array|WP_Error
    */
@@ -817,7 +833,7 @@ class Functions {
     return wp_register_script($handle, $src, $deps, $ver, $in_footer);
   }
 
-  public function wpSetScriptTranslations(string $handle, string $domain = 'default', string $path = null): bool {
+  public function wpSetScriptTranslations(string $handle, string $domain = 'default', string $path = ''): bool {
     return wp_set_script_translations($handle, $domain, $path);
   }
 
@@ -908,8 +924,15 @@ class Functions {
     return wp_is_site_url_using_https();
   }
 
-  public function getPostMeta(int $postId, string $key, bool $single = false) {
+  public function getPostMeta(int $postId, string $key = '', bool $single = false) {
     return get_post_meta($postId, $key, $single);
+  }
+
+  /**
+   * @return bool|int
+   */
+  public function updatePostMeta(int $postId, string $metaKey, $metaValue, $prevValue = '') {
+    return update_post_meta($postId, $metaKey, $metaValue, $prevValue);
   }
 
   public function getFileData(string $file, array $default_headers, string $context = 'plugin'): array {
@@ -939,5 +962,25 @@ class Functions {
 
   public function getQueriedObjectId() {
     return get_queried_object_id();
+  }
+
+  /**
+   * @param string $string
+   * @param bool $removeBreaks
+   */
+  public function wpStripAllTags($string, $removeBreaks = false): string {
+    return wp_strip_all_tags($string, $removeBreaks);
+  }
+
+  public function getTheContent($more_link_text = null, $strip_teaser = false, $post = null) {
+    return get_the_content($more_link_text, $strip_teaser, $post);
+  }
+
+  public function getTaxonomy($taxonomy) {
+    return get_taxonomy($taxonomy);
+  }
+
+  public function wpIsMaintenanceMode(): bool {
+    return wp_is_maintenance_mode();
   }
 }

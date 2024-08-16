@@ -4,6 +4,7 @@ namespace MailPoetVendor\Doctrine\ORM;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\Common\Collections\ArrayCollection;
 use MailPoetVendor\Doctrine\Common\Collections\Criteria;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\Query\Expr;
 use MailPoetVendor\Doctrine\ORM\Query\Parameter;
 use MailPoetVendor\Doctrine\ORM\Query\QueryExpressionVisitor;
@@ -24,6 +25,7 @@ use function is_string;
 use function key;
 use function reset;
 use function sprintf;
+use function str_starts_with;
 use function strpos;
 use function strrpos;
 use function substr;
@@ -40,7 +42,7 @@ class QueryBuilder
  private $_state = self::STATE_CLEAN;
  private $_dql;
  private $parameters;
- private $_firstResult = null;
+ private $_firstResult = 0;
  private $_maxResults = null;
  private $joinRootAliases = [];
  protected $cacheable = \false;
@@ -94,6 +96,7 @@ class QueryBuilder
  }
  public function getType()
  {
+ Deprecation::trigger('doctrine/dbal', 'https://github.com/doctrine/orm/pull/9945', 'Relying on the type of the query being built is deprecated.' . ' If necessary, track the type of the query being built outside of the builder.');
  return $this->_type;
  }
  public function getEntityManager()
@@ -102,6 +105,7 @@ class QueryBuilder
  }
  public function getState()
  {
+ Deprecation::trigger('doctrine/dbal', 'https://github.com/doctrine/orm/pull/9945', 'Relying on the query builder state is deprecated as it is an internal concern.');
  return $this->_state;
  }
  public function getDQL()
@@ -236,10 +240,7 @@ class QueryBuilder
  }
  public function setFirstResult($firstResult)
  {
- if ($firstResult !== null) {
- $firstResult = (int) $firstResult;
- }
- $this->_firstResult = $firstResult;
+ $this->_firstResult = (int) $firstResult;
  return $this;
  }
  public function getFirstResult()
@@ -320,6 +321,9 @@ class QueryBuilder
  if (!$delete) {
  return $this;
  }
+ if (!$alias) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/9733', 'Omitting the alias is deprecated and will throw an exception in Doctrine 3.0.');
+ }
  return $this->add('from', new Expr\From($delete, $alias));
  }
  public function update($update = null, $alias = null)
@@ -327,6 +331,9 @@ class QueryBuilder
  $this->_type = self::UPDATE;
  if (!$update) {
  return $this;
+ }
+ if (!$alias) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/9733', 'Omitting the alias is deprecated and will throw an exception in Doctrine 3.0.');
  }
  return $this->add('from', new Expr\From($update, $alias));
  }
@@ -469,7 +476,7 @@ class QueryBuilder
  foreach ($criteria->getOrderings() as $sort => $order) {
  $hasValidAlias = \false;
  foreach ($allAliases as $alias) {
- if (strpos($sort . '.', $alias . '.') === 0) {
+ if (str_starts_with($sort . '.', $alias . '.')) {
  $hasValidAlias = \true;
  break;
  }
@@ -482,7 +489,7 @@ class QueryBuilder
  }
  // Overwrite limits only if they was set in criteria
  $firstResult = $criteria->getFirstResult();
- if ($firstResult !== null) {
+ if ($firstResult > 0) {
  $this->setFirstResult($firstResult);
  }
  $maxResults = $criteria->getMaxResults();

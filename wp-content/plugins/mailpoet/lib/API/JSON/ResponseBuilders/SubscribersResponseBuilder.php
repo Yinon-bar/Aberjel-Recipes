@@ -62,6 +62,7 @@ class SubscribersResponseBuilder {
       'wp_user_id' => $subscriber->getWpUserId(),
       'is_woocommerce_user' => $subscriber->getIsWoocommerceUser(),
       'created_at' => ($createdAt = $subscriber->getCreatedAt()) ? $createdAt->format(self::DATE_FORMAT) : null,
+      'last_subscribed_at' => ($lastSubscribedAt = $subscriber->getLastSubscribedAt()) ? $lastSubscribedAt->format(self::DATE_FORMAT) : null,
       'engagement_score' => $subscriber->getEngagementScore(),
       'tags' => $this->buildTags($subscriber),
     ];
@@ -79,7 +80,7 @@ class SubscribersResponseBuilder {
       'first_name' => $subscriberEntity->getFirstName(),
       'email' => $subscriberEntity->getEmail(),
       'created_at' => ($createdAt = $subscriberEntity->getCreatedAt()) ? $createdAt->format(self::DATE_FORMAT) : null,
-      'updated_at' => $subscriberEntity->getUpdatedAt()->format(self::DATE_FORMAT),
+      'updated_at' => ($updatedAt = $subscriberEntity->getUpdatedAt()) ? $updatedAt->format(self::DATE_FORMAT) : null,
       'deleted_at' => ($deletedAt = $subscriberEntity->getDeletedAt()) ? $deletedAt->format(self::DATE_FORMAT) : null,
       'subscribed_ip' => $subscriberEntity->getSubscribedIp(),
       'confirmed_ip' => $subscriberEntity->getConfirmedIp(),

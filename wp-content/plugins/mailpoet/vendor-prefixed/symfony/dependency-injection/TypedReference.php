@@ -5,7 +5,7 @@ class TypedReference extends Reference
 {
  private $type;
  private $name;
- public function __construct(string $id, string $type, int $invalidBehavior = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, string $name = null)
+ public function __construct(string $id, string $type, int $invalidBehavior = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, ?string $name = null)
  {
  $this->name = $type === $id ? $name : null;
  parent::__construct($id, $invalidBehavior);

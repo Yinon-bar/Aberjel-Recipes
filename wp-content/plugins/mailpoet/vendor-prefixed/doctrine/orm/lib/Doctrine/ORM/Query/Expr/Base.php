@@ -3,6 +3,7 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Query\Expr;
 if (!defined('ABSPATH')) exit;
 use InvalidArgumentException;
+use Stringable;
 use function count;
 use function get_class;
 use function get_debug_type;

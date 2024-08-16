@@ -6,9 +6,10 @@ class EmptyCollectionComparisonExpression extends Node
 {
  public $expression;
  public $not;
- public function __construct($expression)
+ public function __construct($expression, bool $not = \false)
  {
  $this->expression = $expression;
+ $this->not = $not;
  }
  public function dispatch($sqlWalker)
  {

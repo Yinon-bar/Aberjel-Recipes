@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\Common\Collections\Collection;
 use MailPoetVendor\Doctrine\Common\Collections\Criteria;
 use MailPoetVendor\Doctrine\Common\Util\ClassUtils;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\Cache\CollectionCacheKey;
 use MailPoetVendor\Doctrine\ORM\Cache\CollectionHydrator;
 use MailPoetVendor\Doctrine\ORM\Cache\EntityCacheKey;
@@ -132,6 +133,7 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
  }
  protected function evictCollectionCache(PersistentCollection $collection)
  {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9512', 'The method %s() is deprecated and will be removed without replacement.');
  $key = new CollectionCacheKey($this->sourceEntity->rootEntityName, $this->association['fieldName'], $this->uow->getEntityIdentifier($collection->getOwner()));
  $this->region->evict($key);
  if ($this->cacheLogger) {
@@ -140,6 +142,7 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
  }
  protected function evictElementCache($targetEntity, $element)
  {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9512', 'The method %s() is deprecated and will be removed without replacement.');
  $targetPersister = $this->uow->getEntityPersister($targetEntity);
  assert($targetPersister instanceof CachedEntityPersister);
  $targetRegion = $targetPersister->getCacheRegion();

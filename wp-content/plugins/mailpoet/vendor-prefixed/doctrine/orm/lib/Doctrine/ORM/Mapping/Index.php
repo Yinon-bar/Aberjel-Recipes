@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
-final class Index implements Annotation
+final class Index implements MappingAttribute
 {
  public $name;
  public $columns;

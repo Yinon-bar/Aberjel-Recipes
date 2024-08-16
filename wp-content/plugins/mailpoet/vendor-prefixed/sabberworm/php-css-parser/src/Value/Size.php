@@ -9,7 +9,7 @@ class Size extends PrimitiveValue
 {
  const ABSOLUTE_SIZE_UNITS = ['px', 'cm', 'mm', 'mozmm', 'in', 'pt', 'pc', 'vh', 'vw', 'vmin', 'vmax', 'rem'];
  const RELATIVE_SIZE_UNITS = ['%', 'em', 'ex', 'ch', 'fr'];
- const NON_SIZE_UNITS = ['deg', 'grad', 'rad', 's', 'ms', 'turns', 'Hz', 'kHz'];
+ const NON_SIZE_UNITS = ['deg', 'grad', 'rad', 's', 'ms', 'turn', 'Hz', 'kHz'];
  private static $SIZE_UNITS = null;
  private $fSize;
  private $sUnit;
@@ -27,9 +27,17 @@ class Size extends PrimitiveValue
  if ($oParserState->comes('-')) {
  $sSize .= $oParserState->consume('-');
  }
- while (\is_numeric($oParserState->peek()) || $oParserState->comes('.')) {
+ while (\is_numeric($oParserState->peek()) || $oParserState->comes('.') || $oParserState->comes('e', \true)) {
  if ($oParserState->comes('.')) {
  $sSize .= $oParserState->consume('.');
+ } elseif ($oParserState->comes('e', \true)) {
+ $sLookahead = $oParserState->peek(1, 1);
+ if (\is_numeric($sLookahead) || $sLookahead === '+' || $sLookahead === '-') {
+ $sSize .= $oParserState->consume(2);
+ } else {
+ break;
+ // Reached the unit part of the number like "em" or "ex"
+ }
  } else {
  $sSize .= $oParserState->consume(1);
  }

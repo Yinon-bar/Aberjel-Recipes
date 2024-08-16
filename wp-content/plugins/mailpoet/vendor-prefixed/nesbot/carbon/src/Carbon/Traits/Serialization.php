@@ -43,9 +43,11 @@ trait Serialization
  }
  public function __serialize() : array
  {
- if (isset($this->timezone_type)) {
+ // @codeCoverageIgnoreStart
+ if (isset($this->timezone_type, $this->timezone, $this->date)) {
  return ['date' => $this->date ?? null, 'timezone_type' => $this->timezone_type, 'timezone' => $this->timezone ?? null];
  }
+ // @codeCoverageIgnoreEnd
  $timezone = $this->getTimezone();
  $export = ['date' => $this->format('Y-m-d H:i:s.u'), 'timezone_type' => $timezone->getType(), 'timezone' => $timezone->getName()];
  // @codeCoverageIgnoreStart
@@ -120,6 +122,7 @@ trait Serialization
  }
  public function cleanupDumpProperties()
  {
+ // @codeCoverageIgnoreStart
  if (\PHP_VERSION < 8.199999999999999) {
  foreach ($this->dumpProperties as $property) {
  if (isset($this->{$property})) {
@@ -127,6 +130,7 @@ trait Serialization
  }
  }
  }
+ // @codeCoverageIgnoreEnd
  return $this;
  }
  private function getSleepProperties() : array

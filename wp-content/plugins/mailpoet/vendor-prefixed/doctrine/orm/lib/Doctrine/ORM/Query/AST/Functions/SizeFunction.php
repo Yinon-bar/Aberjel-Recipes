@@ -7,21 +7,23 @@ use MailPoetVendor\Doctrine\ORM\Query\AST\PathExpression;
 use MailPoetVendor\Doctrine\ORM\Query\Lexer;
 use MailPoetVendor\Doctrine\ORM\Query\Parser;
 use MailPoetVendor\Doctrine\ORM\Query\SqlWalker;
+use function assert;
 class SizeFunction extends FunctionNode
 {
  public $collectionPathExpression;
  public function getSql(SqlWalker $sqlWalker)
  {
- $platform = $sqlWalker->getEntityManager()->getConnection()->getDatabasePlatform();
- $quoteStrategy = $sqlWalker->getEntityManager()->getConfiguration()->getQuoteStrategy();
+ assert($this->collectionPathExpression->field !== null);
+ $entityManager = $sqlWalker->getEntityManager();
+ $platform = $entityManager->getConnection()->getDatabasePlatform();
+ $quoteStrategy = $entityManager->getConfiguration()->getQuoteStrategy();
  $dqlAlias = $this->collectionPathExpression->identificationVariable;
  $assocField = $this->collectionPathExpression->field;
- $qComp = $sqlWalker->getQueryComponent($dqlAlias);
- $class = $qComp['metadata'];
+ $class = $sqlWalker->getMetadataForDqlAlias($dqlAlias);
  $assoc = $class->associationMappings[$assocField];
  $sql = 'SELECT COUNT(*) FROM ';
  if ($assoc['type'] === ClassMetadata::ONE_TO_MANY) {
- $targetClass = $sqlWalker->getEntityManager()->getClassMetadata($assoc['targetEntity']);
+ $targetClass = $entityManager->getClassMetadata($assoc['targetEntity']);
  $targetTableAlias = $sqlWalker->getSQLTableAlias($targetClass->getTableName());
  $sourceTableAlias = $sqlWalker->getSQLTableAlias($class->getTableName(), $dqlAlias);
  $sql .= $quoteStrategy->getTableName($targetClass, $platform) . ' ' . $targetTableAlias . ' WHERE ';
@@ -37,7 +39,7 @@ class SizeFunction extends FunctionNode
  }
  } else {
  // many-to-many
- $targetClass = $sqlWalker->getEntityManager()->getClassMetadata($assoc['targetEntity']);
+ $targetClass = $entityManager->getClassMetadata($assoc['targetEntity']);
  $owningAssoc = $assoc['isOwningSide'] ? $assoc : $targetClass->associationMappings[$assoc['mappedBy']];
  $joinTable = $owningAssoc['joinTable'];
  // SQL table aliases

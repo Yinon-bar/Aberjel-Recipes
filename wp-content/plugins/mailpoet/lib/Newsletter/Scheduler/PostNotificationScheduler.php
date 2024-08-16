@@ -86,7 +86,7 @@ class PostNotificationScheduler {
       ]
     );
     $types = Posts::getTypes();
-    if (($newStatus !== 'publish') || !isset($types[$post->post_type])) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
+    if (($newStatus !== 'publish') || $oldStatus === 'publish' || !isset($types[$post->post_type])) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
       return;
     }
     $this->schedulePostNotification($post->ID);
@@ -114,7 +114,7 @@ class PostNotificationScheduler {
   }
 
   public function createPostNotificationSendingTask(NewsletterEntity $newsletter): ?ScheduledTaskEntity {
-    $notificationHistory = $this->newslettersRepository->findSendingNotificationHistoryWithoutPausedTask($newsletter);
+    $notificationHistory = $this->newslettersRepository->findSendingNotificationHistoryWithoutPausedOrInvalidTask($newsletter);
     if (count($notificationHistory) > 0) {
       return null;
     }

@@ -3,8 +3,11 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Decorator;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\ORM\EntityManagerInterface;
+use MailPoetVendor\Doctrine\ORM\EntityRepository;
 use MailPoetVendor\Doctrine\ORM\Query\ResultSetMapping;
 use MailPoetVendor\Doctrine\Persistence\ObjectManagerDecorator;
+use function func_get_arg;
+use function func_num_args;
 use function get_debug_type;
 use function method_exists;
 use function sprintf;
@@ -23,6 +26,14 @@ abstract class EntityManagerDecorator extends ObjectManagerDecorator implements 
  public function getExpressionBuilder()
  {
  return $this->wrapped->getExpressionBuilder();
+ }
+ public function getRepository($className)
+ {
+ return $this->wrapped->getRepository($className);
+ }
+ public function getClassMetadata($className)
+ {
+ return $this->wrapped->getClassMetadata($className);
  }
  public function beginTransaction()
  {
@@ -95,6 +106,14 @@ abstract class EntityManagerDecorator extends ObjectManagerDecorator implements 
  public function flush($entity = null)
  {
  $this->wrapped->flush($entity);
+ }
+ public function refresh($object)
+ {
+ $lockMode = null;
+ if (func_num_args() > 1) {
+ $lockMode = func_get_arg(1);
+ }
+ $this->wrapped->refresh($object, $lockMode);
  }
  public function getEventManager()
  {

@@ -113,11 +113,24 @@ class ActionScheduler_ActionFactory {
  $schedule = new ActionScheduler_SimpleSchedule( $date );
  break;
  default:
- throw new Exception( "Unknown action type '{$options['type']}' specified when trying to create an action for '{$options['hook']}'." );
+ error_log( "Unknown action type '{$options['type']}' specified when trying to create an action for '{$options['hook']}'." );
+ return 0;
  }
  $action = new ActionScheduler_Action( $options['hook'], $options['arguments'], $schedule, $options['group'] );
  $action->set_priority( $options['priority'] );
- return $options['unique'] ? $this->store_unique_action( $action ) : $this->store( $action );
+ $action_id = 0;
+ try {
+ $action_id = $options['unique'] ? $this->store_unique_action( $action ) : $this->store( $action );
+ } catch ( Exception $e ) {
+ error_log(
+ sprintf(
+ __( 'Caught exception while enqueuing action "%1$s": %2$s', 'action-scheduler' ),
+ $options['hook'],
+ $e->getMessage()
+ )
+ );
+ }
+ return $action_id;
  }
  protected function store( ActionScheduler_Action $action ) {
  $store = ActionScheduler_Store::instance();
@@ -125,7 +138,21 @@ class ActionScheduler_ActionFactory {
  }
  protected function store_unique_action( ActionScheduler_Action $action ) {
  $store = ActionScheduler_Store::instance();
- return method_exists( $store, 'save_unique_action' ) ?
- $store->save_unique_action( $action ) : $store->save_action( $action );
+ if ( method_exists( $store, 'save_unique_action' ) ) {
+ return $store->save_unique_action( $action );
+ } else {
+ $existing_action_id = (int) $store->find_action(
+ $action->get_hook(),
+ array(
+ 'args' => $action->get_args(),
+ 'status' => ActionScheduler_Store::STATUS_PENDING,
+ 'group' => $action->get_group(),
+ )
+ );
+ if ( $existing_action_id > 0 ) {
+ return 0;
+ }
+ return $store->save_action( $action );
+ }
  }
 }

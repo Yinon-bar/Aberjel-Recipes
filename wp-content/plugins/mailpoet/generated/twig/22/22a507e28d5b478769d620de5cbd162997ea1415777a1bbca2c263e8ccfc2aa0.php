@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,18 +38,18 @@ class __TwigTemplate_4e0ede03c63347844b541c798d581116f05e6725f71ff37333dec655706
     {
         $macros = $this->macros;
         // line 1
-        echo "<table class=\"wc_status_table widefat\" cellspacing=\"0\">
+        yield "<table class=\"wc_status_table widefat\" cellspacing=\"0\">
   <thead>
   <tr>
     <th colspan=\"3\" data-export-label=\"MailPoet\"><h2
     >";
         // line 5
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("MailPoet");
+        yield "
       <span class=\"woocommerce-help-tip\" data-tip=\"";
         // line 6
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("This section shows details of MailPoet"), "html_attr");
-        echo "\"></span>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("This section shows details of MailPoet"), "html_attr");
+        yield "\"></span>
     </h2></th>
   </tr>
   </thead>
@@ -56,88 +57,98 @@ class __TwigTemplate_4e0ede03c63347844b541c798d581116f05e6725f71ff37333dec655706
   <tr>
     <td data-export-label=\"Sending Method\">";
         // line 12
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Sending Method:");
-        echo "</td>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Sending Method:");
+        yield "</td>
     <td class=\"help\">
       <span class=\"woocommerce-help-tip\" data-tip=\"";
         // line 14
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("What method is used to send out newsletters?"), "html_attr");
-        echo "\"></span>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("What method is used to send out newsletters?"), "html_attr");
+        yield "\"></span>
     </td>
     <td>";
         // line 16
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_get_attribute($this->env, $this->source, ($context["system_info"] ?? null), "sending_method", [], "any", false, false, false, 16), "html", null, true);
-        echo "</td>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["system_info"] ?? null), "sending_method", [], "any", false, false, false, 16), "html", null, true);
+        yield "</td>
   </tr>
   <tr>
     <td data-export-label=\"Send all site's emails with\">";
         // line 19
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Send all site's emails with:");
-        echo "</td>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Send all site's emails with:");
+        yield "</td>
     <td class=\"help\">
       <span class=\"woocommerce-help-tip\" data-tip=\"";
         // line 21
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("With which method are transactional emails sent?"), "html_attr");
-        echo "\"></span>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("With which method are transactional emails sent?"), "html_attr");
+        yield "\"></span>
     </td>
     <td>";
         // line 23
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_get_attribute($this->env, $this->source, ($context["system_info"] ?? null), "transactional_emails", [], "any", false, false, false, 23), "html", null, true);
-        echo "</td>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["system_info"] ?? null), "transactional_emails", [], "any", false, false, false, 23), "html", null, true);
+        yield "</td>
   </tr>
   <tr>
     <td data-export-label=\"Task Scheduler method\">";
         // line 26
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Task Scheduler method:");
-        echo "</td>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Task Scheduler method:");
+        yield "</td>
     <td class=\"help\">
       <span class=\"woocommerce-help-tip\" data-tip=\"";
         // line 28
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("What method controls the cron job?"), "html_attr");
-        echo "\"></span>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("What method controls the cron job?"), "html_attr");
+        yield "\"></span>
     </td>
     <td>";
         // line 30
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_get_attribute($this->env, $this->source, ($context["system_info"] ?? null), "task_scheduler_method", [], "any", false, false, false, 30), "html", null, true);
-        echo "</td>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["system_info"] ?? null), "task_scheduler_method", [], "any", false, false, false, 30), "html", null, true);
+        yield "</td>
   </tr>
   <tr>
     <td data-export-label=\"Cron ping URL\">";
         // line 33
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Cron ping URL:");
-        echo "</td>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Cron ping URL:");
+        yield "</td>
     <td class=\"help\">
       <span class=\"woocommerce-help-tip\" data-tip=\"";
         // line 35
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Which URL needs to be pinged to get the cron started?"), "html_attr");
-        echo "\"></span>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Which URL needs to be pinged to get the cron started?"), "html_attr");
+        yield "\"></span>
     </td>
     <td><a href=\"";
         // line 37
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_get_attribute($this->env, $this->source, ($context["system_info"] ?? null), "cron_ping_url", [], "any", false, false, false, 37), "html_attr");
-        echo "\">";
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_get_attribute($this->env, $this->source, ($context["system_info"] ?? null), "cron_ping_url", [], "any", false, false, false, 37), "html", null, true);
-        echo "</a></td>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["system_info"] ?? null), "cron_ping_url", [], "any", false, false, false, 37), "html_attr");
+        yield "\">";
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["system_info"] ?? null), "cron_ping_url", [], "any", false, false, false, 37), "html", null, true);
+        yield "</a></td>
   </tr>
   </tbody>
 </table>
 
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "woo_system_info.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  114 => 37,  109 => 35,  104 => 33,  98 => 30,  93 => 28,  88 => 26,  82 => 23,  77 => 21,  72 => 19,  66 => 16,  61 => 14,  56 => 12,  47 => 6,  43 => 5,  37 => 1,);
+        return array (  115 => 37,  110 => 35,  105 => 33,  99 => 30,  94 => 28,  89 => 26,  83 => 23,  78 => 21,  73 => 19,  67 => 16,  62 => 14,  57 => 12,  48 => 6,  44 => 5,  38 => 1,);
     }
 
     public function getSourceContext()

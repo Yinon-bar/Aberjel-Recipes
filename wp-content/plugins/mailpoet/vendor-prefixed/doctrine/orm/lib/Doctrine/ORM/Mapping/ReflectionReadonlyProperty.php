@@ -12,13 +12,11 @@ use function is_object;
 use function sprintf;
 final class ReflectionReadonlyProperty extends ReflectionProperty
 {
- private $wrappedProperty;
  public function __construct(ReflectionProperty $wrappedProperty)
  {
  if (!$wrappedProperty->isReadOnly()) {
  throw new InvalidArgumentException('Given property is not readonly.');
  }
- $this->wrappedProperty = $wrappedProperty;
  parent::__construct($wrappedProperty->class, $wrappedProperty->name);
  }
  public function getValue(?object $object = null) : mixed

@@ -29,6 +29,8 @@ class I18n extends AbstractExtension {
     $functions = [
       'localize' => 'localize',
       '__' => 'translate',
+      'esc_html__' => 'translateEscHTML',
+      'esc_attr__' => 'translateEscAttr',
       '_n' => 'pluralize',
       '_x' => 'translateWithContext',
       'get_locale' => 'getLocale',
@@ -51,6 +53,7 @@ class I18n extends AbstractExtension {
 
   public function localize() {
     $args = func_get_args();
+    /** @var array $translations */
     $translations = array_shift($args);
     $output = [];
     foreach ($translations as $key => $translation) {
@@ -64,6 +67,18 @@ class I18n extends AbstractExtension {
     $args = func_get_args();
 
     return call_user_func_array('__', $this->setTextDomain($args));
+  }
+
+  public function translateEscHTML() {
+    $args = func_get_args();
+
+    return call_user_func_array('esc_html__', $this->setTextDomain($args));
+  }
+
+  public function translateEscAttr() {
+    $args = func_get_args();
+
+    return call_user_func_array('esc_attr__', $this->setTextDomain($args));
   }
 
   public function pluralize() {
@@ -85,6 +100,7 @@ class I18n extends AbstractExtension {
 
   public function date() {
     $args = func_get_args();
+    /** @var int|null $date */
     $date = (isset($args[0])) ? $args[0] : null;
     $dateFormat = (isset($args[1])) ? $args[1] : WPFunctions::get()->getOption('date_format');
 

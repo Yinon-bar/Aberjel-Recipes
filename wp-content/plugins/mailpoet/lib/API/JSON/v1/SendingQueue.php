@@ -8,25 +8,25 @@ if (!defined('ABSPATH')) exit;
 use MailPoet\API\JSON\Endpoint as APIEndpoint;
 use MailPoet\API\JSON\Error as APIError;
 use MailPoet\API\JSON\Response;
+use MailPoet\API\JSON\ResponseBuilders\SendingQueuesResponseBuilder;
 use MailPoet\Config\AccessControl;
 use MailPoet\Cron\ActionScheduler\Actions\DaemonTrigger;
+use MailPoet\Cron\CronHelper;
 use MailPoet\Cron\CronTrigger;
 use MailPoet\Cron\Triggers\WordPress;
+use MailPoet\Cron\Workers\SendingQueue\SendingQueue as SendingQueueWorker;
 use MailPoet\Entities\NewsletterEntity;
 use MailPoet\Entities\ScheduledTaskEntity;
 use MailPoet\Entities\SendingQueueEntity;
 use MailPoet\Mailer\MailerFactory;
-use MailPoet\Models\Newsletter;
-use MailPoet\Models\SendingQueue as SendingQueueModel;
 use MailPoet\Newsletter\NewslettersRepository;
 use MailPoet\Newsletter\NewsletterValidator;
-use MailPoet\Newsletter\Scheduler\Scheduler;
 use MailPoet\Newsletter\Sending\ScheduledTasksRepository;
 use MailPoet\Newsletter\Sending\SendingQueuesRepository;
 use MailPoet\Segments\SubscribersFinder;
 use MailPoet\Settings\SettingsController;
-use MailPoet\Tasks\Sending as SendingTask;
 use MailPoet\Util\License\Features\Subscribers as SubscribersFeature;
+use MailPoetVendor\Carbon\Carbon;
 
 class SendingQueue extends APIEndpoint {
   public $permissions = [
@@ -54,14 +54,17 @@ class SendingQueue extends APIEndpoint {
   /** @var NewsletterValidator */
   private $newsletterValidator;
 
-  /** @var Scheduler */
-  private $scheduler;
-
   /** @var SettingsController */
   private $settings;
 
   /** @var DaemonTrigger */
   private $actionSchedulerDaemonTriggerAction;
+
+  /** @var SendingQueuesResponseBuilder */
+  private $sendingQueuesResponseBuilder;
+
+  /** @var CronHelper */
+  private $cronHelper;
 
   public function __construct(
     SubscribersFeature $subscribersFeature,
@@ -70,10 +73,11 @@ class SendingQueue extends APIEndpoint {
     SubscribersFinder $subscribersFinder,
     ScheduledTasksRepository $scheduledTasksRepository,
     MailerFactory $mailerFactory,
-    Scheduler $scheduler,
     SettingsController $settings,
     DaemonTrigger $actionSchedulerDaemonTriggerAction,
-    NewsletterValidator $newsletterValidator
+    NewsletterValidator $newsletterValidator,
+    SendingQueuesResponseBuilder $sendingQueuesResponseBuilder,
+    CronHelper $cronHelper
   ) {
     $this->subscribersFeature = $subscribersFeature;
     $this->subscribersFinder = $subscribersFinder;
@@ -81,10 +85,11 @@ class SendingQueue extends APIEndpoint {
     $this->sendingQueuesRepository = $sendingQueuesRepository;
     $this->scheduledTasksRepository = $scheduledTasksRepository;
     $this->mailerFactory = $mailerFactory;
-    $this->scheduler = $scheduler;
     $this->settings = $settings;
     $this->actionSchedulerDaemonTriggerAction = $actionSchedulerDaemonTriggerAction;
     $this->newsletterValidator = $newsletterValidator;
+    $this->sendingQueuesResponseBuilder = $sendingQueuesResponseBuilder;
+    $this->cronHelper = $cronHelper;
   }
 
   public function add($data = []) {
@@ -99,99 +104,97 @@ class SendingQueue extends APIEndpoint {
     );
 
     // check that the newsletter exists
-    $newsletter = Newsletter::findOneWithOptions($newsletterId);
+    $newsletter = $this->newsletterRepository->findOneById($newsletterId);
+    $this->newsletterRepository->prefetchOptions([$newsletter]);
 
-    if (!$newsletter instanceof Newsletter) {
-      return $this->errorResponse([
-        APIError::NOT_FOUND => __('This newsletter does not exist.', 'mailpoet'),
-      ]);
-    }
-    $newsletterEntity = $this->newsletterRepository->findOneById($newsletterId);
-    if (!$newsletterEntity instanceof NewsletterEntity) {
+    if (!$newsletter instanceof NewsletterEntity) {
       return $this->errorResponse([
         APIError::NOT_FOUND => __('This newsletter does not exist.', 'mailpoet'),
       ]);
     }
 
-    $validationError = $this->newsletterValidator->validate($newsletterEntity);
+    $validationError = $this->newsletterValidator->validate($newsletter);
     if ($validationError) {
       return $this->errorResponse([
         APIError::BAD_REQUEST => $validationError,
       ]);
     }
 
-    // check that the sending method has been configured properly by verifying that default mailer can be build
     try {
+      // check that the sending method has been configured properly by verifying that default mailer can be build
       $this->mailerFactory->getDefaultMailer();
+
+      $sendingQueue = $this->sendingQueuesRepository->findOneByNewsletterAndTaskStatus($newsletter, null);
+
+      if ($sendingQueue instanceof SendingQueueEntity) {
+        return $this->errorResponse([
+          APIError::NOT_FOUND => __('This newsletter is already being sent.', 'mailpoet'),
+        ]);
+      }
+
+      $sendingQueue = $this->sendingQueuesRepository->findOneByNewsletterAndTaskStatus($newsletter, ScheduledTaskEntity::STATUS_SCHEDULED);
+
+      if (is_null($sendingQueue)) {
+        $scheduledTask = new ScheduledTaskEntity();
+        $scheduledTask->setType(SendingQueueWorker::TASK_TYPE);
+        $sendingQueue = new SendingQueueEntity();
+        $sendingQueue->setNewsletter($newsletter);
+        $sendingQueue->setTask($scheduledTask);
+
+        $this->sendingQueuesRepository->persist($sendingQueue);
+        $this->newsletterRepository->refresh($newsletter);
+      } else {
+        $scheduledTask = $sendingQueue->getTask();
+      }
+
+      if (!$scheduledTask instanceof ScheduledTaskEntity) {
+        return $this->errorResponse([
+          APIError::NOT_FOUND => __('Unable to find scheduled task associated with this newsletter.', 'mailpoet'),
+        ]);
+      }
+
+      $scheduledTask->setPriority(ScheduledTaskEntity::PRIORITY_MEDIUM);
+      $this->scheduledTasksRepository->persist($scheduledTask);
+      $this->scheduledTasksRepository->flush();
+
+      WordPress::resetRunInterval();
+      if ((bool)$newsletter->getOptionValue('isScheduled')) {
+        // set newsletter status
+        $newsletter->setStatus(NewsletterEntity::STATUS_SCHEDULED);
+
+        // set scheduled task status
+        $scheduledTask->setStatus(ScheduledTaskEntity::STATUS_SCHEDULED);
+        $scheduledTask->setScheduledAt(new Carbon($newsletter->getOptionValue('scheduledAt')));
+      } else {
+        $segments = $newsletter->getSegmentIds();
+
+        $this->scheduledTasksRepository->refresh($scheduledTask);
+        $subscribersCount = $this->subscribersFinder->addSubscribersToTaskFromSegments($scheduledTask, $segments, $newsletter->getFilterSegmentId());
+
+        if (!$subscribersCount) {
+          return $this->errorResponse([
+            APIError::UNKNOWN => __('There are no subscribers in that list!', 'mailpoet'),
+          ]);
+        }
+
+        $this->sendingQueuesRepository->updateCounts($sendingQueue);
+        $scheduledTask->setStatus(null);
+        $scheduledTask->setScheduledAt(null);
+
+        // set newsletter status
+        $newsletter->setStatus(NewsletterEntity::STATUS_SENDING);
+      }
+      $this->scheduledTasksRepository->persist($scheduledTask);
+      $this->newsletterRepository->flush();
+
+      $this->triggerSending($newsletter);
+      return $this->successResponse(
+        ($newsletter->getLatestQueue() instanceof SendingQueueEntity) ? $this->sendingQueuesResponseBuilder->build($newsletter->getLatestQueue()) : null
+      );
     } catch (\Exception $e) {
       return $this->errorResponse([
         $e->getCode() => $e->getMessage(),
       ]);
-    }
-
-    // add newsletter to the sending queue
-    $queue = SendingQueueModel::joinWithTasks()
-      ->where('queues.newsletter_id', $newsletterEntity->getId())
-      ->whereNull('tasks.status')
-      ->findOne();
-
-    if (!empty($queue)) {
-      return $this->errorResponse([
-        APIError::NOT_FOUND => __('This newsletter is already being sent.', 'mailpoet'),
-      ]);
-    }
-
-    $scheduledQueue = SendingQueueModel::joinWithTasks()
-      ->where('queues.newsletter_id', $newsletterEntity->getId())
-      ->where('tasks.status', SendingQueueModel::STATUS_SCHEDULED)
-      ->findOne();
-    if ($scheduledQueue instanceof SendingQueueModel) {
-      $queue = SendingTask::createFromQueue($scheduledQueue);
-    } else {
-      $queue = SendingTask::create();
-      $queue->newsletterId = $newsletterEntity->getId();
-    }
-
-    WordPress::resetRunInterval();
-    if ((bool)$newsletterEntity->getOptionValue('isScheduled')) {
-      // set newsletter status
-      $newsletterEntity->setStatus(NewsletterEntity::STATUS_SCHEDULED);
-
-      // set queue status
-      $queue->status = SendingQueueModel::STATUS_SCHEDULED;
-      $queue->scheduledAt = $this->scheduler->formatDatetimeString($newsletterEntity->getOptionValue('scheduledAt'));
-    } else {
-      $segments = $newsletterEntity->getSegmentIds();
-      $taskModel = $queue->task();
-      $taskEntity = $this->scheduledTasksRepository->findOneById($taskModel->id);
-
-      if ($taskEntity instanceof ScheduledTaskEntity) {
-        $subscribersCount = $this->subscribersFinder->addSubscribersToTaskFromSegments($taskEntity, $segments, $newsletterEntity->getFilterSegmentId());
-      }
-
-      if (!isset($subscribersCount) || !$subscribersCount) {
-        return $this->errorResponse([
-          APIError::UNKNOWN => __('There are no subscribers in that list!', 'mailpoet'),
-        ]);
-      }
-      $queue->updateCount();
-      $queue->status = null;
-      $queue->scheduledAt = null;
-
-      // set newsletter status
-      $newsletterEntity->setStatus(Newsletter::STATUS_SENDING);
-    }
-    $queue->save();
-    $this->newsletterRepository->flush();
-
-    $errors = $queue->getErrors();
-    if (!empty($errors)) {
-      return $this->errorResponse($errors);
-    } else {
-      $this->triggerSending($newsletterEntity);
-      return $this->successResponse(
-        $newsletter->getQueue()->asArray()
-      );
     }
   }
 
@@ -249,6 +252,22 @@ class SendingQueue extends APIEndpoint {
         APIError::NOT_FOUND => __('This newsletter does not exist.', 'mailpoet'),
       ]);
     }
+  }
+
+  public function pingCron() {
+    try {
+      $cronPingResponse = $this->cronHelper->pingDaemon();
+    } catch (\Exception $e) {
+      return $this->errorResponse([
+        APIError::UNKNOWN => $e->getMessage(),
+      ]);
+    }
+    if (!$this->cronHelper->validatePingResponse($cronPingResponse)) {
+      return $this->errorResponse([
+        APIError::UNKNOWN => $cronPingResponse,
+      ]);
+    }
+    return $this->successResponse();
   }
 
   /**

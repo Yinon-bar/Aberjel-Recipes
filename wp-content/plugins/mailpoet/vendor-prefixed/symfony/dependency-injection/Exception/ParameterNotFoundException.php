@@ -9,7 +9,7 @@ class ParameterNotFoundException extends InvalidArgumentException implements Not
  private $sourceKey;
  private $alternatives;
  private $nonNestedAlternative;
- public function __construct(string $key, string $sourceId = null, string $sourceKey = null, \Throwable $previous = null, array $alternatives = [], string $nonNestedAlternative = null)
+ public function __construct(string $key, ?string $sourceId = null, ?string $sourceKey = null, ?\Throwable $previous = null, array $alternatives = [], ?string $nonNestedAlternative = null)
  {
  $this->key = $key;
  $this->sourceId = $sourceId;

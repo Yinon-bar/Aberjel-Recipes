@@ -9,6 +9,8 @@ use MailPoetVendor\Carbon\Exceptions\InvalidFormatException;
 use MailPoetVendor\Carbon\Exceptions\OutOfRangeException;
 use MailPoetVendor\Carbon\Translator;
 use Closure;
+use MailPoetVendor\DateMalformedStringException;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
@@ -55,7 +57,7 @@ trait Creator
  if ($tz !== null) {
  $safeTz = static::safeCreateDateTimeZone($tz);
  if ($safeTz) {
- return $date->setTimezone($safeTz);
+ return ($date instanceof DateTimeImmutable ? $date : clone $date)->setTimezone($safeTz);
  }
  return $date;
  }
@@ -90,7 +92,13 @@ trait Creator
  try {
  return new static($time, $tz);
  } catch (Exception $exception) {
+ // @codeCoverageIgnoreStart
+ try {
  $date = @static::now($tz)->change($time);
+ } catch (DateMalformedStringException $ignoredException) {
+ $date = null;
+ }
+ // @codeCoverageIgnoreEnd
  if (!$date) {
  throw new InvalidFormatException("Could not parse '{$time}': " . $exception->getMessage(), 0, $exception);
  }
@@ -279,6 +287,9 @@ trait Creator
  $format = \preg_replace('/^(.*)(?<!\\\\)((?:\\\\{2})*)(a|A)(.*)$/U', '$1$2$4 $3', $format);
  $time = \preg_replace('/^(.*)(am|pm|AM|PM)(.*)$/U', '$1$3 $2', $time);
  }
+ if ($tz === \false) {
+ $tz = null;
+ }
  // First attempt to create an instance, so that error messages are based on the unmodified format.
  $date = self::createFromFormatAndTimezone($format, $time, $tz);
  $lastErrors = parent::getLastErrors();
@@ -291,11 +302,12 @@ trait Creator
  if ($tz === null && !\preg_match("/{$nonEscaped}[eOPT]/", $nonIgnored)) {
  $tz = clone $mock->getTimezone();
  }
- // Set microseconds to zero to match behavior of DateTime::createFromFormat()
- // See https://bugs.php.net/bug.php?id=74332
- $mock = $mock->copy()->microsecond(0);
+ $mock = $mock->copy();
  // Prepend mock datetime only if the format does not contain non escaped unix epoch reset flag.
  if (!\preg_match("/{$nonEscaped}[!|]/", $format)) {
+ if (\preg_match('/[HhGgisvuB]/', $format)) {
+ $mock = $mock->setTime(0, 0);
+ }
  $format = static::MOCK_DATETIME_FORMAT . ' ' . $format;
  $time = ($mock instanceof self ? $mock->rawFormat(static::MOCK_DATETIME_FORMAT) : $mock->format(static::MOCK_DATETIME_FORMAT)) . ' ' . $time;
  }
@@ -353,6 +365,11 @@ trait Creator
  }
  public static function createFromLocaleFormat($format, $locale, $time, $tz = null)
  {
+ $format = \preg_replace_callback('/(?:\\\\[a-zA-Z]|[bfkqCEJKQRV]){2,}/', static function (array $match) use($locale) : string {
+ $word = \str_replace('\\', '', $match[0]);
+ $translatedWord = static::translateTimeString($word, $locale, 'en');
+ return $word === $translatedWord ? $match[0] : \preg_replace('/[a-zA-Z]/', '\\\\$0', $translatedWord);
+ }, $format);
  return static::rawCreateFromFormat($format, static::translateTimeString($time, $locale, 'en'), $tz);
  }
  public static function createFromLocaleIsoFormat($format, $locale, $time, $tz = null)

@@ -13,6 +13,7 @@ class ResultSetMapping
  public $parentAliasMap = [];
  public $fieldMappings = [];
  public $scalarMappings = [];
+ public $enumMappings = [];
  public $typeMappings = [];
  public $entityMappings = [];
  public $metaMappings = [];
@@ -97,6 +98,11 @@ class ResultSetMapping
  if (!$this->isMixed && $this->fieldMappings) {
  $this->isMixed = \true;
  }
+ return $this;
+ }
+ public function addEnumResult($columnName, $enumType)
+ {
+ $this->enumMappings[$columnName] = $enumType;
  return $this;
  }
  public function addMetadataParameterMapping($parameter, $attribute)

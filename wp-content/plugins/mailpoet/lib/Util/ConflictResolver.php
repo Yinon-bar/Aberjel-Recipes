@@ -23,11 +23,13 @@ class ConflictResolver {
       'wpt-tx-updater-network',
       // WP.com
       '^/_static',
-      'atomic-plugins/debug-bar/css',
+      'mu-host-plugins/debug-bar/css',
       'woocommerce-payments/',
       'automatewoo/',
       'full-site-editing',
       'wpcomsh',
+      // Gutenberg
+      'gutenberg/',
     ],
     'scripts' => [
       'mailpoet',

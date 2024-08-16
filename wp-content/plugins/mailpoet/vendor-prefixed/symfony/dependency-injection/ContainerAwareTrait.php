@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 trait ContainerAwareTrait
 {
  protected $container;
- public function setContainer(ContainerInterface $container = null)
+ public function setContainer(?ContainerInterface $container = null)
  {
  $this->container = $container;
  }

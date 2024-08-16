@@ -9,7 +9,7 @@ use MailPoet\Entities\SegmentEntity;
 use MailPoet\Entities\SubscriberEntity;
 use MailPoet\Subscribers\SubscribersCountsController;
 use MailPoetVendor\Doctrine\DBAL\Connection;
-use MailPoetVendor\Doctrine\DBAL\Driver\Statement;
+use MailPoetVendor\Doctrine\DBAL\Result;
 use MailPoetVendor\Doctrine\ORM\EntityManager;
 
 class SegmentsSimpleListRepository {
@@ -77,8 +77,8 @@ class SegmentsSimpleListRepository {
       ->createQueryBuilder();
 
     $segmentsDataQuery->select(
-        "segments.id, segments.name, segments.type"
-      )->from($segmentsTable, 'segments')
+      "segments.id, segments.name, segments.type"
+    )->from($segmentsTable, 'segments')
       ->where('segments.deleted_at IS NULL')
       ->orderBy('segments.name');
 
@@ -88,11 +88,11 @@ class SegmentsSimpleListRepository {
         ->setParameter('typesParam', $segmentTypes, Connection::PARAM_STR_ARRAY);
     }
 
-    $statement = $segmentsDataQuery->execute();
-    if (!$statement instanceof Statement) {
+    $result = $segmentsDataQuery->executeQuery();
+    if (!$result instanceof Result) {
       return [];
     }
-    $segments = $statement->fetchAll();
+    $segments = $result->fetchAll();
 
     // Fetch subscribers counts for static and dynamic segments and correct data types
     foreach ($segments as $key => $segment) {
@@ -101,6 +101,7 @@ class SegmentsSimpleListRepository {
       $statisticsKey = $subscriberGlobalStatus ?: 'all';
       $segments[$key]['subscribers'] = (int)$this->subscribersCountsController->getSegmentStatisticsCountById($segment['id'])[$statisticsKey];
     }
+    /* @var array<array{id: string, name: string, type: string, subscribers: int}> */
     return $segments;
   }
 }

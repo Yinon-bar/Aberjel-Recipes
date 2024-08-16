@@ -3,21 +3,24 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM;
 if (!defined('ABSPATH')) exit;
 use BadMethodCallException;
-use MailPoetVendor\Doctrine\Common\Collections\Collection;
+use MailPoetVendor\Doctrine\Common\Collections\AbstractLazyCollection;
 use MailPoetVendor\Doctrine\Common\Collections\Criteria;
 use MailPoetVendor\Doctrine\Common\Collections\Selectable;
+use MailPoetVendor\Doctrine\Common\Persistence\PersistentObject;
 use MailPoetVendor\Doctrine\DBAL\LockMode;
 use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\Inflector\Inflector;
 use MailPoetVendor\Doctrine\Inflector\InflectorFactory;
+use MailPoetVendor\Doctrine\ORM\Exception\NotSupported;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\Query\ResultSetMappingBuilder;
 use MailPoetVendor\Doctrine\ORM\Repository\Exception\InvalidMagicMethodCall;
 use MailPoetVendor\Doctrine\Persistence\ObjectRepository;
 use function array_slice;
+use function class_exists;
 use function lcfirst;
 use function sprintf;
-use function strpos;
+use function str_starts_with;
 use function substr;
 class EntityRepository implements ObjectRepository, Selectable
 {
@@ -25,7 +28,7 @@ class EntityRepository implements ObjectRepository, Selectable
  protected $_em;
  protected $_class;
  private static $inflector;
- public function __construct(EntityManagerInterface $em, Mapping\ClassMetadata $class)
+ public function __construct(EntityManagerInterface $em, ClassMetadata $class)
  {
  $this->_entityName = $class->name;
  $this->_em = $em;
@@ -57,6 +60,9 @@ class EntityRepository implements ObjectRepository, Selectable
  public function clear()
  {
  Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/8460', 'Calling %s() is deprecated and will not be supported in Doctrine ORM 3.0.', __METHOD__);
+ if (!class_exists(PersistentObject::class)) {
+ throw NotSupported::createForPersistence3(sprintf('Partial clearing of entities for class %s', $this->_class->rootEntityName));
+ }
  $this->_em->clear($this->_class->rootEntityName);
  }
  public function find($id, $lockMode = null, $lockVersion = null)
@@ -83,13 +89,13 @@ class EntityRepository implements ObjectRepository, Selectable
  }
  public function __call($method, $arguments)
  {
- if (strpos($method, 'findBy') === 0) {
+ if (str_starts_with($method, 'findBy')) {
  return $this->resolveMagicCall('findBy', substr($method, 6), $arguments);
  }
- if (strpos($method, 'findOneBy') === 0) {
+ if (str_starts_with($method, 'findOneBy')) {
  return $this->resolveMagicCall('findOneBy', substr($method, 9), $arguments);
  }
- if (strpos($method, 'countBy') === 0) {
+ if (str_starts_with($method, 'countBy')) {
  return $this->resolveMagicCall('count', substr($method, 7), $arguments);
  }
  throw new BadMethodCallException(sprintf('Undefined method "%s". The method name must start with ' . 'either findBy, findOneBy or countBy!', $method));

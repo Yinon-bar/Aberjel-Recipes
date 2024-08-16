@@ -10,7 +10,7 @@ class Error extends \Exception
  private $rawMessage;
  private $sourcePath;
  private $sourceCode;
- public function __construct(string $message, int $lineno = -1, Source $source = null, \Exception $previous = null)
+ public function __construct(string $message, int $lineno = -1, ?Source $source = null, ?\Throwable $previous = null)
  {
  parent::__construct('', 0, $previous);
  if (null === $source) {
@@ -42,7 +42,7 @@ class Error extends \Exception
  {
  return $this->name ? new Source($this->sourceCode, $this->name, $this->sourcePath) : null;
  }
- public function setSourceContext(Source $source = null) : void
+ public function setSourceContext(?Source $source = null) : void
  {
  if (null === $source) {
  $this->sourceCode = $this->name = $this->sourcePath = null;
@@ -72,12 +72,12 @@ class Error extends \Exception
  return;
  }
  $dot = \false;
- if ('.' === \substr($this->message, -1)) {
+ if (\str_ends_with($this->message, '.')) {
  $this->message = \substr($this->message, 0, -1);
  $dot = \true;
  }
  $questionMark = \false;
- if ('?' === \substr($this->message, -1)) {
+ if (\str_ends_with($this->message, '?')) {
  $this->message = \substr($this->message, 0, -1);
  $questionMark = \true;
  }
@@ -107,7 +107,7 @@ class Error extends \Exception
  foreach ($backtrace as $trace) {
  if (isset($trace['object']) && $trace['object'] instanceof Template) {
  $currentClass = \get_class($trace['object']);
- $isEmbedContainer = null === $templateClass ? \false : 0 === \strpos($templateClass, $currentClass);
+ $isEmbedContainer = null === $templateClass ? \false : \str_starts_with($templateClass, $currentClass);
  if (null === $this->name || $this->name == $trace['object']->getTemplateName() && !$isEmbedContainer) {
  $template = $trace['object'];
  $templateClass = \get_class($trace['object']);

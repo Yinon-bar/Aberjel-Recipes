@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_PROPERTY)]
-final class SequenceGenerator implements Annotation
+final class SequenceGenerator implements MappingAttribute
 {
  public $sequenceName;
  public $allocationSize = 1;

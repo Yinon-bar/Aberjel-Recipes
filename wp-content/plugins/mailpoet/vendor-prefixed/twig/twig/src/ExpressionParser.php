@@ -6,6 +6,7 @@ use MailPoetVendor\Twig\Node\Expression\AbstractExpression;
 use MailPoetVendor\Twig\Node\Expression\ArrayExpression;
 use MailPoetVendor\Twig\Node\Expression\ArrowFunctionExpression;
 use MailPoetVendor\Twig\Node\Expression\AssignNameExpression;
+use MailPoetVendor\Twig\Node\Expression\Binary\AbstractBinary;
 use MailPoetVendor\Twig\Node\Expression\Binary\ConcatBinary;
 use MailPoetVendor\Twig\Node\Expression\BlockReferenceExpression;
 use MailPoetVendor\Twig\Node\Expression\ConditionalExpression;
@@ -15,6 +16,7 @@ use MailPoetVendor\Twig\Node\Expression\MethodCallExpression;
 use MailPoetVendor\Twig\Node\Expression\NameExpression;
 use MailPoetVendor\Twig\Node\Expression\ParentExpression;
 use MailPoetVendor\Twig\Node\Expression\TestExpression;
+use MailPoetVendor\Twig\Node\Expression\Unary\AbstractUnary;
 use MailPoetVendor\Twig\Node\Expression\Unary\NegUnary;
 use MailPoetVendor\Twig\Node\Expression\Unary\NotUnary;
 use MailPoetVendor\Twig\Node\Expression\Unary\PosUnary;
@@ -51,7 +53,7 @@ class ExpressionParser
  } elseif (isset($op['callable'])) {
  $expr = $op['callable']($this->parser, $expr);
  } else {
- $expr1 = $this->parseExpression(self::OPERATOR_LEFT === $op['associativity'] ? $op['precedence'] + 1 : $op['precedence']);
+ $expr1 = $this->parseExpression(self::OPERATOR_LEFT === $op['associativity'] ? $op['precedence'] + 1 : $op['precedence'], \true);
  $class = $op['class'];
  $expr = new $class($expr, $expr1, $token->getLine());
  }
@@ -178,11 +180,14 @@ class ExpressionParser
  9,
  ':'
  )) {
+ // Ternary operator (expr ? expr2 : expr3)
  $expr3 = $this->parseExpression();
  } else {
+ // Ternary without else (expr ? expr2)
  $expr3 = new ConstantExpression('', $this->parser->getCurrentToken()->getLine());
  }
  } else {
+ // Ternary without then (expr ?: expr3)
  $expr2 = $expr;
  $expr3 = $this->parseExpression();
  }
@@ -338,7 +343,16 @@ class ExpressionParser
  }
  }
  $first = \false;
+ if ($stream->test(
+ 13
+ )) {
+ $stream->next();
+ $expr = $this->parseExpression();
+ $expr->setAttribute('spread', \true);
+ $node->addElement($expr);
+ } else {
  $node->addElement($this->parseExpression());
+ }
  }
  $stream->expect(
  9,
@@ -376,6 +390,15 @@ class ExpressionParser
  }
  }
  $first = \false;
+ if ($stream->test(
+ 13
+ )) {
+ $stream->next();
+ $value = $this->parseExpression();
+ $value->setAttribute('spread', \true);
+ $node->addElement($value);
+ continue;
+ }
  // a hash key can be:
  //
  // * a number -- 12
@@ -457,13 +480,13 @@ class ExpressionParser
  if (\count($args) < 1) {
  throw new SyntaxError('The "block" function takes one argument (the block name).', $line, $this->parser->getStream()->getSourceContext());
  }
- return new BlockReferenceExpression($args->getNode(0), \count($args) > 1 ? $args->getNode(1) : null, $line);
+ return new BlockReferenceExpression($args->getNode('0'), \count($args) > 1 ? $args->getNode('1') : null, $line);
  case 'attribute':
  $args = $this->parseArguments();
  if (\count($args) < 2) {
  throw new SyntaxError('The "attribute" function takes at least two arguments (the variable and the attributes).', $line, $this->parser->getStream()->getSourceContext());
  }
- return new GetAttrExpression($args->getNode(0), $args->getNode(1), \count($args) > 2 ? $args->getNode(2) : null, Template::ANY_CALL, $line);
+ return new GetAttrExpression($args->getNode('0'), $args->getNode('1'), \count($args) > 2 ? $args->getNode('2') : null, Template::ANY_CALL, $line);
  default:
  if (null !== ($alias = $this->parser->getImportedSymbol('function', $name))) {
  $arguments = new ArrayExpression([], $line);
@@ -503,9 +526,6 @@ class ExpressionParser
  throw new SyntaxError(\sprintf('Expected name or number, got value "%s" of type %s.', $token->getValue(), Token::typeToEnglish($token->getType())), $lineno, $stream->getSourceContext());
  }
  if ($node instanceof NameExpression && null !== $this->parser->getImportedSymbol('template', $node->getAttribute('name'))) {
- if (!$arg instanceof ConstantExpression) {
- throw new SyntaxError(\sprintf('Dynamic macro names are not supported (called on "%s").', $node->getAttribute('name')), $token->getLine(), $stream->getSourceContext());
- }
  $name = $arg->getAttribute('value');
  $node = new MethodCallExpression($node, 'macro_' . $name, $arguments, $lineno);
  $node->setAttribute('safe', \true);
@@ -716,7 +736,7 @@ class ExpressionParser
  private function parseTestExpression(Node $node) : TestExpression
  {
  $stream = $this->parser->getStream();
- list($name, $test) = $this->getTest($node->getTemplateLine());
+ [$name, $test] = $this->getTest($node->getTemplateLine());
  $class = $this->getTestNodeClass($test);
  $arguments = null;
  if ($stream->test(

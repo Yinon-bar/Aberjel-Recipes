@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,27 +38,37 @@ class __TwigTemplate_81809817730fe748cb57e474cd67fd2caa284851e13612f199fef59a41b
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_widget_icon\"><span class=\"dashicons dashicons-facebook\"></span></div>
+        yield "<div class=\"mailpoet_widget_icon\"><span class=\"dashicons dashicons-facebook\"></span></div>
 <div class=\"mailpoet_widget_title\">";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Social");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Social");
+        yield "</div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/social/widget.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  40 => 2,  37 => 1,);
+        return array (  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

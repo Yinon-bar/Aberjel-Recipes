@@ -3,6 +3,7 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Query;
 if (!defined('ABSPATH')) exit;
 use ArrayAccess;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\AbstractQuery;
 use Iterator;
 use ReturnTypeWillChange;
@@ -17,6 +18,7 @@ class TreeWalkerChainIterator implements Iterator, ArrayAccess
  private $parserResult;
  public function __construct(TreeWalkerChain $treeWalkerChain, $query, $parserResult)
  {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9511', '%s is deprecated and will be removed without replacement.', self::class);
  $this->treeWalkerChain = $treeWalkerChain;
  $this->query = $query;
  $this->parserResult = $parserResult;

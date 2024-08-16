@@ -2,11 +2,13 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM;
 if (!defined('ABSPATH')) exit;
+use BackedEnum;
 use Countable;
 use MailPoetVendor\Doctrine\Common\Cache\Psr6\CacheAdapter;
 use MailPoetVendor\Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use MailPoetVendor\Doctrine\Common\Collections\ArrayCollection;
 use MailPoetVendor\Doctrine\Common\Collections\Collection;
+use MailPoetVendor\Doctrine\Common\Util\ClassUtils;
 use MailPoetVendor\Doctrine\DBAL\Cache\QueryCacheProfile;
 use MailPoetVendor\Doctrine\DBAL\Result;
 use MailPoetVendor\Doctrine\Deprecations\Deprecation;
@@ -27,10 +29,13 @@ use function array_map;
 use function array_shift;
 use function assert;
 use function count;
+use function func_num_args;
+use function in_array;
 use function is_array;
 use function is_numeric;
 use function is_object;
 use function is_scalar;
+use function is_string;
 use function iterator_count;
 use function iterator_to_array;
 use function ksort;
@@ -135,7 +140,6 @@ abstract class AbstractQuery
  }
  public function setParameters($parameters)
  {
- // BC compatibility with 2.3-
  if (is_array($parameters)) {
  $parameterCollection = new ArrayCollection();
  foreach ($parameters as $key => $value) {
@@ -171,13 +175,17 @@ abstract class AbstractQuery
  if ($value instanceof Mapping\ClassMetadata) {
  return $value->name;
  }
+ if ($value instanceof BackedEnum) {
+ return $value->value;
+ }
  if (!is_object($value)) {
  return $value;
  }
  try {
+ $class = ClassUtils::getClass($value);
  $value = $this->_em->getUnitOfWork()->getSingleIdentifierValue($value);
  if ($value === null) {
- throw ORMInvalidArgumentException::invalidIdentifierBindingEntity();
+ throw ORMInvalidArgumentException::invalidIdentifierBindingEntity($class);
  }
  } catch (MappingException|ORMMappingException $e) {
  $value = $this->potentiallyProcessIterable($value);
@@ -221,6 +229,9 @@ abstract class AbstractQuery
  public function setHydrationCacheProfile(?QueryCacheProfile $profile = null)
  {
  if ($profile === null) {
+ if (func_num_args() < 1) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9791', 'Calling %s without arguments is deprecated, pass null instead.', __METHOD__);
+ }
  $this->_hydrationCacheProfile = null;
  return $this;
  }
@@ -248,6 +259,9 @@ abstract class AbstractQuery
  public function setResultCacheProfile(?QueryCacheProfile $profile = null)
  {
  if ($profile === null) {
+ if (func_num_args() < 1) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9791', 'Calling %s without arguments is deprecated, pass null instead.', __METHOD__);
+ }
  $this->_queryCacheProfile = null;
  return $this;
  }
@@ -278,6 +292,9 @@ abstract class AbstractQuery
  public function setResultCache(?CacheItemPoolInterface $resultCache = null)
  {
  if ($resultCache === null) {
+ if (func_num_args() < 1) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9791', 'Calling %s without arguments is deprecated, pass null instead.', __METHOD__);
+ }
  if ($this->_queryCacheProfile) {
  $this->_queryCacheProfile = new QueryCacheProfile($this->_queryCacheProfile->getLifetime(), $this->_queryCacheProfile->getCacheKey());
  }
@@ -353,7 +370,8 @@ abstract class AbstractQuery
  }
  public function setFetchMode($class, $assocName, $fetchMode)
  {
- if ($fetchMode !== Mapping\ClassMetadata::FETCH_EAGER) {
+ if (!in_array($fetchMode, [Mapping\ClassMetadata::FETCH_EAGER, Mapping\ClassMetadata::FETCH_LAZY], \true)) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9777', 'Calling %s() with something else than ClassMetadata::FETCH_EAGER or ClassMetadata::FETCH_LAZY is deprecated.', __METHOD__);
  $fetchMode = Mapping\ClassMetadata::FETCH_LAZY;
  }
  $this->_hints['fetchMode'][$class][$assocName] = $fetchMode;
@@ -567,16 +585,19 @@ abstract class AbstractQuery
  protected function getHydrationCacheId()
  {
  $parameters = [];
+ $types = [];
  foreach ($this->getParameters() as $parameter) {
  $parameters[$parameter->getName()] = $this->processParameterValue($parameter->getValue());
+ $types[$parameter->getName()] = $parameter->getType();
  }
  $sql = $this->getSQL();
+ assert(is_string($sql));
  $queryCacheProfile = $this->getHydrationCacheProfile();
  $hints = $this->getHints();
  $hints['hydrationMode'] = $this->getHydrationMode();
  ksort($hints);
  assert($queryCacheProfile !== null);
- return $queryCacheProfile->generateCacheKeys($sql, $parameters, $hints);
+ return $queryCacheProfile->generateCacheKeys($sql, $parameters, $types, $hints);
  }
  public function setResultCacheId($id)
  {
@@ -600,6 +621,7 @@ abstract class AbstractQuery
  protected function getHash()
  {
  $query = $this->getSQL();
+ assert(is_string($query));
  $hints = $this->getHints();
  $params = array_map(function (Parameter $parameter) {
  $value = $parameter->getValue();

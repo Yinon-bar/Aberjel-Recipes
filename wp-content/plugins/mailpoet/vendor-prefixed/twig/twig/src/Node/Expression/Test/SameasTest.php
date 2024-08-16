@@ -7,6 +7,6 @@ class SameasTest extends TestExpression
 {
  public function compile(Compiler $compiler) : void
  {
- $compiler->raw('(')->subcompile($this->getNode('node'))->raw(' === ')->subcompile($this->getNode('arguments')->getNode(0))->raw(')');
+ $compiler->raw('(')->subcompile($this->getNode('node'))->raw(' === ')->subcompile($this->getNode('arguments')->getNode('0'))->raw(')');
  }
 }

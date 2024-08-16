@@ -30,8 +30,10 @@ use MailPoet\WP\Functions as WPFunctions;
  * @property array $subscriptions
  * @property string|null $unconfirmedData
  * @property int $isWoocommerceUser
+ *
+ * @deprecated This model is deprecated. Use \MailPoet\Subscribers\SubscribersRepository
+ * and \MailPoet\Entities\SubscriberEntity instead. This class can be removed after 2024-05-30.
  */
-
 class Subscriber extends Model {
   public static $_table = MP_SUBSCRIBERS_TABLE; // phpcs:ignore PSR2.Classes.PropertyDeclaration
 
@@ -47,7 +49,11 @@ class Subscriber extends Model {
   /** @var string|bool */
   public $token;
 
+  /**
+   * @deprecated
+   */
   public function __construct() {
+    self::deprecationError(__METHOD__);
     parent::__construct();
 
     $this->addValidations('email', [
@@ -56,7 +62,11 @@ class Subscriber extends Model {
     ]);
   }
 
+  /**
+   * @deprecated
+   */
   public static function findOne($id = false) {
+    self::deprecationError(__METHOD__);
     if (is_int($id) || (string)(int)$id === $id) {
       return parent::findOne($id);
     } else if (strlen(trim((string)$id)) > 0) {
@@ -65,7 +75,11 @@ class Subscriber extends Model {
     return false;
   }
 
+  /**
+   * @deprecated
+   */
   public function segments() {
+    self::deprecationError(__METHOD__);
     return $this->has_many_through(
       __NAMESPACE__ . '\Segment',
       __NAMESPACE__ . '\SubscriberSegment',
@@ -75,13 +89,21 @@ class Subscriber extends Model {
     ->where(MP_SUBSCRIBER_SEGMENT_TABLE . '.status', self::STATUS_SUBSCRIBED);
   }
 
+  /**
+   * @deprecated
+   */
   public function save() {
+    self::deprecationError(__METHOD__);
     // convert email to lowercase format
     $this->email = strtolower((string)$this->email);
     return parent::save();
   }
 
+  /**
+   * @deprecated
+   */
   public function delete() {
+    self::deprecationError(__METHOD__);
     // WP Users cannot be deleted
     if (!$this->isWPUser() && !$this->isWooCommerceUser()) {
       // delete all relations to segments
@@ -93,7 +115,11 @@ class Subscriber extends Model {
     return null;
   }
 
+  /**
+   * @deprecated
+   */
   public function trash() {
+    self::deprecationError(__METHOD__);
     // WP Users cannot be trashed
     if ($this->isWPUser() || $this->isWooCommerceUser()) {
       return false;
@@ -102,11 +128,19 @@ class Subscriber extends Model {
     }
   }
 
+  /**
+   * @deprecated
+   */
   public function isWPUser() {
+    self::deprecationError(__METHOD__);
     return (bool)$this->wpUserId;
   }
 
+  /**
+   * @deprecated
+   */
   public function isWooCommerceUser() {
+    self::deprecationError(__METHOD__);
     return (bool)$this->isWoocommerceUser;
   }
 
@@ -122,7 +156,11 @@ class Subscriber extends Model {
     return self::where('wp_user_id', $wpUser->ID)->findOne();
   }
 
+  /**
+   * @deprecated
+   */
   public static function filterOutReservedColumns(array $subscriberData) {
+    self::deprecationError(__METHOD__);
     $reservedColumns = [
       'id',
       'wp_user_id',
@@ -143,7 +181,11 @@ class Subscriber extends Model {
     return $subscriberData;
   }
 
+  /**
+   * @deprecated
+   */
   public static function search($orm, $search = '') {
+    self::deprecationError(__METHOD__);
     if (strlen(trim($search)) === 0) {
       return $orm;
     }
@@ -154,7 +196,11 @@ class Subscriber extends Model {
     );
   }
 
+  /**
+   * @deprecated
+   */
   public static function filters($data = []) {
+    self::deprecationError(__METHOD__);
     $group = (!empty($data['group'])) ? $data['group'] : 'all';
 
     $segments = Segment::orderByAsc('name')
@@ -208,7 +254,11 @@ class Subscriber extends Model {
     return $filters;
   }
 
+  /**
+   * @deprecated
+   */
   public static function filterBy($orm, $filters = null) {
+    self::deprecationError(__METHOD__);
     if (empty($filters)) {
       return $orm;
     }
@@ -227,7 +277,11 @@ class Subscriber extends Model {
     return $orm;
   }
 
+  /**
+   * @deprecated
+   */
   public static function groupBy($orm, $group = null) {
+    self::deprecationError(__METHOD__);
     if ($group === 'trash') {
       return $orm->whereNotNull('deleted_at');
     } else if ($group === 'all') {
@@ -237,14 +291,19 @@ class Subscriber extends Model {
     }
   }
 
+  /**
+   * @deprecated
+   */
   public static function filterWithCustomFields($orm) {
+    self::deprecationError(__METHOD__);
     $orm = $orm->select(MP_SUBSCRIBERS_TABLE . '.*');
     $customFields = CustomField::findArray();
     foreach ($customFields as $customField) {
       $orm = $orm->select_expr(
         'IFNULL(GROUP_CONCAT(CASE WHEN ' .
         MP_CUSTOM_FIELDS_TABLE . '.id=' . $customField['id'] . ' THEN ' .
-        MP_SUBSCRIBER_CUSTOM_FIELD_TABLE . '.value END), NULL) as "' . $customField['name'] . '"');
+        MP_SUBSCRIBER_CUSTOM_FIELD_TABLE . '.value END), NULL) as "' . $customField['name'] . '"'
+      );
     }
     $orm = $orm
       ->leftOuterJoin(
@@ -271,6 +330,7 @@ class Subscriber extends Model {
    * @deprecated
    */
   public static function filterWithCustomFieldsForExport($orm) {
+    self::deprecationError(__METHOD__);
     $orm = $orm->select(MP_SUBSCRIBERS_TABLE . '.*');
     $customFields = CustomField::findArray();
     foreach ($customFields as $customField) {
@@ -298,7 +358,11 @@ class Subscriber extends Model {
     return $orm;
   }
 
+  /**
+   * @deprecated
+   */
   public static function getSubscribedInSegments($segmentIds) {
+    self::deprecationError(__METHOD__);
     $subscribers = SubscriberSegment::tableAlias('relation')
       ->whereIn('relation.segment_id', $segmentIds)
       ->where('relation.status', 'subscribed')
@@ -317,8 +381,11 @@ class Subscriber extends Model {
   /**
    * @param string $customerEmail
    * @return bool|Subscriber
+   *
+   * @deprecated
    */
   public static function getWooCommerceSegmentSubscriber($customerEmail) {
+    self::deprecationError(__METHOD__);
     $wcSegment = Segment::getWooCommerceSegment();
     return Subscriber::tableAlias('subscribers')
       ->select('subscribers.*')
@@ -335,7 +402,11 @@ class Subscriber extends Model {
       ->findOne();
   }
 
+  /**
+   * @deprecated
+   */
   public function customFields() {
+    self::deprecationError(__METHOD__);
     return $this->hasManyThrough(
       __NAMESPACE__ . '\CustomField',
       __NAMESPACE__ . '\SubscriberCustomField',
@@ -344,7 +415,11 @@ class Subscriber extends Model {
     )->select_expr(MP_SUBSCRIBER_CUSTOM_FIELD_TABLE . '.value');
   }
 
+  /**
+   * @deprecated
+   */
   public static function createOrUpdate($data = []) {
+    self::deprecationError(__METHOD__);
     $subscriber = false;
     if (is_array($data) && !empty($data)) {
       $data = WPFunctions::get()->stripslashesDeep($data);
@@ -419,7 +494,11 @@ class Subscriber extends Model {
     return $subscriber;
   }
 
+  /**
+   * @deprecated
+   */
   public function withCustomFields() {
+    self::deprecationError(__METHOD__);
     $customFields = CustomField::select('id')->findArray();
     if (empty($customFields)) return $this;
 
@@ -436,18 +515,30 @@ class Subscriber extends Model {
     return $this;
   }
 
+  /**
+   * @deprecated
+   */
   public function withSegments() {
+    self::deprecationError(__METHOD__);
     $this->segments = $this->segments()->findArray();
     return $this;
   }
 
+  /**
+   * @deprecated
+   */
   public function withSubscriptions() {
+    self::deprecationError(__METHOD__);
     $this->subscriptions = SubscriberSegment::where('subscriber_id', $this->id())
       ->findArray();
     return $this;
   }
 
+  /**
+   * @deprecated
+   */
   public function getCustomField($customFieldId, $default = null) {
+    self::deprecationError(__METHOD__);
     $customField = SubscriberCustomField::select('value')
       ->where('custom_field_id', $customFieldId)
       ->where('subscriber_id', $this->id())
@@ -460,7 +551,11 @@ class Subscriber extends Model {
     }
   }
 
+  /**
+   * @deprecated
+   */
   public function saveCustomFields($customFieldsData = []) {
+    self::deprecationError(__METHOD__);
     // get custom field ids
     $customFieldIds = array_keys($customFieldsData);
 
@@ -479,7 +574,11 @@ class Subscriber extends Model {
     }
   }
 
+  /**
+   * @deprecated
+   */
   public function setCustomField($customFieldId, $value) {
+    self::deprecationError(__METHOD__);
     return SubscriberCustomField::createOrUpdate([
       'subscriber_id' => $this->id(),
       'custom_field_id' => $customFieldId,
@@ -487,7 +586,11 @@ class Subscriber extends Model {
     ]);
   }
 
+  /**
+   * @deprecated
+   */
   public function setUnconfirmedData(array $subscriberData) {
+    self::deprecationError(__METHOD__);
     $subscriberData = self::filterOutReservedColumns($subscriberData);
     $encoded = json_encode($subscriberData);
     if (is_string($encoded)) {
@@ -495,7 +598,11 @@ class Subscriber extends Model {
     }
   }
 
+  /**
+   * @deprecated
+   */
   public function getUnconfirmedData() {
+    self::deprecationError(__METHOD__);
     if (!empty($this->unconfirmedData)) {
       $subscriberData = json_decode($this->unconfirmedData, true);
       $subscriberData = self::filterOutReservedColumns((array)$subscriberData);
@@ -508,6 +615,7 @@ class Subscriber extends Model {
    * @deprecated Use MailPoet\Util\License\Features\Subscribers::getSubscribersCount or \MailPoet\Subscribers\SubscribersRepository::getTotalSubscribers
    */
   public static function getTotalSubscribers() {
+    self::deprecationError(__METHOD__);
     return self::whereIn('status', [
       self::STATUS_SUBSCRIBED,
       self::STATUS_UNCONFIRMED,
@@ -517,43 +625,71 @@ class Subscriber extends Model {
     ->count();
   }
 
+  /**
+   * @deprecated
+   */
   public static function getInactiveSubscribersCount() {
+    self::deprecationError(__METHOD__);
     return self::where('status', self::STATUS_INACTIVE)
     ->whereNull('deleted_at')
     ->count();
   }
 
+  /**
+   * @deprecated
+   */
   public static function subscribed($orm) {
+    self::deprecationError(__METHOD__);
     return $orm
       ->whereNull('deleted_at')
       ->where('status', self::STATUS_SUBSCRIBED);
   }
 
+  /**
+   * @deprecated
+   */
   public static function unsubscribed($orm) {
+    self::deprecationError(__METHOD__);
     return $orm
       ->whereNull('deleted_at')
       ->where('status', self::STATUS_UNSUBSCRIBED);
   }
 
+  /**
+   * @deprecated
+   */
   public static function unconfirmed($orm) {
+    self::deprecationError(__METHOD__);
     return $orm
       ->whereNull('deleted_at')
       ->where('status', self::STATUS_UNCONFIRMED);
   }
 
+  /**
+   * @deprecated
+   */
   public static function bounced($orm) {
+    self::deprecationError(__METHOD__);
     return $orm
       ->whereNull('deleted_at')
       ->where('status', self::STATUS_BOUNCED);
   }
 
+  /**
+   * @deprecated
+   */
   public static function inactive($orm) {
+    self::deprecationError(__METHOD__);
     return $orm
       ->whereNull('deleted_at')
       ->where('status', self::STATUS_INACTIVE);
   }
 
+  /**
+   * @deprecated
+   */
   public static function withoutSegments($orm) {
+    self::deprecationError(__METHOD__);
     return $orm->select(MP_SUBSCRIBERS_TABLE . '.*')
       ->whereRaw(
         MP_SUBSCRIBERS_TABLE . '.id NOT IN (
@@ -566,7 +702,11 @@ class Subscriber extends Model {
       );
   }
 
+  /**
+   * @deprecated
+   */
   public static function createMultiple($columns, $values) {
+    self::deprecationError(__METHOD__);
     return self::rawExecute(
       'INSERT INTO `' . self::$_table . '` ' .
       '(' . implode(', ', $columns) . ') ' .
@@ -581,7 +721,11 @@ class Subscriber extends Model {
     );
   }
 
+  /**
+   * @deprecated
+   */
   public static function updateMultiple($columns, $subscribers, $updatedAt = false) {
+    self::deprecationError(__METHOD__);
     $ignoreColumnsOnUpdate = [
       'wp_user_id',
       'is_woocommerce_user',
@@ -616,7 +760,9 @@ class Subscriber extends Model {
                     $subscriber[$columnPosition],
                   ] :
                   'WHEN email = ? THEN ?';
-              }, $subscribers);
+              },
+              $subscribers
+            );
             return ($type === 'values') ?
               Helpers::flattenArray($query) :
               $columnName . '= (CASE ' . implode(' ', $query) . ' END)';
@@ -637,13 +783,21 @@ class Subscriber extends Model {
     );
   }
 
+  /**
+   * @deprecated
+   */
   public static function findSubscribersInSegments(array $subscribersIds, array $segmentsIds) {
+    self::deprecationError(__METHOD__);
     return self::getSubscribedInSegments($segmentsIds)
       ->whereIn('subscribers.id', $subscribersIds)
       ->select('subscribers.*');
   }
 
+  /**
+   * @deprecated
+   */
   public static function extractSubscribersIds(array $subscribers) {
+    self::deprecationError(__METHOD__);
     return array_filter(
       array_map(function($subscriber) {
         return (!empty($subscriber->id)) ? $subscriber->id : false;
@@ -651,7 +805,11 @@ class Subscriber extends Model {
     );
   }
 
+  /**
+   * @deprecated
+   */
   public static function setRequiredFieldsDefaultValues($data) {
+    self::deprecationError(__METHOD__);
     $settings = SettingsController::getInstance();
     $requiredFieldDefaultValues = [
       'first_name' => '',
@@ -668,7 +826,11 @@ class Subscriber extends Model {
     return $data;
   }
 
+  /**
+   * @deprecated
+   */
   public static function extractCustomFieldsFromFromObject($data) {
+    self::deprecationError(__METHOD__);
     $customFields = [];
     foreach ($data as $key => $value) {
       if (strpos($key, 'cf_') === 0) {
@@ -679,7 +841,11 @@ class Subscriber extends Model {
     return [$data, $customFields];
   }
 
+  /**
+   * @deprecated
+   */
   public function getAllSegmentNamesWithStatus() {
+    self::deprecationError(__METHOD__);
     return Segment::tableAlias('segment')
       ->select('name')
       ->select('subscriber_segment.segment_id', 'segment_id')
@@ -701,9 +867,33 @@ class Subscriber extends Model {
    * @deprecated
    */
   public static function subscribe($subscriberData = [], $segmentIds = []) {
+    self::deprecationError(__METHOD__);
     trigger_error('Calling Subscriber::subscribe() is deprecated and will be removed. Use MailPoet\API\MP\v1\API instead. ', E_USER_DEPRECATED);
     $service = ContainerWrapper::getInstance()->get(\MailPoet\Subscribers\SubscriberActions::class);
     [$subscriber] = $service->subscribe($subscriberData, $segmentIds);
     return $subscriber;
+  }
+
+  /**
+   * @deprecated This is here for displaying the deprecation warning for properties.
+   */
+  public function __get($key) {
+    self::deprecationError('property "' . $key . '"');
+    return parent::__get($key);
+  }
+
+  /**
+   * @deprecated This is here for displaying the deprecation warning for static calls.
+   */
+  public static function __callStatic($name, $arguments) {
+    self::deprecationError($name);
+    return parent::__callStatic($name, $arguments);
+  }
+
+  private static function deprecationError($methodName) {
+    trigger_error(
+      'Calling ' . esc_html($methodName) . ' is deprecated and will be removed. Use \MailPoet\Subscribers\SubscribersRepository and \MailPoet\Entities\SubscriberEntity instead.',
+      E_USER_DEPRECATED
+    );
   }
 }

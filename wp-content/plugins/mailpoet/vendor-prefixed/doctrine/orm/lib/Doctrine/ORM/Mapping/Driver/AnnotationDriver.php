@@ -3,13 +3,15 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Mapping\Driver;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\Common\Annotations\AnnotationReader;
+use MailPoetVendor\Doctrine\Common\Annotations\Reader;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\Events;
 use MailPoetVendor\Doctrine\ORM\Mapping;
 use MailPoetVendor\Doctrine\ORM\Mapping\Builder\EntityListenerBuilder;
-use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadataInfo;
+use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\Mapping\MappingException;
-use MailPoetVendor\Doctrine\Persistence\Mapping\ClassMetadata;
-use MailPoetVendor\Doctrine\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
+use MailPoetVendor\Doctrine\Persistence\Mapping\ClassMetadata as PersistenceClassMetadata;
+use MailPoetVendor\Doctrine\Persistence\Mapping\Driver\ColocatedMappingDriver;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -22,12 +24,19 @@ use function defined;
 use function get_class;
 use function is_array;
 use function is_numeric;
-class AnnotationDriver extends AbstractAnnotationDriver
+class AnnotationDriver extends CompatibilityAnnotationDriver
 {
+ use ColocatedMappingDriver;
+ protected $reader;
  protected $entityAnnotationClasses = [Mapping\Entity::class => 1, Mapping\MappedSuperclass::class => 2];
- public function loadMetadataForClass($className, ClassMetadata $metadata)
+ public function __construct($reader, $paths = null)
  {
- assert($metadata instanceof Mapping\ClassMetadata);
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/issues/10098', 'The annotation mapping driver is deprecated and will be removed in Doctrine ORM 3.0, please migrate to the attribute or XML driver.');
+ $this->reader = $reader;
+ $this->addPaths((array) $paths);
+ }
+ public function loadMetadataForClass($className, PersistenceClassMetadata $metadata)
+ {
  $class = $metadata->getReflectionClass() ?? new ReflectionClass($metadata->name);
  $classAnnotations = $this->reader->getClassAnnotations($class);
  foreach ($classAnnotations as $key => $annot) {
@@ -159,12 +168,12 @@ class AnnotationDriver extends AbstractAnnotationDriver
  $inheritanceTypeAnnot = $classAnnotations[Mapping\InheritanceType::class];
  assert($inheritanceTypeAnnot instanceof Mapping\InheritanceType);
  $metadata->setInheritanceType(constant('MailPoetVendor\\Doctrine\\ORM\\Mapping\\ClassMetadata::INHERITANCE_TYPE_' . $inheritanceTypeAnnot->value));
- if ($metadata->inheritanceType !== ClassMetadataInfo::INHERITANCE_TYPE_NONE) {
+ if ($metadata->inheritanceType !== ClassMetadata::INHERITANCE_TYPE_NONE) {
  // Evaluate DiscriminatorColumn annotation
  if (isset($classAnnotations[Mapping\DiscriminatorColumn::class])) {
  $discrColumnAnnot = $classAnnotations[Mapping\DiscriminatorColumn::class];
  assert($discrColumnAnnot instanceof Mapping\DiscriminatorColumn);
- $metadata->setDiscriminatorColumn(['name' => $discrColumnAnnot->name, 'type' => $discrColumnAnnot->type ?: 'string', 'length' => $discrColumnAnnot->length ?? 255, 'columnDefinition' => $discrColumnAnnot->columnDefinition]);
+ $metadata->setDiscriminatorColumn(['name' => $discrColumnAnnot->name, 'type' => $discrColumnAnnot->type ?: 'string', 'length' => $discrColumnAnnot->length ?? 255, 'columnDefinition' => $discrColumnAnnot->columnDefinition, 'enumType' => $discrColumnAnnot->enumType]);
  } else {
  $metadata->setDiscriminatorColumn(['name' => 'dtype', 'type' => 'string', 'length' => 255]);
  }
@@ -319,7 +328,7 @@ class AnnotationDriver extends AbstractAnnotationDriver
  }
  }
  }
- private function loadRelationShipMapping(ReflectionProperty $property, array &$mapping, ClassMetadata $metadata, array $joinColumns, string $className) : void
+ private function loadRelationShipMapping(ReflectionProperty $property, array &$mapping, PersistenceClassMetadata $metadata, array $joinColumns, string $className) : void
  {
  $oneToOneAnnot = $this->reader->getPropertyAnnotation($property, Mapping\OneToOne::class);
  if ($oneToOneAnnot) {
@@ -370,6 +379,9 @@ class AnnotationDriver extends AbstractAnnotationDriver
  $joinTableAnnot = $this->reader->getPropertyAnnotation($property, Mapping\JoinTable::class);
  if ($joinTableAnnot) {
  $joinTable = ['name' => $joinTableAnnot->name, 'schema' => $joinTableAnnot->schema];
+ if ($joinTableAnnot->options) {
+ $joinTable['options'] = $joinTableAnnot->options;
+ }
  foreach ($joinTableAnnot->joinColumns as $joinColumn) {
  $joinTable['joinColumns'][] = $this->joinColumnToArray($joinColumn);
  }
@@ -446,7 +458,11 @@ class AnnotationDriver extends AbstractAnnotationDriver
  }
  private function joinColumnToArray(Mapping\JoinColumn $joinColumn) : array
  {
- return ['name' => $joinColumn->name, 'unique' => $joinColumn->unique, 'nullable' => $joinColumn->nullable, 'onDelete' => $joinColumn->onDelete, 'columnDefinition' => $joinColumn->columnDefinition, 'referencedColumnName' => $joinColumn->referencedColumnName];
+ $mapping = ['name' => $joinColumn->name, 'unique' => $joinColumn->unique, 'nullable' => $joinColumn->nullable, 'onDelete' => $joinColumn->onDelete, 'columnDefinition' => $joinColumn->columnDefinition, 'referencedColumnName' => $joinColumn->referencedColumnName];
+ if ($joinColumn->options) {
+ $mapping['options'] = $joinColumn->options;
+ }
+ return $mapping;
  }
  private function columnToArray(string $fieldName, Mapping\Column $column) : array
  {
@@ -473,6 +489,21 @@ class AnnotationDriver extends AbstractAnnotationDriver
  $mapping['enumType'] = $column->enumType;
  }
  return $mapping;
+ }
+ public function getReader()
+ {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9587', '%s is deprecated with no replacement', __METHOD__);
+ return $this->reader;
+ }
+ public function isTransient($className)
+ {
+ $classAnnotations = $this->reader->getClassAnnotations(new ReflectionClass($className));
+ foreach ($classAnnotations as $annot) {
+ if (isset($this->entityAnnotationClasses[get_class($annot)])) {
+ return \false;
+ }
+ }
+ return \true;
  }
  public static function create($paths = [], ?AnnotationReader $reader = null)
  {

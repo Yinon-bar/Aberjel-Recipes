@@ -6,6 +6,7 @@ use MailPoetVendor\Doctrine\DBAL\Platforms\AbstractPlatform;
 use MailPoetVendor\Doctrine\DBAL\Platforms\SQLServerPlatform;
 use MailPoetVendor\Doctrine\ORM\Query;
 use MailPoetVendor\Doctrine\ORM\Query\AST\SelectStatement;
+use MailPoetVendor\Doctrine\ORM\Query\Parser;
 use MailPoetVendor\Doctrine\ORM\Query\ParserResult;
 use MailPoetVendor\Doctrine\ORM\Query\ResultSetMapping;
 use MailPoetVendor\Doctrine\ORM\Query\SqlWalker;
@@ -20,12 +21,10 @@ class CountOutputWalker extends SqlWalker
 {
  private $platform;
  private $rsm;
- private $queryComponents;
  public function __construct($query, $parserResult, array $queryComponents)
  {
  $this->platform = $query->getEntityManager()->getConnection()->getDatabasePlatform();
  $this->rsm = $parserResult->getResultSetMapping();
- $this->queryComponents = $queryComponents;
  parent::__construct($query, $parserResult, $queryComponents);
  }
  public function walkSelectStatement(SelectStatement $AST)
@@ -48,7 +47,7 @@ class CountOutputWalker extends SqlWalker
  }
  $fromRoot = reset($from);
  $rootAlias = $fromRoot->rangeVariableDeclaration->aliasIdentificationVariable;
- $rootClass = $this->queryComponents[$rootAlias]['metadata'];
+ $rootClass = $this->getMetadataForDqlAlias($rootAlias);
  $rootIdentifier = $rootClass->identifier;
  // For every identifier, find out the SQL alias by combing through the ResultSetMapping
  $sqlIdentifier = [];

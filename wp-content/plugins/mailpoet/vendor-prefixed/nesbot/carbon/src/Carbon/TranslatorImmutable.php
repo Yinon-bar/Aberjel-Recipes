@@ -32,7 +32,7 @@ class TranslatorImmutable extends Translator
  $this->disallowMutation(__METHOD__);
  return parent::setTranslations($messages);
  }
- public function setConfigCacheFactory(ConfigCacheFactoryInterface $configCacheFactory)
+ public function setConfigCacheFactory(ConfigCacheFactoryInterface $configCacheFactory) : void
  {
  $this->disallowMutation(__METHOD__);
  parent::setConfigCacheFactory($configCacheFactory);

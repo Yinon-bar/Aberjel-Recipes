@@ -5,8 +5,6 @@ namespace MailPoet\Config\PopulatorData\Templates;
 if (!defined('ABSPATH')) exit;
 
 
-use MailPoet\WP\Functions as WPFunctions;
-
 class PostNotificationsBlank1Column {
 
   private $assets_url;
@@ -14,7 +12,9 @@ class PostNotificationsBlank1Column {
   private $template_image_url;
   private $social_icon_url;
 
-  public function __construct($assets_url) {
+  public function __construct(
+    $assets_url
+  ) {
     $this->assets_url = $assets_url;
     $this->external_template_image_url = 'https://ps.w.org/mailpoet/assets/newsletter-templates/post-notifications-blank-1-column';
     $this->template_image_url = $this->assets_url . '/img/blank_templates';

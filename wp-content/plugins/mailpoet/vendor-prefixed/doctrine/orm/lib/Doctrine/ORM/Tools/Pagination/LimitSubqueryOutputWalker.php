@@ -14,8 +14,10 @@ use MailPoetVendor\Doctrine\ORM\OptimisticLockException;
 use MailPoetVendor\Doctrine\ORM\Query;
 use MailPoetVendor\Doctrine\ORM\Query\AST\OrderByClause;
 use MailPoetVendor\Doctrine\ORM\Query\AST\PartialObjectExpression;
+use MailPoetVendor\Doctrine\ORM\Query\AST\PathExpression;
 use MailPoetVendor\Doctrine\ORM\Query\AST\SelectExpression;
 use MailPoetVendor\Doctrine\ORM\Query\AST\SelectStatement;
+use MailPoetVendor\Doctrine\ORM\Query\Parser;
 use MailPoetVendor\Doctrine\ORM\Query\ParserResult;
 use MailPoetVendor\Doctrine\ORM\Query\QueryException;
 use MailPoetVendor\Doctrine\ORM\Query\ResultSetMapping;
@@ -23,6 +25,7 @@ use MailPoetVendor\Doctrine\ORM\Query\SqlWalker;
 use RuntimeException;
 use function array_diff;
 use function array_keys;
+use function assert;
 use function count;
 use function implode;
 use function in_array;
@@ -38,7 +41,6 @@ class LimitSubqueryOutputWalker extends SqlWalker
  private const ORDER_BY_PATH_EXPRESSION = '/(?<![a-z0-9_])%s\\.%s(?![a-z0-9_])/i';
  private $platform;
  private $rsm;
- private $queryComponents;
  private $firstResult;
  private $maxResults;
  private $em;
@@ -49,11 +51,10 @@ class LimitSubqueryOutputWalker extends SqlWalker
  {
  $this->platform = $query->getEntityManager()->getConnection()->getDatabasePlatform();
  $this->rsm = $parserResult->getResultSetMapping();
- $this->queryComponents = $queryComponents;
  // Reset limit and offset
  $this->firstResult = $query->getFirstResult();
  $this->maxResults = $query->getMaxResults();
- $query->setFirstResult(null)->setMaxResults(null);
+ $query->setFirstResult(0)->setMaxResults(null);
  $this->em = $query->getEntityManager();
  $this->quoteStrategy = $this->em->getConfiguration()->getQuoteStrategy();
  parent::__construct($query, $parserResult, $queryComponents);
@@ -167,6 +168,7 @@ class LimitSubqueryOutputWalker extends SqlWalker
  // Get a map of referenced identifiers to field names.
  $selects = [];
  foreach ($orderByPathExpressions as $pathExpression) {
+ assert($pathExpression->field !== null);
  $idVar = $pathExpression->identificationVariable;
  $field = $pathExpression->field;
  if (!isset($selects[$idVar])) {
@@ -226,7 +228,7 @@ class LimitSubqueryOutputWalker extends SqlWalker
  $aliasMap = $searchPatterns = $replacements = $metadataList = [];
  // Generate DQL alias -> SQL table alias mapping
  foreach (array_keys($this->rsm->aliasMap) as $dqlAlias) {
- $metadataList[$dqlAlias] = $class = $this->queryComponents[$dqlAlias]['metadata'];
+ $metadataList[$dqlAlias] = $class = $this->getMetadataForDqlAlias($dqlAlias);
  $aliasMap[$dqlAlias] = $this->getSQLTableAlias($class->getTableName(), $dqlAlias);
  }
  // Generate search patterns for each field's path expression in the order by clause
@@ -290,7 +292,7 @@ class LimitSubqueryOutputWalker extends SqlWalker
  }
  $fromRoot = reset($from);
  $rootAlias = $fromRoot->rangeVariableDeclaration->aliasIdentificationVariable;
- $rootClass = $this->queryComponents[$rootAlias]['metadata'];
+ $rootClass = $this->getMetadataForDqlAlias($rootAlias);
  $rootIdentifier = $rootClass->identifier;
  // For every identifier, find out the SQL alias by combing through the ResultSetMapping
  $sqlIdentifier = [];

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,7 +38,7 @@ class __TwigTemplate_3c8166e1146014d6c6e6c40c753a6f92cb33e9423fe4045de5eee5d7079
     {
         $macros = $this->macros;
         // line 1
-        echo "{{#each segments}}
+        yield "{{#each segments}}
 <li data-segment=\"{{ id }}\">
   <label>
     <input class=\"mailpoet_segment_id\" type=\"hidden\" value=\"{{ id }}\" />
@@ -48,29 +49,39 @@ class __TwigTemplate_3c8166e1146014d6c6e6c40c753a6f92cb33e9423fe4045de5eee5d7079
   </label>
   <a class=\"remove\" href=\"javascript:;\">";
         // line 10
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Remove");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Remove");
+        yield "</a>
   <a class=\"handle\" href=\"javascript:;\">";
         // line 11
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Move");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Move");
+        yield "</a>
 </li>
 {{/each}}";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/segment_selection_item.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  52 => 11,  48 => 10,  37 => 1,);
+        return array (  53 => 11,  49 => 10,  38 => 1,);
     }
 
     public function getSourceContext()

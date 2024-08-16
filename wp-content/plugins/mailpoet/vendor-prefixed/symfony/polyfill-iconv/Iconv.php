@@ -3,17 +3,17 @@ namespace MailPoetVendor\Symfony\Polyfill\Iconv;
 if (!defined('ABSPATH')) exit;
 final class Iconv
 {
- const ERROR_ILLEGAL_CHARACTER = 'iconv(): Detected an illegal character in input string';
- const ERROR_WRONG_CHARSET = 'iconv(): Wrong charset, conversion from `%s\' to `%s\' is not allowed';
+ public const ERROR_ILLEGAL_CHARACTER = 'iconv(): Detected an illegal character in input string';
+ public const ERROR_WRONG_CHARSET = 'iconv(): Wrong charset, conversion from `%s\' to `%s\' is not allowed';
  public static $inputEncoding = 'utf-8';
  public static $outputEncoding = 'utf-8';
  public static $internalEncoding = 'utf-8';
- private static $alias = array('utf8' => 'utf-8', 'ascii' => 'us-ascii', 'tis-620' => 'iso-8859-11', 'cp1250' => 'windows-1250', 'cp1251' => 'windows-1251', 'cp1252' => 'windows-1252', 'cp1253' => 'windows-1253', 'cp1254' => 'windows-1254', 'cp1255' => 'windows-1255', 'cp1256' => 'windows-1256', 'cp1257' => 'windows-1257', 'cp1258' => 'windows-1258', 'shift-jis' => 'cp932', 'shift_jis' => 'cp932', 'latin1' => 'iso-8859-1', 'latin2' => 'iso-8859-2', 'latin3' => 'iso-8859-3', 'latin4' => 'iso-8859-4', 'latin5' => 'iso-8859-9', 'latin6' => 'iso-8859-10', 'latin7' => 'iso-8859-13', 'latin8' => 'iso-8859-14', 'latin9' => 'iso-8859-15', 'latin10' => 'iso-8859-16', 'iso8859-1' => 'iso-8859-1', 'iso8859-2' => 'iso-8859-2', 'iso8859-3' => 'iso-8859-3', 'iso8859-4' => 'iso-8859-4', 'iso8859-5' => 'iso-8859-5', 'iso8859-6' => 'iso-8859-6', 'iso8859-7' => 'iso-8859-7', 'iso8859-8' => 'iso-8859-8', 'iso8859-9' => 'iso-8859-9', 'iso8859-10' => 'iso-8859-10', 'iso8859-11' => 'iso-8859-11', 'iso8859-12' => 'iso-8859-12', 'iso8859-13' => 'iso-8859-13', 'iso8859-14' => 'iso-8859-14', 'iso8859-15' => 'iso-8859-15', 'iso8859-16' => 'iso-8859-16', 'iso_8859-1' => 'iso-8859-1', 'iso_8859-2' => 'iso-8859-2', 'iso_8859-3' => 'iso-8859-3', 'iso_8859-4' => 'iso-8859-4', 'iso_8859-5' => 'iso-8859-5', 'iso_8859-6' => 'iso-8859-6', 'iso_8859-7' => 'iso-8859-7', 'iso_8859-8' => 'iso-8859-8', 'iso_8859-9' => 'iso-8859-9', 'iso_8859-10' => 'iso-8859-10', 'iso_8859-11' => 'iso-8859-11', 'iso_8859-12' => 'iso-8859-12', 'iso_8859-13' => 'iso-8859-13', 'iso_8859-14' => 'iso-8859-14', 'iso_8859-15' => 'iso-8859-15', 'iso_8859-16' => 'iso-8859-16', 'iso88591' => 'iso-8859-1', 'iso88592' => 'iso-8859-2', 'iso88593' => 'iso-8859-3', 'iso88594' => 'iso-8859-4', 'iso88595' => 'iso-8859-5', 'iso88596' => 'iso-8859-6', 'iso88597' => 'iso-8859-7', 'iso88598' => 'iso-8859-8', 'iso88599' => 'iso-8859-9', 'iso885910' => 'iso-8859-10', 'iso885911' => 'iso-8859-11', 'iso885912' => 'iso-8859-12', 'iso885913' => 'iso-8859-13', 'iso885914' => 'iso-8859-14', 'iso885915' => 'iso-8859-15', 'iso885916' => 'iso-8859-16');
- private static $translitMap = array();
- private static $convertMap = array();
+ private static $alias = ['utf8' => 'utf-8', 'ascii' => 'us-ascii', 'tis-620' => 'iso-8859-11', 'cp1250' => 'windows-1250', 'cp1251' => 'windows-1251', 'cp1252' => 'windows-1252', 'cp1253' => 'windows-1253', 'cp1254' => 'windows-1254', 'cp1255' => 'windows-1255', 'cp1256' => 'windows-1256', 'cp1257' => 'windows-1257', 'cp1258' => 'windows-1258', 'shift-jis' => 'cp932', 'shift_jis' => 'cp932', 'latin1' => 'iso-8859-1', 'latin2' => 'iso-8859-2', 'latin3' => 'iso-8859-3', 'latin4' => 'iso-8859-4', 'latin5' => 'iso-8859-9', 'latin6' => 'iso-8859-10', 'latin7' => 'iso-8859-13', 'latin8' => 'iso-8859-14', 'latin9' => 'iso-8859-15', 'latin10' => 'iso-8859-16', 'iso8859-1' => 'iso-8859-1', 'iso8859-2' => 'iso-8859-2', 'iso8859-3' => 'iso-8859-3', 'iso8859-4' => 'iso-8859-4', 'iso8859-5' => 'iso-8859-5', 'iso8859-6' => 'iso-8859-6', 'iso8859-7' => 'iso-8859-7', 'iso8859-8' => 'iso-8859-8', 'iso8859-9' => 'iso-8859-9', 'iso8859-10' => 'iso-8859-10', 'iso8859-11' => 'iso-8859-11', 'iso8859-12' => 'iso-8859-12', 'iso8859-13' => 'iso-8859-13', 'iso8859-14' => 'iso-8859-14', 'iso8859-15' => 'iso-8859-15', 'iso8859-16' => 'iso-8859-16', 'iso_8859-1' => 'iso-8859-1', 'iso_8859-2' => 'iso-8859-2', 'iso_8859-3' => 'iso-8859-3', 'iso_8859-4' => 'iso-8859-4', 'iso_8859-5' => 'iso-8859-5', 'iso_8859-6' => 'iso-8859-6', 'iso_8859-7' => 'iso-8859-7', 'iso_8859-8' => 'iso-8859-8', 'iso_8859-9' => 'iso-8859-9', 'iso_8859-10' => 'iso-8859-10', 'iso_8859-11' => 'iso-8859-11', 'iso_8859-12' => 'iso-8859-12', 'iso_8859-13' => 'iso-8859-13', 'iso_8859-14' => 'iso-8859-14', 'iso_8859-15' => 'iso-8859-15', 'iso_8859-16' => 'iso-8859-16', 'iso88591' => 'iso-8859-1', 'iso88592' => 'iso-8859-2', 'iso88593' => 'iso-8859-3', 'iso88594' => 'iso-8859-4', 'iso88595' => 'iso-8859-5', 'iso88596' => 'iso-8859-6', 'iso88597' => 'iso-8859-7', 'iso88598' => 'iso-8859-8', 'iso88599' => 'iso-8859-9', 'iso885910' => 'iso-8859-10', 'iso885911' => 'iso-8859-11', 'iso885912' => 'iso-8859-12', 'iso885913' => 'iso-8859-13', 'iso885914' => 'iso-8859-14', 'iso885915' => 'iso-8859-15', 'iso885916' => 'iso-8859-16'];
+ private static $translitMap = [];
+ private static $convertMap = [];
  private static $errorHandler;
  private static $lastError;
- private static $ulenMask = array("\xc0" => 2, "\xd0" => 2, "\xe0" => 3, "\xf0" => 4);
+ private static $ulenMask = ["\xc0" => 2, "\xd0" => 2, "\xe0" => 3, "\xf0" => 4];
  private static $isValidUtf8;
  public static function iconv($inCharset, $outCharset, $str)
  {
@@ -103,7 +103,7 @@ final class Iconv
  $str = \strtr(\str_replace("\r\n", "\n", $str), "\r", "\n");
  }
  $str = \explode("\n\n", $str, 2);
- $headers = array();
+ $headers = [];
  $str = \preg_split('/\\n(?![ \\t])/', $str[0]);
  foreach ($str as $str) {
  $str = self::iconv_mime_decode($str, $mode, $charset);
@@ -114,7 +114,7 @@ final class Iconv
  if (2 === \count($str)) {
  if (isset($headers[$str[0]])) {
  if (!\is_array($headers[$str[0]])) {
- $headers[$str[0]] = array($headers[$str[0]]);
+ $headers[$str[0]] = [$headers[$str[0]]];
  }
  $headers[$str[0]][] = \ltrim($str[1]);
  } else {
@@ -185,7 +185,7 @@ final class Iconv
  case 'internal_encoding':
  return self::$internalEncoding;
  }
- return array('input_encoding' => self::$inputEncoding, 'output_encoding' => self::$outputEncoding, 'internal_encoding' => self::$internalEncoding);
+ return ['input_encoding' => self::$inputEncoding, 'output_encoding' => self::$outputEncoding, 'internal_encoding' => self::$internalEncoding];
  }
  public static function iconv_set_encoding($type, $charset)
  {
@@ -207,9 +207,9 @@ final class Iconv
  public static function iconv_mime_encode($fieldName, $fieldValue, $pref = null)
  {
  if (!\is_array($pref)) {
- $pref = array();
+ $pref = [];
  }
- $pref += array('scheme' => 'B', 'input-charset' => self::$internalEncoding, 'output-charset' => self::$internalEncoding, 'line-length' => 76, 'line-break-chars' => "\r\n");
+ $pref += ['scheme' => 'B', 'input-charset' => self::$internalEncoding, 'output-charset' => self::$internalEncoding, 'line-length' => 76, 'line-break-chars' => "\r\n"];
  if (\preg_match('/[\\x80-\\xFF]/', $fieldName)) {
  $fieldName = '';
  }
@@ -220,19 +220,19 @@ final class Iconv
  return \false;
  }
  \preg_match_all('/./us', $fieldValue, $chars);
- $chars = isset($chars[0]) ? $chars[0] : array();
+ $chars = $chars[0] ?? [];
  $lineBreak = (int) $pref['line-length'];
  $lineStart = "=?{$pref['output-charset']}?{$scheme}?";
  $lineLength = \strlen($fieldName) + 2 + \strlen($lineStart) + 2;
  $lineOffset = \strlen($lineStart) + 3;
  $lineData = '';
- $fieldValue = array();
+ $fieldValue = [];
  $Q = 'Q' === $scheme;
  foreach ($chars as $c) {
  if ('utf-8' !== $out && \false === ($c = self::iconv('utf-8', $out, $c))) {
  return \false;
  }
- $o = $Q ? $c = \preg_replace_callback('/[=_\\?\\x00-\\x1F\\x80-\\xFF]/', array(__CLASS__, 'qpByteCallback'), $c) : \base64_encode($lineData . $c);
+ $o = $Q ? $c = \preg_replace_callback('/[=_\\?\\x00-\\x1F\\x80-\\xFF]/', [__CLASS__, 'qpByteCallback'], $c) : \base64_encode($lineData . $c);
  if (isset($o[$lineBreak - $lineLength])) {
  if (!$Q) {
  $lineData = \base64_encode($lineData);
@@ -287,7 +287,7 @@ final class Iconv
  $len = \strlen($s);
  while ($i < $len) {
  $u = $s[$i] & "\xf0";
- $i += isset($ulenMask[$u]) ? $ulenMask[$u] : 1;
+ $i += $ulenMask[$u] ?? 1;
  ++$j;
  }
  return $j;
@@ -344,10 +344,13 @@ final class Iconv
  $start += $slen;
  }
  if (0 > $start) {
+ if (\PHP_VERSION_ID < 80000) {
  return \false;
  }
+ $start = 0;
+ }
  if ($start >= $slen) {
- return \false;
+ return \PHP_VERSION_ID >= 80000 ? '' : \false;
  }
  $rx = $slen - $start;
  if (0 > $length) {
@@ -357,7 +360,7 @@ final class Iconv
  return '';
  }
  if (0 > $length) {
- return \false;
+ return \PHP_VERSION_ID >= 80000 ? '' : \false;
  }
  if ($length > $rx) {
  $length = $rx;
@@ -397,7 +400,7 @@ final class Iconv
  $u[$j++] = $str[$i++];
  } else {
  $ulen = $str[$i] & "\xf0";
- $ulen = isset($ulenMask[$ulen]) ? $ulenMask[$ulen] : 1;
+ $ulen = $ulenMask[$ulen] ?? 1;
  $uchr = \substr($str, $i, $ulen);
  if (1 === $ulen || !($valid || \preg_match('/^.$/us', $uchr))) {
  if ($ignore) {
@@ -406,9 +409,8 @@ final class Iconv
  }
  \trigger_error(self::ERROR_ILLEGAL_CHARACTER);
  return \false;
- } else {
- $i += $ulen;
  }
+ $i += $ulen;
  $u[$j++] = $uchr[0];
  isset($uchr[1]) && 0 !== ($u[$j++] = $uchr[1]) && isset($uchr[2]) && 0 !== ($u[$j++] = $uchr[2]) && isset($uchr[3]) && 0 !== ($u[$j++] = $uchr[3]);
  }
@@ -444,14 +446,13 @@ final class Iconv
  $uchr = $str[$i++];
  } else {
  $ulen = $str[$i] & "\xf0";
- $ulen = isset($ulenMask[$ulen]) ? $ulenMask[$ulen] : 1;
+ $ulen = $ulenMask[$ulen] ?? 1;
  $uchr = \substr($str, $i, $ulen);
  if ($ignore && (1 === $ulen || !($valid || \preg_match('/^.$/us', $uchr)))) {
  ++$i;
  continue;
- } else {
- $i += $ulen;
  }
+ $i += $ulen;
  }
  if (isset($map[$uchr])) {
  $result .= $map[$uchr];
@@ -487,7 +488,7 @@ final class Iconv
  }
  private static function pregOffset($offset)
  {
- $rx = array();
+ $rx = [];
  $offset = (int) $offset;
  while ($offset > 65535) {
  $rx[] = '.{65535}';

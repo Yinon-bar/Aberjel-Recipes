@@ -4,6 +4,6 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use Attribute;
 #[\Attribute(Attribute::TARGET_METHOD)]
-final class PostUpdate implements Annotation
+final class PostUpdate implements MappingAttribute
 {
 }

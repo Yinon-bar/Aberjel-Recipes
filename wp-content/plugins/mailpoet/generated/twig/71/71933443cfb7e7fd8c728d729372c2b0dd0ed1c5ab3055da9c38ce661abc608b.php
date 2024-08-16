@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -38,48 +39,56 @@ class __TwigTemplate_adb8eaf54da5046390145eb13175732db5c6d227482e34326cc54603083
     {
         $macros = $this->macros;
         // line 1
-        $this->displayBlock('content', $context, $blocks);
+        yield from $this->unwrap()->yieldBlock('content', $context, $blocks);
+        return; yield '';
     }
 
     public function block_content($context, array $blocks = [])
     {
         $macros = $this->macros;
         // line 2
-        echo "  ";
+        yield "  ";
         if ((($context["formType"] ?? null) == "others")) {
             // line 3
-            echo "    <div id=\"mailpoet_widget_preview\" class=\"mailpoet_widget_preview\">
+            yield "    <div id=\"mailpoet_widget_preview\" class=\"mailpoet_widget_preview\">
       <div id=\"sidebar\" class=\"sidebar widget-area si-sidebar-container\">
         <div class=\"widget si-widget\">
           ";
             // line 6
-            echo ($context["form"] ?? null);
-            echo "
+            yield ($context["form"] ?? null);
+            yield "
         </div>
       </div>
     </div>
   ";
         } else {
             // line 11
-            echo "    ";
-            echo ($context["post"] ?? null);
-            echo "
+            yield "    ";
+            yield ($context["post"] ?? null);
+            yield "
     ";
             // line 12
-            echo ($context["form"] ?? null);
-            echo "
+            yield ($context["form"] ?? null);
+            yield "
   ";
         }
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/form_preview.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  66 => 12,  61 => 11,  53 => 6,  48 => 3,  45 => 2,  38 => 1,);
+        return array (  68 => 12,  63 => 11,  55 => 6,  50 => 3,  47 => 2,  39 => 1,);
     }
 
     public function getSourceContext()

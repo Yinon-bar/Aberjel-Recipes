@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,8 +37,7 @@ class __TwigTemplate_a9317f1fb35a20ab77b213addbcaeb51cabea35d125194be31ba5f1e8c0
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "{{#if params.label}}
+        yield "{{#if params.label}}
   <p>
     <label>{{ params.label }}{{#if params.required}} *{{/if}}</label>
   </p>
@@ -88,16 +88,23 @@ class __TwigTemplate_a9317f1fb35a20ab77b213addbcaeb51cabea35d125194be31ba5f1e8c0
   {{> _settings_date_months }}
 {{/ifCond}}
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/blocks/date.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_PROPERTY)]
-final class OneToOne implements Annotation
+final class OneToOne implements MappingAttribute
 {
  public $targetEntity;
  public $mappedBy;

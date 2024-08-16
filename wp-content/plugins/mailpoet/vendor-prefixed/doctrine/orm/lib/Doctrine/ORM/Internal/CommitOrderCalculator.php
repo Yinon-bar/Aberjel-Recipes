@@ -2,13 +2,16 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Internal;
 if (!defined('ABSPATH')) exit;
-use stdClass;
+use MailPoetVendor\Doctrine\ORM\Internal\CommitOrder\Edge;
+use MailPoetVendor\Doctrine\ORM\Internal\CommitOrder\Vertex;
+use MailPoetVendor\Doctrine\ORM\Internal\CommitOrder\VertexState;
+use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use function array_reverse;
 class CommitOrderCalculator
 {
- public const NOT_VISITED = 0;
- public const IN_PROGRESS = 1;
- public const VISITED = 2;
+ public const NOT_VISITED = VertexState::NOT_VISITED;
+ public const IN_PROGRESS = VertexState::IN_PROGRESS;
+ public const VISITED = VertexState::VISITED;
  private $nodeList = [];
  private $sortedNodeList = [];
  public function hasNode($hash)
@@ -17,26 +20,16 @@ class CommitOrderCalculator
  }
  public function addNode($hash, $node)
  {
- $vertex = new stdClass();
- $vertex->hash = $hash;
- $vertex->state = self::NOT_VISITED;
- $vertex->value = $node;
- $vertex->dependencyList = [];
- $this->nodeList[$hash] = $vertex;
+ $this->nodeList[$hash] = new Vertex($hash, $node);
  }
  public function addDependency($fromHash, $toHash, $weight)
  {
- $vertex = $this->nodeList[$fromHash];
- $edge = new stdClass();
- $edge->from = $fromHash;
- $edge->to = $toHash;
- $edge->weight = $weight;
- $vertex->dependencyList[$toHash] = $edge;
+ $this->nodeList[$fromHash]->dependencyList[$toHash] = new Edge($fromHash, $toHash, $weight);
  }
  public function sort()
  {
  foreach ($this->nodeList as $vertex) {
- if ($vertex->state !== self::NOT_VISITED) {
+ if ($vertex->state !== VertexState::NOT_VISITED) {
  continue;
  }
  $this->visit($vertex);
@@ -46,35 +39,35 @@ class CommitOrderCalculator
  $this->sortedNodeList = [];
  return array_reverse($sortedList);
  }
- private function visit(stdClass $vertex) : void
+ private function visit(Vertex $vertex) : void
  {
- $vertex->state = self::IN_PROGRESS;
+ $vertex->state = VertexState::IN_PROGRESS;
  foreach ($vertex->dependencyList as $edge) {
  $adjacentVertex = $this->nodeList[$edge->to];
  switch ($adjacentVertex->state) {
- case self::VISITED:
+ case VertexState::VISITED:
  // Do nothing, since node was already visited
  break;
- case self::IN_PROGRESS:
+ case VertexState::IN_PROGRESS:
  if (isset($adjacentVertex->dependencyList[$vertex->hash]) && $adjacentVertex->dependencyList[$vertex->hash]->weight < $edge->weight) {
  // If we have some non-visited dependencies in the in-progress dependency, we
  // need to visit them before adding the node.
  foreach ($adjacentVertex->dependencyList as $adjacentEdge) {
  $adjacentEdgeVertex = $this->nodeList[$adjacentEdge->to];
- if ($adjacentEdgeVertex->state === self::NOT_VISITED) {
+ if ($adjacentEdgeVertex->state === VertexState::NOT_VISITED) {
  $this->visit($adjacentEdgeVertex);
  }
  }
- $adjacentVertex->state = self::VISITED;
+ $adjacentVertex->state = VertexState::VISITED;
  $this->sortedNodeList[] = $adjacentVertex->value;
  }
  break;
- case self::NOT_VISITED:
+ case VertexState::NOT_VISITED:
  $this->visit($adjacentVertex);
  }
  }
- if ($vertex->state !== self::VISITED) {
- $vertex->state = self::VISITED;
+ if ($vertex->state !== VertexState::VISITED) {
+ $vertex->state = VertexState::VISITED;
  $this->sortedNodeList[] = $vertex->value;
  }
  }

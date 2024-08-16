@@ -168,6 +168,20 @@ class SubscriberSaveController {
       $this->welcomeScheduler->scheduleSubscriberWelcomeNotification($subscriber->getId(), $newSegments);
     }
 
+    // when global status changes to subscribed, fire subscribed hook for all subscribed segments
+    if (
+      $subscriber->getStatus() === SubscriberEntity::STATUS_SUBSCRIBED
+      && $oldStatus !== null // don't trigger for new subscribers (handled in subscriber segments repository)
+      && $oldStatus !== SubscriberEntity::STATUS_SUBSCRIBED
+    ) {
+      $segments = $subscriber->getSubscriberSegments();
+      foreach ($segments as $subscriberSegment) {
+        if ($subscriberSegment->getStatus() === SubscriberEntity::STATUS_SUBSCRIBED) {
+          $this->wp->doAction('mailpoet_segment_subscribed', $subscriberSegment);
+        }
+      }
+    }
+
     return $subscriber;
   }
 
@@ -231,6 +245,9 @@ class SubscriberSaveController {
 
     // wipe any unconfirmed data at this point
     $subscriber->setUnconfirmedData(null);
+
+    // Validate the email (Saving group) + everything else (Default group)
+    $subscriber->setValidationGroups(['Saving', 'Default']);
 
     try {
       $this->subscribersRepository->persist($subscriber);

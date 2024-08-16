@@ -5,7 +5,9 @@ namespace MailPoet\WooCommerce\Integrations;
 if (!defined('ABSPATH')) exit;
 
 
+use MailPoet\Entities\SegmentEntity;
 use MailPoet\Entities\SubscriberEntity;
+use MailPoet\Entities\SubscriberSegmentEntity;
 use MailPoet\Subscribers\SubscribersRepository;
 use MailPoet\WP\Functions as WPFunctions;
 
@@ -35,6 +37,10 @@ class AutomateWooHooks {
       class_exists('AutomateWoo\Customer') && method_exists('AutomateWoo\Customer', 'opt_out');
   }
 
+  public function isAutomateWooReady(): bool {
+    return $this->isAutomateWooActive() && $this->areMethodsAvailable();
+  }
+
   /**
    * @return \AutomateWoo\Customer|false
    */
@@ -45,14 +51,15 @@ class AutomateWooHooks {
   }
 
   public function setup(): void {
-    if (!$this->isAutomateWooActive() || !$this->areMethodsAvailable()) {
+    if (!$this->isAutomateWooReady()) {
       return;
     }
-    $this->wp->addAction(SubscriberEntity::HOOK_SUBSCRIBER_STATUS_CHANGED, [$this, 'maybeOptOutSubscriber'], 10, 1);
+    $this->wp->addAction(SubscriberEntity::HOOK_SUBSCRIBER_STATUS_CHANGED, [$this, 'syncSubscriber'], 10, 1);
+    $this->wp->addAction('mailpoet_segment_subscribed', [$this, 'maybeOptInSubscriber'], 10, 1);
   }
 
   public function optOutSubscriber($subscriber): void {
-    if (!$this->isAutomateWooActive() || !$this->areMethodsAvailable()) {
+    if (!$this->isAutomateWooReady() || !$subscriber) {
       return;
     }
 
@@ -64,12 +71,43 @@ class AutomateWooHooks {
     $automateWooCustomer->opt_out();
   }
 
-  public function maybeOptOutSubscriber(int $subscriberId): void {
-    $subscriber = $this->subscribersRepository->findOneById($subscriberId);
-    if (!$subscriber || !$subscriber->getEmail() || $subscriber->getStatus() !== SubscriberEntity::STATUS_UNSUBSCRIBED) {
+  public function optInSubscriber($subscriber): void {
+    if (!$this->isAutomateWooReady() || !$subscriber) {
       return;
     }
 
-    $this->optOutSubscriber($subscriber);
+    $automateWooCustomer = $this->getAutomateWooCustomer($subscriber->getEmail());
+    if (!$automateWooCustomer) {
+      return;
+    }
+
+    $automateWooCustomer->opt_in();
+  }
+
+  public function syncSubscriber(int $subscriberId): void {
+    $subscriber = $this->subscribersRepository->findOneById($subscriberId);
+    if (!$subscriber || !$subscriber->getEmail()) {
+      return;
+    }
+
+    if ($this->isWooCommerceSubscribed($subscriber)) {
+      $this->optInSubscriber($subscriber);
+    } else {
+      $this->optOutSubscriber($subscriber);
+    }
+  }
+
+  /**
+   * Opt-In the subscriber in AW only if the subscriber belongs to WooCommerce list.
+   */
+  public function maybeOptInSubscriber(SubscriberSegmentEntity $subscriberSegment) {
+    if ($subscriberSegment->getSegment() && $subscriberSegment->getSegment()->getType() === SegmentEntity::TYPE_WC_USERS) {
+      $this->optInSubscriber($subscriberSegment->getSubscriber());
+    }
+  }
+
+  private function isWooCommerceSubscribed(SubscriberEntity $subscriber) {
+    return $subscriber->getStatus() === SubscriberEntity::STATUS_SUBSCRIBED
+      && $this->subscribersRepository->getWooCommerceSegmentSubscriber($subscriber->getEmail());
   }
 }

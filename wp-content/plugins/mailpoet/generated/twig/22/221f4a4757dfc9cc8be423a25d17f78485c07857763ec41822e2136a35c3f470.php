@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,29 +38,39 @@ class __TwigTemplate_78d6d50a8be9fd03873bfc43ac1c5c60d2eff8e1fbef2ff125faf7680c8
     {
         $macros = $this->macros;
         // line 1
-        echo "<h3>";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text");
-        echo "</h3>
+        yield "<h3>";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text");
+        yield "</h3>
 ";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text");
-        echo ": <textarea name=\"text\" class=\"text\" rows=\"5\" cols=\"40\">{{ model.text }}</textarea>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text");
+        yield ": <textarea name=\"text\" class=\"text\" rows=\"5\" cols=\"40\">{{ model.text }}</textarea>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/text/settings.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  42 => 2,  37 => 1,);
+        return array (  43 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

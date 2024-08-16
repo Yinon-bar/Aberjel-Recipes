@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,7 +43,7 @@ class __TwigTemplate_1453f1606febf8a9b6e30a893bcc22827936ceb21531b5a8f8a196260a5
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("layout.html", "landingpage.html", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
@@ -50,33 +51,47 @@ class __TwigTemplate_1453f1606febf8a9b6e30a893bcc22827936ceb21531b5a8f8a196260a5
     {
         $macros = $this->macros;
         // line 4
-        echo "<div id=\"mailpoet_landingpage_container\"></div>
+        yield "<div id=\"mailpoet_landingpage_container\"></div>
 
 <script type=\"text/javascript\">
   ";
         // line 8
-        echo "    var mailpoet_welcome_wizard_url = ";
-        echo json_encode(($context["welcome_wizard_url"] ?? null));
-        echo ";
+        yield "    var mailpoet_welcome_wizard_url = ";
+        yield json_encode(($context["welcome_wizard_url"] ?? null));
+        yield ";
+    var mailpoet_welcome_wizard_current_step = ";
+        // line 9
+        yield json_encode(($context["welcome_wizard_current_step"] ?? null));
+        yield ";
   ";
-        // line 10
-        echo "</script>
+        // line 11
+        yield "</script>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "landingpage.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  60 => 10,  55 => 8,  50 => 4,  46 => 3,  35 => 1,);
+        return array (  65 => 11,  61 => 9,  56 => 8,  51 => 4,  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

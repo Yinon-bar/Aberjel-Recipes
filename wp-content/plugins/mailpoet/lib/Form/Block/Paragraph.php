@@ -55,7 +55,7 @@ class Paragraph {
     if (isset($block['params']['drop_cap']) && $block['params']['drop_cap'] === '1') {
       $classes[] = 'has-drop-cap';
     }
-    if (!empty($block['params']['background_color'])) {
+    if (!empty($block['params']['background_color']) || !empty($block['params']['gradient'])) {
       $classes[] = 'mailpoet-has-background-color';
     }
     if (!empty($block['params']['font_size'])) {
@@ -74,6 +74,9 @@ class Paragraph {
     if (!empty($block['params']['background_color'])) {
       $styles[] = 'background-color: ' . $block['params']['background_color'];
     }
+    if (!empty($block['params']['gradient'])) {
+      $styles[] = "background: {$block['params']['gradient']};";
+    }
     if (!empty($block['params']['align'])) {
       $styles[] = 'text-align: ' . $block['params']['align'];
     }
@@ -85,6 +88,13 @@ class Paragraph {
     }
     if (!empty($block['params']['line_height'])) {
       $styles[] = 'line-height: ' . $block['params']['line_height'];
+    }
+    if (!empty($block['params']['padding']) && is_array($block['params']['padding'])) {
+      $top = $block['params']['padding']['top'] ?? 0;
+      $right = $block['params']['padding']['right'] ?? 0;
+      $bottom = $block['params']['padding']['bottom'] ?? 0;
+      $left = $block['params']['padding']['left'] ?? 0;
+      $styles[] = "padding:{$top} {$right} {$bottom} {$left};";
     }
     if (empty($styles)) {
       return null;

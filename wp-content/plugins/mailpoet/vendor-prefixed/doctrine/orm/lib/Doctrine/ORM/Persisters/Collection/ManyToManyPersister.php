@@ -4,6 +4,7 @@ namespace MailPoetVendor\Doctrine\ORM\Persisters\Collection;
 if (!defined('ABSPATH')) exit;
 use BadMethodCallException;
 use MailPoetVendor\Doctrine\Common\Collections\Criteria;
+use MailPoetVendor\Doctrine\Common\Collections\Expr\Comparison;
 use MailPoetVendor\Doctrine\DBAL\Exception as DBALException;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\PersistentCollection;
@@ -140,9 +141,13 @@ class ManyToManyPersister extends AbstractCollectionPersister
  foreach ($parameters as $parameter) {
  [$name, $value, $operator] = $parameter;
  $field = $this->quoteStrategy->getColumnName($name, $targetClass, $this->platform);
+ if ($value === null && ($operator === Comparison::EQ || $operator === Comparison::NEQ)) {
+ $whereClauses[] = sprintf('te.%s %s NULL', $field, $operator === Comparison::EQ ? 'IS' : 'IS NOT');
+ } else {
  $whereClauses[] = sprintf('te.%s %s ?', $field, $operator);
  $params[] = $value;
  $paramTypes[] = PersisterHelper::getTypeOfField($name, $targetClass, $this->em)[0];
+ }
  }
  $tableName = $this->quoteStrategy->getTableName($targetClass, $this->platform);
  $joinTable = $this->quoteStrategy->getJoinTableName($mapping, $associationSourceClass, $this->platform);
@@ -417,9 +422,6 @@ class ManyToManyPersister extends AbstractCollectionPersister
  {
  $limit = $criteria->getMaxResults();
  $offset = $criteria->getFirstResult();
- if ($limit !== null || $offset !== null) {
  return $this->platform->modifyLimitQuery('', $limit, $offset ?? 0);
- }
- return '';
  }
 }

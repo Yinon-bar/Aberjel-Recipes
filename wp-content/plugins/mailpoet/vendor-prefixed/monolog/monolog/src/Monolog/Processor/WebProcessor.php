@@ -6,7 +6,7 @@ class WebProcessor implements ProcessorInterface
 {
  protected $serverData;
  protected $extraFields = ['url' => 'REQUEST_URI', 'ip' => 'REMOTE_ADDR', 'http_method' => 'REQUEST_METHOD', 'server' => 'SERVER_NAME', 'referrer' => 'HTTP_REFERER', 'user_agent' => 'HTTP_USER_AGENT'];
- public function __construct($serverData = null, array $extraFields = null)
+ public function __construct($serverData = null, ?array $extraFields = null)
  {
  if (null === $serverData) {
  $this->serverData =& $_SERVER;

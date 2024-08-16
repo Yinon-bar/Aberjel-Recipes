@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,27 +38,27 @@ class __TwigTemplate_dfdf9f5a92a1c8ac3b2b3e97633af09605e9bf2c8350c290d8806af7dba
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_settings_products_selection_controls\">
+        yield "<div class=\"mailpoet_settings_products_selection_controls\">
     <div class=\"mailpoet_product_selection_filter_row\">
         <input type=\"text\" name=\"\" class=\"mailpoet_input mailpoet_input_full mailpoet_products_search_term\" value=\"{{model.search}}\" placeholder=\"";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Search...");
-        echo "\" />
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Search...");
+        yield "\" />
     </div>
     <div class=\"mailpoet_product_selection_filter_row\">
         <select class=\"mailpoet_select mailpoet_input_full mailpoet_products_post_status\">
             <option value=\"publish\" {{#ifCond model.postStatus '==' 'publish'}}SELECTED{{/ifCond}}>";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Published");
-        echo "</option>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Published");
+        yield "</option>
             <option value=\"pending\" {{#ifCond model.postStatus '==' 'pending'}}SELECTED{{/ifCond}}>";
         // line 8
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Pending Review");
-        echo "</option>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Pending Review");
+        yield "</option>
             <option value=\"draft\" {{#ifCond model.postStatus '==' 'draft'}}SELECTED{{/ifCond}}>";
         // line 9
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Draft");
-        echo "</option>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Draft");
+        yield "</option>
         </select>
     </div>
     <div class=\"mailpoet_product_selection_filter_row\">
@@ -73,25 +74,35 @@ class __TwigTemplate_dfdf9f5a92a1c8ac3b2b3e97633af09605e9bf2c8350c290d8806af7dba
 <div class=\"mailpoet_product_selection_loading\" style=\"visibility: hidden;\">
   ";
         // line 23
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Loading posts...");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Loading posts...");
+        yield "
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/products/settingsSelection.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  73 => 23,  56 => 9,  52 => 8,  48 => 7,  41 => 3,  37 => 1,);
+        return array (  74 => 23,  57 => 9,  53 => 8,  49 => 7,  42 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

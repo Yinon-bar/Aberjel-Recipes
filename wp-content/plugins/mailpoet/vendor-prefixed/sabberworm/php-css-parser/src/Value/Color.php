@@ -11,7 +11,7 @@ class Color extends CSSFunction
  {
  parent::__construct(\implode('', \array_keys($aColor)), $aColor, ',', $iLineNo);
  }
- public static function parse(ParserState $oParserState)
+ public static function parse(ParserState $oParserState, $bIgnoreCase = \false)
  {
  $aColor = [];
  if ($oParserState->comes('#')) {

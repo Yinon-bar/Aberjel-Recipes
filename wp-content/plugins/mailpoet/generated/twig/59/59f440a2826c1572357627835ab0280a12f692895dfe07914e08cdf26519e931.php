@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,29 +38,39 @@ class __TwigTemplate_277bceca14833ca1daec21f12dc1c37fdd5b0ce2fd6fa71d09b9d946ef8
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"handlediv\" title=\"Click to toggle\"><br></div>
+        yield "<div class=\"handlediv\" title=\"Click to toggle\"><br></div>
 <h3>";
         // line 2
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Columns");
-        echo "</h3>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Columns");
+        yield "</h3>
 <div class=\"mailpoet_region_content clearfix\">
 </div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/components/sidebar/layout.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  40 => 2,  37 => 1,);
+        return array (  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

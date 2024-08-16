@@ -27,8 +27,8 @@ class HydrationException extends ORMException
  {
  return new self(sprintf('The meta mapping for the discriminator column "%s" is missing for "%s" using the DQL alias "%s".', $discrColumnName, $entityName, $dqlAlias));
  }
- public static function invalidDiscriminatorValue($discrValue, $discrMap)
+ public static function invalidDiscriminatorValue($discrValue, $discrValues)
  {
- return new self(sprintf('The discriminator value "%s" is invalid. It must be one of "%s".', $discrValue, implode('", "', $discrMap)));
+ return new self(sprintf('The discriminator value "%s" is invalid. It must be one of "%s".', $discrValue, implode('", "', $discrValues)));
  }
 }

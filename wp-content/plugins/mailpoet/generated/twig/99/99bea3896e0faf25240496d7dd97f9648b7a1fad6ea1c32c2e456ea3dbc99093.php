@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,65 +38,75 @@ class __TwigTemplate_cc8efaa8d3c388c3a2e0e52f0b49037b3b775dd64304859aa3e0b97b4d7
     {
         $macros = $this->macros;
         // line 1
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Howdy,");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Howdy,");
+        yield "
 
 ";
         // line 3
-        echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_replace_filter($this->extensions['MailPoet\Twig\I18n']->translate("The subscriber %1\$s has just subscribed to your list %2\$s!"), ["%1\$s" =>         // line 4
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(MailPoetVendor\Twig\Extension\CoreExtension::replace($this->extensions['MailPoet\Twig\I18n']->translate("The subscriber %1\$s has just subscribed to your list %2\$s!"), ["%1\$s" =>         // line 4
 ($context["subscriber_email"] ?? null), "%2\$s" => ($context["segments_names"] ?? null)]), "html", null, true);
         // line 5
-        echo "
+        yield "
 
 ";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Cheers,");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Cheers,");
+        yield "
 ";
         // line 8
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("The MailPoet Plugin");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("The MailPoet Plugin");
+        yield "
 
 ";
         // line 10
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("You can disable these emails in your MailPoet Settings.");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("You can disable these emails in your MailPoet Settings.");
+        yield "
 ";
         // line 11
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["link_settings"] ?? null), "html", null, true);
-        echo "
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["link_settings"] ?? null), "html", null, true);
+        yield "
 
 ";
         // line 13
-        if ((\MailPoetVendor\twig_date_format_filter($this->env, "now", "Y-m-d") < \MailPoetVendor\twig_date_format_filter($this->env, "2018-11-30", "Y-m-d"))) {
+        if (($this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatDate("now", "Y-m-d") < $this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatDate("2018-11-30", "Y-m-d"))) {
             // line 14
-            echo "    ";
-            echo $this->extensions['MailPoet\Twig\I18n']->translate("PS. MailPoet annual plans are nearly half price for a limited time. Find out more in the Premium page in your admin.");
-            echo "
+            yield "    ";
+            yield $this->extensions['MailPoet\Twig\I18n']->translate("PS. MailPoet annual plans are nearly half price for a limited time. Find out more in the Premium page in your admin.");
+            yield "
     ";
             // line 15
-            echo \MailPoetVendor\twig_escape_filter($this->env, ($context["link_premium"] ?? null), "html", null, true);
-            echo "
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["link_premium"] ?? null), "html", null, true);
+            yield "
 ";
         }
         // line 17
-        echo "
+        yield "
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/newSubscriberNotification.txt";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  79 => 17,  74 => 15,  69 => 14,  67 => 13,  62 => 11,  58 => 10,  53 => 8,  49 => 7,  45 => 5,  43 => 4,  42 => 3,  37 => 1,);
+        return array (  80 => 17,  75 => 15,  70 => 14,  68 => 13,  63 => 11,  59 => 10,  54 => 8,  50 => 7,  46 => 5,  44 => 4,  43 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

@@ -21,6 +21,7 @@ use MailPoet\Mailer\MailerLog;
 use MailPoet\Newsletter\Sending\ScheduledTasksRepository;
 use MailPoet\Services\Bridge;
 use MailPoet\Settings\SettingsController;
+use MailPoet\Util\Helpers;
 use MailPoet\WP\Functions as WPFunctions;
 use MailPoetVendor\Doctrine\ORM\EntityManager;
 
@@ -73,16 +74,24 @@ class WordPress {
   }
 
   public function run() {
-    if (!$this->checkRunInterval()) {
-      return false;
-    }
-    if (!$this->checkExecutionRequirements()) {
-      $this->stop();
-      return;
-    }
+    try {
+      if (!$this->checkRunInterval()) {
+        return false;
+      }
+      if (!$this->checkExecutionRequirements()) {
+        $this->stop();
+        return;
+      }
 
-    $this->supervisor->init();
-    return $this->supervisor->checkDaemon();
+      $this->supervisor->init();
+      return $this->supervisor->checkDaemon();
+    } catch (\Exception $e) {
+      $mySqlGoneAwayMessage = Helpers::mySqlGoneAwayExceptionHandler($e);
+      if ($mySqlGoneAwayMessage) {
+        throw new \Exception($mySqlGoneAwayMessage, 0, $e);
+      }
+      throw $e;
+    }
   }
 
   private function checkRunInterval(): bool {
@@ -105,6 +114,12 @@ class WordPress {
   }
 
   public function checkExecutionRequirements(): bool {
+    if ($this->wp->wpIsMaintenanceMode()) {
+      // Skip if WP is currently in maintenance mode
+      // The maintenance mode is activated when WP core or a plugin update is in progress
+      return false;
+    }
+
     $this->loadTasksCounts();
 
     // Because a lot of workers has the same pattern for check if it's active we can use a loop here

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 #[\Attribute(Attribute::TARGET_CLASS)]
-final class ChangeTrackingPolicy implements Annotation
+final class ChangeTrackingPolicy implements MappingAttribute
 {
  public $value;
  public function __construct(string $value)

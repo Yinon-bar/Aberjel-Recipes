@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -38,37 +39,45 @@ class __TwigTemplate_b2e90aa663ee76ef09938814932102214bf0368922c2c205f621d8de927
     {
         $macros = $this->macros;
         // line 1
-        $this->displayBlock('content', $context, $blocks);
+        yield from $this->unwrap()->yieldBlock('content', $context, $blocks);
+        return; yield '';
     }
 
     public function block_content($context, array $blocks = [])
     {
         $macros = $this->macros;
         // line 2
-        echo "<p class=\"mailpoet_confirm_unsubscribe\">
+        yield "<p class=\"mailpoet_confirm_unsubscribe\">
   ";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Simply click on this link to stop receiving emails from us.");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Simply click on this link to stop receiving emails from us.");
+        yield "
   <br>
   <a href=\"";
         // line 5
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["unsubscribeUrl"] ?? null), "html", null, true);
-        echo "\" rel=\"nofollow\">";
-        echo $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Yes, unsubscribe me", "Text in unsubscribe link");
-        echo "</a>
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["unsubscribeUrl"] ?? null), "html", null, true);
+        yield "\" rel=\"nofollow\">";
+        yield $this->extensions['MailPoet\Twig\I18n']->translateWithContext("Yes, unsubscribe me", "Text in unsubscribe link");
+        yield "</a>
 </p>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "subscription/confirm_unsubscribe.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  53 => 5,  48 => 3,  45 => 2,  38 => 1,);
+        return array (  55 => 5,  50 => 3,  47 => 2,  39 => 1,);
     }
 
     public function getSourceContext()

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,32 +38,42 @@ class __TwigTemplate_de84f1cd61c1dbe348ba9c21d643ad8681c50ded23e706348d8c974c735
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_widget_icon\">
+        yield "<div class=\"mailpoet_widget_icon\">
 ";
         // line 2
-        echo \MailPoetVendor\twig_source($this->env, "newsletter/templates/svg/block-icons/text.svg");
-        echo "
+        yield MailPoetVendor\Twig\Extension\CoreExtension::source($this->env, "newsletter/templates/svg/block-icons/text.svg");
+        yield "
 </div>
 <div class=\"mailpoet_widget_title\">";
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text");
+        yield "</div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/text/widget.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  45 => 4,  40 => 2,  37 => 1,);
+        return array (  46 => 4,  41 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

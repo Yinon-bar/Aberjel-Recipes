@@ -4,7 +4,7 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use function preg_replace;
-use function strpos;
+use function str_contains;
 use function strrpos;
 use function strtolower;
 use function strtoupper;
@@ -35,7 +35,7 @@ class UnderscoreNamingStrategy implements NamingStrategy
  }
  public function classToTableName($className)
  {
- if (strpos($className, '\\') !== \false) {
+ if (str_contains($className, '\\')) {
  $className = substr($className, strrpos($className, '\\') + 1);
  }
  return $this->underscore($className);

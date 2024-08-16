@@ -2,6 +2,7 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Internal\Hydration;
 if (!defined('ABSPATH')) exit;
+use BackedEnum;
 use MailPoetVendor\Doctrine\DBAL\Driver\ResultStatement;
 use MailPoetVendor\Doctrine\DBAL\ForwardCompatibility\Result as ForwardCompatibilityResult;
 use MailPoetVendor\Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -24,6 +25,7 @@ use function count;
 use function end;
 use function get_debug_type;
 use function in_array;
+use function is_array;
 use function sprintf;
 abstract class AbstractHydrator
 {
@@ -172,12 +174,18 @@ abstract class AbstractHydrator
  $objIndex = $cacheKeyInfo['objIndex'];
  $type = $cacheKeyInfo['type'];
  $value = $type->convertToPHPValue($value, $this->_platform);
+ if ($value !== null && isset($cacheKeyInfo['enumType'])) {
+ $value = $this->buildEnum($value, $cacheKeyInfo['enumType']);
+ }
  $rowData['newObjects'][$objIndex]['class'] = $cacheKeyInfo['class'];
  $rowData['newObjects'][$objIndex]['args'][$argIndex] = $value;
  break;
  case isset($cacheKeyInfo['isScalar']):
  $type = $cacheKeyInfo['type'];
  $value = $type->convertToPHPValue($value, $this->_platform);
+ if ($value !== null && isset($cacheKeyInfo['enumType'])) {
+ $value = $this->buildEnum($value, $cacheKeyInfo['enumType']);
+ }
  $rowData['scalars'][$fieldName] = $value;
  break;
  //case (isset($cacheKeyInfo['isMetaColumn'])):
@@ -196,6 +204,9 @@ abstract class AbstractHydrator
  break;
  }
  $rowData['data'][$dqlAlias][$fieldName] = $type ? $type->convertToPHPValue($value, $this->_platform) : $value;
+ if ($rowData['data'][$dqlAlias][$fieldName] !== null && isset($cacheKeyInfo['enumType'])) {
+ $rowData['data'][$dqlAlias][$fieldName] = $this->buildEnum($rowData['data'][$dqlAlias][$fieldName], $cacheKeyInfo['enumType']);
+ }
  if ($cacheKeyInfo['isIdentifier'] && $value !== null) {
  $id[$dqlAlias] .= '|' . $value;
  $nonemptyComponents[$dqlAlias] = \true;
@@ -237,7 +248,7 @@ abstract class AbstractHydrator
  $fieldName = $this->_rsm->fieldMappings[$key];
  $fieldMapping = $classMetadata->fieldMappings[$fieldName];
  $ownerMap = $this->_rsm->columnOwnerMap[$key];
- $columnInfo = ['isIdentifier' => in_array($fieldName, $classMetadata->identifier, \true), 'fieldName' => $fieldName, 'type' => Type::getType($fieldMapping['type']), 'dqlAlias' => $ownerMap];
+ $columnInfo = ['isIdentifier' => in_array($fieldName, $classMetadata->identifier, \true), 'fieldName' => $fieldName, 'type' => Type::getType($fieldMapping['type']), 'dqlAlias' => $ownerMap, 'enumType' => $this->_rsm->enumMappings[$key] ?? null];
  // the current discriminator value must be saved in order to disambiguate fields hydration,
  // should there be field name collisions
  if ($classMetadata->parentClasses && isset($this->_rsm->discriminatorColumns[$ownerMap])) {
@@ -247,11 +258,11 @@ abstract class AbstractHydrator
  case isset($this->_rsm->newObjectMappings[$key]):
  // WARNING: A NEW object is also a scalar, so it must be declared before!
  $mapping = $this->_rsm->newObjectMappings[$key];
- return $this->_cache[$key] = ['isScalar' => \true, 'isNewObjectParameter' => \true, 'fieldName' => $this->_rsm->scalarMappings[$key], 'type' => Type::getType($this->_rsm->typeMappings[$key]), 'argIndex' => $mapping['argIndex'], 'objIndex' => $mapping['objIndex'], 'class' => new ReflectionClass($mapping['className'])];
+ return $this->_cache[$key] = ['isScalar' => \true, 'isNewObjectParameter' => \true, 'fieldName' => $this->_rsm->scalarMappings[$key], 'type' => Type::getType($this->_rsm->typeMappings[$key]), 'argIndex' => $mapping['argIndex'], 'objIndex' => $mapping['objIndex'], 'class' => new ReflectionClass($mapping['className']), 'enumType' => $this->_rsm->enumMappings[$key] ?? null];
  case isset($this->_rsm->scalarMappings[$key], $this->_hints[LimitSubqueryWalker::FORCE_DBAL_TYPE_CONVERSION]):
- return $this->_cache[$key] = ['fieldName' => $this->_rsm->scalarMappings[$key], 'type' => Type::getType($this->_rsm->typeMappings[$key]), 'dqlAlias' => ''];
+ return $this->_cache[$key] = ['fieldName' => $this->_rsm->scalarMappings[$key], 'type' => Type::getType($this->_rsm->typeMappings[$key]), 'dqlAlias' => '', 'enumType' => $this->_rsm->enumMappings[$key] ?? null];
  case isset($this->_rsm->scalarMappings[$key]):
- return $this->_cache[$key] = ['isScalar' => \true, 'fieldName' => $this->_rsm->scalarMappings[$key], 'type' => Type::getType($this->_rsm->typeMappings[$key])];
+ return $this->_cache[$key] = ['isScalar' => \true, 'fieldName' => $this->_rsm->scalarMappings[$key], 'type' => Type::getType($this->_rsm->typeMappings[$key]), 'enumType' => $this->_rsm->enumMappings[$key] ?? null];
  case isset($this->_rsm->metaMappings[$key]):
  // Meta column (has meaning in relational schema only, i.e. foreign keys or discriminator columns).
  $fieldName = $this->_rsm->metaMappings[$key];
@@ -259,7 +270,7 @@ abstract class AbstractHydrator
  $type = isset($this->_rsm->typeMappings[$key]) ? Type::getType($this->_rsm->typeMappings[$key]) : null;
  // Cache metadata fetch
  $this->getClassMetadata($this->_rsm->aliasMap[$dqlAlias]);
- return $this->_cache[$key] = ['isIdentifier' => isset($this->_rsm->isIdentifierColumn[$dqlAlias][$key]), 'isMetaColumn' => \true, 'fieldName' => $fieldName, 'type' => $type, 'dqlAlias' => $dqlAlias];
+ return $this->_cache[$key] = ['isIdentifier' => isset($this->_rsm->isIdentifierColumn[$dqlAlias][$key]), 'isMetaColumn' => \true, 'fieldName' => $fieldName, 'type' => $type, 'dqlAlias' => $dqlAlias, 'enumType' => $this->_rsm->enumMappings[$key] ?? null];
  }
  // this column is a left over, maybe from a LIMIT query hack for example in Oracle or DB2
  // maybe from an additional column that has not been defined in a NativeQuery ResultSetMapping.
@@ -292,5 +303,14 @@ abstract class AbstractHydrator
  $id = [$fieldName => isset($class->associationMappings[$fieldName]) ? $data[$class->associationMappings[$fieldName]['joinColumns'][0]['name']] : $data[$fieldName]];
  }
  $this->_em->getUnitOfWork()->registerManaged($entity, $id, $data);
+ }
+ protected final function buildEnum($value, string $enumType)
+ {
+ if (is_array($value)) {
+ return array_map(static function ($value) use($enumType) : BackedEnum {
+ return $enumType::from($value);
+ }, $value);
+ }
+ return $enumType::from($value);
  }
 }

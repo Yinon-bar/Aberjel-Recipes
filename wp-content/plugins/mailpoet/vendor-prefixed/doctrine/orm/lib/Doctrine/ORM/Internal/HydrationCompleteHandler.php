@@ -3,8 +3,8 @@ declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Internal;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\ORM\EntityManagerInterface;
-use MailPoetVendor\Doctrine\ORM\Event\LifecycleEventArgs;
 use MailPoetVendor\Doctrine\ORM\Event\ListenersInvoker;
+use MailPoetVendor\Doctrine\ORM\Event\PostLoadEventArgs;
 use MailPoetVendor\Doctrine\ORM\Events;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 final class HydrationCompleteHandler
@@ -31,7 +31,7 @@ final class HydrationCompleteHandler
  $this->deferredPostLoadInvocations = [];
  foreach ($toInvoke as $classAndEntity) {
  [$class, $invoke, $entity] = $classAndEntity;
- $this->listenersInvoker->invoke($class, Events::postLoad, $entity, new LifecycleEventArgs($entity, $this->em), $invoke);
+ $this->listenersInvoker->invoke($class, Events::postLoad, $entity, new PostLoadEventArgs($entity, $this->em), $invoke);
  }
  }
 }

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,109 +38,119 @@ class __TwigTemplate_c57fdfc1a59b00dc7129161c18976ad5ba36cdd436a8430e0c1963def69
     {
         $macros = $this->macros;
         // line 1
-        echo "
+        yield "
 Parsley.addMessages('mailpoet', {
   defaultMessage: '";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value seems to be invalid.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value seems to be invalid.");
+        yield "',
   type: {
     email: '";
         // line 5
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid email.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid email.");
+        yield "',
     url: '";
         // line 6
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid url.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid url.");
+        yield "',
     number: '";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid number.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid number.");
+        yield "',
     integer: '";
         // line 8
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid integer.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be a valid integer.");
+        yield "',
     digits: '";
         // line 9
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be digits.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be digits.");
+        yield "',
     alphanum: '";
         // line 10
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be alphanumeric.");
-        echo "'
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be alphanumeric.");
+        yield "'
   },
   notblank: '";
         // line 12
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should not be blank.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should not be blank.");
+        yield "',
   required: '";
         // line 13
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value is required.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value is required.");
+        yield "',
   pattern: '";
         // line 14
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value seems to be invalid.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value seems to be invalid.");
+        yield "',
   min: '";
         // line 15
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be greater than or equal to %s.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be greater than or equal to %s.");
+        yield "',
   max: '";
         // line 16
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be lower than or equal to %s.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be lower than or equal to %s.");
+        yield "',
   range: '";
         // line 17
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be between %s and %s.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be between %s and %s.");
+        yield "',
   minlength: '";
         // line 18
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value is too short. It should have %s characters or more.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value is too short. It should have %s characters or more.");
+        yield "',
   maxlength: '";
         // line 19
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value is too long. It should have %s characters or fewer.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value is too long. It should have %s characters or fewer.");
+        yield "',
   length: '";
         // line 20
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value length is invalid. It should be between %s and %s characters long.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value length is invalid. It should be between %s and %s characters long.");
+        yield "',
   mincheck: '";
         // line 21
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("You must select at least %s choices.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("You must select at least %s choices.");
+        yield "',
   maxcheck: '";
         // line 22
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("You must select %s choices or fewer.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("You must select %s choices or fewer.");
+        yield "',
   check: '";
         // line 23
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("You must select between %s and %s choices.");
-        echo "',
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("You must select between %s and %s choices.");
+        yield "',
   equalto: '";
         // line 24
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("This value should be the same.");
-        echo "'
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("This value should be the same.");
+        yield "'
 });
 
 Parsley.setLocale('mailpoet');
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "parsley-translations.html";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  119 => 24,  115 => 23,  111 => 22,  107 => 21,  103 => 20,  99 => 19,  95 => 18,  91 => 17,  87 => 16,  83 => 15,  79 => 14,  75 => 13,  71 => 12,  66 => 10,  62 => 9,  58 => 8,  54 => 7,  50 => 6,  46 => 5,  41 => 3,  37 => 1,);
+        return array (  120 => 24,  116 => 23,  112 => 22,  108 => 21,  104 => 20,  100 => 19,  96 => 18,  92 => 17,  88 => 16,  84 => 15,  80 => 14,  76 => 13,  72 => 12,  67 => 10,  63 => 9,  59 => 8,  55 => 7,  51 => 6,  47 => 5,  42 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

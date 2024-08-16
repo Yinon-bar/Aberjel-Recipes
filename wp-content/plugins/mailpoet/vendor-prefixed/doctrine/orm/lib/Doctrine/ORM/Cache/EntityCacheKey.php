@@ -15,6 +15,6 @@ class EntityCacheKey extends CacheKey
  ksort($identifier);
  $this->identifier = $identifier;
  $this->entityClass = $entityClass;
- $this->hash = str_replace('\\', '.', strtolower($entityClass) . '_' . implode(' ', $identifier));
+ parent::__construct(str_replace('\\', '.', strtolower($entityClass) . '_' . implode(' ', $identifier)));
  }
 }

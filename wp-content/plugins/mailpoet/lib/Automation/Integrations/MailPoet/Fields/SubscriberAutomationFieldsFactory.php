@@ -35,6 +35,7 @@ class SubscriberAutomationFieldsFactory {
           'name' => $automation->getName() . " (#{$automation->getId()})",
         ];
       }, $automations),
+      'params' => ['in_the_last'],
     ];
 
     return [
@@ -42,8 +43,8 @@ class SubscriberAutomationFieldsFactory {
         'mailpoet:subscriber:automations-entered',
         Field::TYPE_ENUM_ARRAY,
         __('Automations — entered', 'mailpoet'),
-        function (SubscriberPayload $payload) {
-          return $this->getAutomationIds($payload);
+        function (SubscriberPayload $payload, array $params = []) {
+          return $this->getAutomationIds($payload, null, $params);
         },
         $args
       ),
@@ -51,8 +52,8 @@ class SubscriberAutomationFieldsFactory {
         'mailpoet:subscriber:automations-processing',
         Field::TYPE_ENUM_ARRAY,
         __('Automations — processing', 'mailpoet'),
-        function (SubscriberPayload $payload) {
-          return $this->getAutomationIds($payload, [AutomationRun::STATUS_RUNNING]);
+        function (SubscriberPayload $payload, array $params = []) {
+          return $this->getAutomationIds($payload, [AutomationRun::STATUS_RUNNING], $params);
         },
         $args
       ),
@@ -60,19 +61,17 @@ class SubscriberAutomationFieldsFactory {
         'mailpoet:subscriber:automations-exited',
         Field::TYPE_ENUM_ARRAY,
         __('Automations — exited', 'mailpoet'),
-        function (SubscriberPayload $payload) {
-          return $this->getAutomationIds($payload, [AutomationRun::STATUS_COMPLETE]);
+        function (SubscriberPayload $payload, array $params = []) {
+          return $this->getAutomationIds($payload, [AutomationRun::STATUS_COMPLETE], $params);
         },
         $args
       ),
     ];
   }
 
-  private function getAutomationIds(SubscriberPayload $payload, array $status = null): array {
+  private function getAutomationIds(SubscriberPayload $payload, array $status = null, array $params = []): array {
+    $inTheLastSeconds = isset($params['in_the_last']) ? (int)$params['in_the_last'] : null;
     $subject = new Subject(SubscriberSubject::KEY, ['subscriber_id' => $payload->getId()]);
-    $automations = $this->automationStorage->getAutomationsBySubject($subject, $status);
-    return array_map(function (Automation $automation) {
-      return $automation->getId();
-    }, $automations);
+    return $this->automationStorage->getAutomationIdsBySubject($subject, $status, $inTheLastSeconds);
   }
 }

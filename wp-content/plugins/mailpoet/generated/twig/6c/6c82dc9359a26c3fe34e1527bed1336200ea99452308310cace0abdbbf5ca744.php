@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,9 +38,9 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
     {
         $macros = $this->macros;
         // line 1
-        echo "<h3 data-automation-id=\"coupon_settings_heading\">";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Coupon");
-        echo "</h3>
+        yield "<h3 data-automation-id=\"coupon_settings_heading\">";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Coupon");
+        yield "</h3>
 
 <div id=\"mailpoet_coupon_block_settings\" class=\"mailpoet_coupon_block_settings\"></div>
 
@@ -47,15 +48,15 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
   <div class=\"mailpoet_form_field\">
     <div class=\"mailpoet_form_field_title\">";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Alignment");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Alignment");
+        yield "</div>
     <div class=\"mailpoet_form_field_radio_option\">
       <label>
         <input type=\"radio\" name=\"alignment\" class=\"mailpoet_field_coupon_alignment\" value=\"left\" {{#ifCond model.styles.block.textAlign '===' 'left'}}CHECKED{{/ifCond}}/>
         ";
         // line 11
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Left");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Left");
+        yield "
       </label>
     </div>
     <div class=\"mailpoet_form_field_radio_option\">
@@ -63,8 +64,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
         <input type=\"radio\" name=\"alignment\" class=\"mailpoet_field_coupon_alignment\" value=\"center\" {{#ifCond model.styles.block.textAlign '===' 'center'}}CHECKED{{/ifCond}}/>
         ";
         // line 17
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Center");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Center");
+        yield "
       </label>
     </div>
     <div class=\"mailpoet_form_field_radio_option\">
@@ -72,31 +73,31 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
         <input type=\"radio\" name=\"alignment\" class=\"mailpoet_field_coupon_alignment\" value=\"right\" {{#ifCond model.styles.block.textAlign '===' 'right'}}CHECKED{{/ifCond}}/>
         ";
         // line 23
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Right");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Right");
+        yield "
       </label>
     </div>
   </div>
   <div class=\"mailpoet_form_field mailpoet_form_narrow_select2\">
     <div class=\"mailpoet_form_field_title\">";
         // line 28
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text");
+        yield "</div>
     <div class=\"mailpoet_form_field_input_option mailpoet_form_field_input_nowrap\">
       <input type=\"text\" name=\"font-color\" id=\"mailpoet_field_coupon_font_color\" class=\"mailpoet_field_coupon_font_color mailpoet_color\" value=\"{{ model.styles.block.fontColor }}\" />
       <select id=\"mailpoet_field_coupon_font_family\" name=\"font-family\" class=\"mailpoet_select mailpoet_select_medium mailpoet_field_coupon_font_family mailpoet_font_family\">
         <optgroup label=\"";
         // line 32
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Standard fonts");
-        echo "\">
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Standard fonts");
+        yield "\">
           {{#each availableStyles.fonts.standard}}
             <option value=\"{{ this }}\" {{#ifCond this '==' ../model.styles.block.fontFamily}}SELECTED{{/ifCond}}>{{ this }}</option>
           {{/each}}
         </optgroup>
         <optgroup label=\"";
         // line 37
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Custom fonts");
-        echo "\">
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Custom fonts");
+        yield "\">
           {{#each availableStyles.fonts.custom}}
             <option value=\"{{ this }}\" {{#ifCond this '==' ../model.styles.block.fontFamily}}SELECTED{{/ifCond}}>{{ this }}</option>
           {{/each}}
@@ -115,8 +116,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
         <input type=\"checkbox\" name=\"fontWeight\" class=\"mailpoet_field_coupon_font_weight\" value=\"bold\" {{#ifCond model.styles.block.fontWeight '===' 'bold'}}CHECKED{{/ifCond}}/>
         ";
         // line 54
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Bold");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Bold");
+        yield "
       </label>
     </div>
   </div>
@@ -126,8 +127,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
     </div>
     <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 62
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Background");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Background");
+        yield "</div>
   </div>
   <div class=\"mailpoet_form_field\">
     <div class=\"mailpoet_form_field_input_option\">
@@ -135,8 +136,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
     </div>
     <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 68
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Border");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Border");
+        yield "</div>
     <div class=\"mailpoet_form_field_input_option\">
       <input type=\"number\" name=\"border-width-input\" class=\"mailpoet_input mailpoet_input_small mailpoet_field_coupon_border_width_input\" value=\"{{getNumber model.styles.block.borderWidth}}\" min=\"0\" max=\"10\" step=\"1\" /> px
       <input type=\"range\" min=\"0\" max=\"10\" step=\"1\" name=\"border-width\" class=\"mailpoet_range mailpoet_range_small mailpoet_field_coupon_border_width\" value=\"{{getNumber model.styles.block.borderWidth}}\" />
@@ -146,8 +147,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
     <label>
       <div class=\"mailpoet_form_field_title\">";
         // line 76
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Rounded corners");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Rounded corners");
+        yield "</div>
       <div class=\"mailpoet_form_field_input_option\">
         <input type=\"number\" name=\"border-radius-input\" class=\"mailpoet_input mailpoet_input_small mailpoet_field_coupon_border_radius_input\" value=\"{{getNumber model.styles.block.borderRadius}}\" min=\"0\" max=\"40\" step=\"1\" /> px
         <input type=\"range\" min=\"0\" max=\"40\" step=\"1\" name=\"border-radius\" class=\"mailpoet_range mailpoet_range_medium mailpoet_field_coupon_border_radius\" value=\"{{getNumber model.styles.block.borderRadius }}\" />
@@ -158,8 +159,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
     <label>
       <div class=\"mailpoet_form_field_title\">";
         // line 85
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Width");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Width");
+        yield "</div>
       <div class=\"mailpoet_form_field_input_option\">
         <input type=\"number\" name=\"width-input\" class=\"mailpoet_input mailpoet_input_small mailpoet_field_coupon_width_input\" value=\"{{getNumber model.styles.block.width}}\" min=\"50\" max=\"288\" step=\"1\" /> px
         <input type=\"range\" min=\"50\" max=\"288\" step=\"1\" name=\"width\" class=\"mailpoet_range mailpoet_range_medium mailpoet_field_coupon_width\" value=\"{{getNumber model.styles.block.width }}\" />
@@ -170,8 +171,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
     <label>
       <div class=\"mailpoet_form_field_title\">";
         // line 94
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Height");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Height");
+        yield "</div>
       <div class=\"mailpoet_form_field_input_option\">
         <input type=\"number\" name=\"line-height-input\" class=\"mailpoet_input mailpoet_input_small mailpoet_field_coupon_line_height_input\" value=\"{{getNumber model.styles.block.lineHeight}}\" min=\"20\" max=\"50\" step=\"1\" /> px
         <input type=\"range\" min=\"20\" max=\"50\" step=\"1\" name=\"line-height\" class=\"mailpoet_range mailpoet_range_medium mailpoet_field_coupon_line_height\" value=\"{{getNumber model.styles.block.lineHeight }}\" />
@@ -182,8 +183,8 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
   <div class=\"mailpoet_form_field\">
     <input type=\"button\" name=\"replace-all-coupon-styles\" class=\"button button-secondary mailpoet_coupon_full mailpoet_field_coupon_replace_all_styles\" value=\"";
         // line 103
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Apply styles to all coupons"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Apply styles to all coupons"), "html_attr");
+        yield "\" />
   </div>
   {{/ifCond}}
 </div>
@@ -191,40 +192,50 @@ class __TwigTemplate_242c7d80a2f2d73a801daf666a04cd25b175c9bb43d4ac8139c307f90cb
 <div class=\"mailpoet_form_field\">
     <a href=\"javascript:;\" class=\"mailpoet_settings_coupon_show_coupon_configuration mailpoet_hidden\">";
         // line 109
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Back to selection");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Back to selection");
+        yield "</a>
     <a href=\"javascript:;\" class=\"mailpoet_settings_coupon_show_display_options\">";
         // line 110
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Display options");
-        echo "</a>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Display options");
+        yield "</a>
 </div>
 
 <div class=\"mailpoet_form_field\">
     <input type=\"button\" class=\"button button-primary mailpoet_done_editing\" data-automation-id=\"coupon_done_button\" value=\"";
         // line 114
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
+        yield "\" />
 </div>
 
 <script type=\"text/javascript\">
     fontsSelect('#mailpoet_field_coupon_font_family');
 </script>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/coupon/settings.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  202 => 114,  195 => 110,  191 => 109,  182 => 103,  170 => 94,  158 => 85,  146 => 76,  135 => 68,  126 => 62,  115 => 54,  95 => 37,  87 => 32,  80 => 28,  72 => 23,  63 => 17,  54 => 11,  47 => 7,  37 => 1,);
+        return array (  203 => 114,  196 => 110,  192 => 109,  183 => 103,  171 => 94,  159 => 85,  147 => 76,  136 => 68,  127 => 62,  116 => 54,  96 => 37,  88 => 32,  81 => 28,  73 => 23,  64 => 17,  55 => 11,  48 => 7,  38 => 1,);
     }
 
     public function getSourceContext()

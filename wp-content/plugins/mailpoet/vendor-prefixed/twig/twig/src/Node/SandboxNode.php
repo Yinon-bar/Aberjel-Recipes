@@ -1,10 +1,12 @@
 <?php
 namespace MailPoetVendor\Twig\Node;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Twig\Attribute\YieldReady;
 use MailPoetVendor\Twig\Compiler;
+#[YieldReady]
 class SandboxNode extends Node
 {
- public function __construct(Node $body, int $lineno, string $tag = null)
+ public function __construct(Node $body, int $lineno, ?string $tag = null)
  {
  parent::__construct(['body' => $body], [], $lineno, $tag);
  }

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -38,83 +39,93 @@ class __TwigTemplate_d75fd9f344111f9ecb1b3324b4a107ab6837421ef23804c7930ed215aa7
         $macros = $this->macros;
         // line 1
         $context['_parent'] = $context;
-        $context['_seq'] = \MailPoetVendor\twig_ensure_traversable(($context["date_formats"] ?? null));
+        $context['_seq'] = CoreExtension::ensureTraversable(($context["date_formats"] ?? null));
         foreach ($context['_seq'] as $context["date_type"] => $context["formats"]) {
             // line 2
-            echo "  {{#ifCond params.date_type \"===\" \"";
-            echo \MailPoetVendor\twig_escape_filter($this->env, $context["date_type"], "html", null, true);
-            echo "\"}}
+            yield "  {{#ifCond params.date_type \"===\" \"";
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($context["date_type"], "html", null, true);
+            yield "\"}}
     ";
             // line 3
-            if ((\MailPoetVendor\twig_length_filter($this->env, $context["formats"]) == 1)) {
+            if ((MailPoetVendor\Twig\Extension\CoreExtension::length($this->env->getCharset(), $context["formats"]) == 1)) {
                 // line 4
-                echo "      <!-- display format as hidden value -->
+                yield "      <!-- display format as hidden value -->
       <input type=\"hidden\" name=\"params[date_format]\" value=\"";
                 // line 5
-                echo \MailPoetVendor\twig_escape_filter($this->env, (($__internal_compile_0 = $context["formats"]) && is_array($__internal_compile_0) || $__internal_compile_0 instanceof ArrayAccess ? ($__internal_compile_0[0] ?? null) : null), "html", null, true);
-                echo "\" />
+                yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape((($__internal_compile_0 = $context["formats"]) && is_array($__internal_compile_0) || $__internal_compile_0 instanceof ArrayAccess ? ($__internal_compile_0[0] ?? null) : null), "html", null, true);
+                yield "\" />
     ";
             } else {
                 // line 7
-                echo "      <!-- display label -->
+                yield "      <!-- display label -->
       <p class=\"clearfix\">
         <label>";
                 // line 9
-                echo $this->extensions['MailPoet\Twig\I18n']->translate("Order");
-                echo "</label>
+                yield $this->extensions['MailPoet\Twig\I18n']->translate("Order");
+                yield "</label>
         <!-- display all possible date formats -->
         <select name=\"params[date_format]\">
           ";
                 // line 12
                 $context['_parent'] = $context;
-                $context['_seq'] = \MailPoetVendor\twig_ensure_traversable($context["formats"]);
+                $context['_seq'] = CoreExtension::ensureTraversable($context["formats"]);
                 foreach ($context['_seq'] as $context["_key"] => $context["format"]) {
                     // line 13
-                    echo "            <option
+                    yield "            <option
               {{#ifCond params.date_format \"===\" \"";
                     // line 14
-                    echo \MailPoetVendor\twig_escape_filter($this->env, $context["format"], "html", null, true);
-                    echo "\"}}
+                    yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($context["format"], "html", null, true);
+                    yield "\"}}
                 selected=\"selected\"
               {{/ifCond}}
               value=\"";
                     // line 17
-                    echo \MailPoetVendor\twig_escape_filter($this->env, $context["format"], "html", null, true);
-                    echo "\">";
-                    echo \MailPoetVendor\twig_escape_filter($this->env, $context["format"], "html", null, true);
-                    echo "</option>
+                    yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($context["format"], "html", null, true);
+                    yield "\">";
+                    yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($context["format"], "html", null, true);
+                    yield "</option>
           ";
                 }
                 $_parent = $context['_parent'];
                 unset($context['_seq'], $context['_iterated'], $context['_key'], $context['format'], $context['_parent'], $context['loop']);
                 $context = array_intersect_key($context, $_parent) + $_parent;
                 // line 19
-                echo "        </select>
+                yield "        </select>
       </p>
     ";
             }
             // line 22
-            echo "  {{/ifCond}}
+            yield "  {{/ifCond}}
 ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['date_type'], $context['formats'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/settings/date_formats.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  94 => 22,  89 => 19,  79 => 17,  73 => 14,  70 => 13,  66 => 12,  60 => 9,  56 => 7,  51 => 5,  48 => 4,  46 => 3,  41 => 2,  37 => 1,);
+        return array (  95 => 22,  90 => 19,  80 => 17,  74 => 14,  71 => 13,  67 => 12,  61 => 9,  57 => 7,  52 => 5,  49 => 4,  47 => 3,  42 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

@@ -1,10 +1,8 @@
 <?php // phpcs:ignore SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing
+
 namespace MailPoet\Config\PopulatorData\Templates;
 
 if (!defined('ABSPATH')) exit;
-
-
-use MailPoet\WP\Functions as WPFunctions;
 
 
 class NewspaperTraditional {
@@ -12,7 +10,9 @@ class NewspaperTraditional {
   private $template_image_url;
   private $social_icon_url;
 
-  public function __construct($assets_url) {
+  public function __construct(
+    $assets_url
+  ) {
     $this->template_image_url = 'https://ps.w.org/mailpoet/assets/newsletter-templates/newspaper-traditional';
     $this->social_icon_url = $assets_url . '/img/newsletter_editor/social-icons';
   }
@@ -32,7 +32,7 @@ class NewspaperTraditional {
   }
 
   private function getBody() {
-    return  [
+    return [
       'content' =>
        [
         'type' => 'container',
@@ -143,7 +143,7 @@ class NewspaperTraditional {
                   1 =>
                    [
                     'type' => 'header',
-                    'text' => '<p><span style="color: #008080;"><a href="[link:newsletter_view_in_browser_url]" style="color: #008080;">'.__("View this in your browser.", 'mailpoet').'</a></span></p>',
+                    'text' => '<p><span style="color: #008080;"><a href="[link:newsletter_view_in_browser_url]" style="color: #008080;">' . __("View this in your browser.", 'mailpoet') . '</a></span></p>',
                     'styles' =>
                      [
                       'block' =>
@@ -722,7 +722,7 @@ class NewspaperTraditional {
                   0 =>
                    [
                     'type' => 'footer',
-                    'text' => '<p><span style="color: #458687;"><a href="[link:subscription_unsubscribe_url]" style="color: #458687;">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]" style="color: #458687;">'.__("Manage your subscription", 'mailpoet').'</a></span><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+                    'text' => '<p><span style="color: #458687;"><a href="[link:subscription_unsubscribe_url]" style="color: #458687;">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]" style="color: #458687;">' . __("Manage your subscription", 'mailpoet') . '</a></span><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
                     'styles' =>
                      [
                       'block' =>
@@ -1064,7 +1064,7 @@ class NewspaperTraditional {
          ],
         'footer' =>
          [
-          'text' => '<p><a href="[link:subscription_unsubscribe_url]">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]">'.__("Manage your subscription", 'mailpoet').'</a><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+          'text' => '<p><a href="[link:subscription_unsubscribe_url]">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]">' . __("Manage your subscription", 'mailpoet') . '</a><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
           'styles' =>
            [
             'block' =>
@@ -1211,7 +1211,7 @@ class NewspaperTraditional {
          ],
         'header' =>
          [
-          'text' => '<a href="[link:newsletter_view_in_browser_url]">'.__("View this in your browser.", 'mailpoet').'</a>',
+          'text' => '<a href="[link:newsletter_view_in_browser_url]">' . __("View this in your browser.", 'mailpoet') . '</a>',
           'styles' =>
            [
             'block' =>
@@ -1236,5 +1236,4 @@ class NewspaperTraditional {
        ],
     ];
   }
-
 }

@@ -6,9 +6,9 @@ use Traversable;
 use function func_get_args;
 use function implode;
 use function is_bool;
+use function is_float;
+use function is_int;
 use function is_iterable;
-use function is_numeric;
-use function is_string;
 use function iterator_to_array;
 use function str_replace;
 class Expr
@@ -195,9 +195,10 @@ class Expr
  }
  private function quoteLiteral($literal) : string
  {
- if (is_numeric($literal) && !is_string($literal)) {
+ if (is_int($literal) || is_float($literal)) {
  return (string) $literal;
- } elseif (is_bool($literal)) {
+ }
+ if (is_bool($literal)) {
  return $literal ? 'true' : 'false';
  }
  return "'" . str_replace("'", "''", $literal) . "'";

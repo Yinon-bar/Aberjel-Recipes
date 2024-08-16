@@ -75,6 +75,7 @@ class StatisticsWooCommercePurchasesRepository extends Repository {
 
     // The "SELECT MIN(click_id)..." sub-query is used to count each purchase only once.
     // In the data we track a purchase to multiple newsletters if clicks from multiple newsletters occurred.
+    /** @var array<int, array{revenue: float|int, campaign_id:int, orders_count:int}> $data */
     $data = $this->entityManager->getConnection()->executeQuery('
       SELECT
         SUM(swp.order_price_total) AS revenue,
@@ -113,5 +114,23 @@ class StatisticsWooCommercePurchasesRepository extends Repository {
       return $row;
     }, $data);
     return $data;
+  }
+
+  /** @param int[] $ids */
+  public function removeNewsletterDataByNewsletterIds(array $ids): void {
+    $this->entityManager->createQueryBuilder()
+      ->update(StatisticsWooCommercePurchaseEntity::class, 'swp')
+      ->set('swp.newsletter', ':newsletter')
+      ->where('swp.newsletter IN (:ids)')
+      ->setParameter('newsletter', null)
+      ->setParameter('ids', $ids)
+      ->getQuery()
+      ->execute();
+
+    // update was done via DQL, make sure the entities are also refreshed in the entity manager
+    $this->refreshAll(function (StatisticsWooCommercePurchaseEntity $entity) use ($ids) {
+      $newsletter = $entity->getNewsletter();
+      return $newsletter && in_array($newsletter->getId(), $ids, true);
+    });
   }
 }

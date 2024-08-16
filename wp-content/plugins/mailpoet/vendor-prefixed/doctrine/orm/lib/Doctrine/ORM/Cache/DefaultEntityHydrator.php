@@ -9,6 +9,7 @@ use MailPoetVendor\Doctrine\ORM\Query;
 use MailPoetVendor\Doctrine\ORM\UnitOfWork;
 use MailPoetVendor\Doctrine\ORM\Utility\IdentifierFlattener;
 use function array_merge;
+use function assert;
 use function is_array;
 use function is_object;
 use function reset;
@@ -31,6 +32,7 @@ class DefaultEntityHydrator implements EntityHydrator
  // why update has no identifier values ?
  if ($metadata->requiresFetchAfterChange) {
  if ($metadata->isVersioned) {
+ assert($metadata->versionField !== null);
  $data[$metadata->versionField] = $metadata->getFieldValue($entity, $metadata->versionField);
  }
  foreach ($metadata->fieldMappings as $name => $fieldMapping) {

@@ -10,4 +10,8 @@ final class UnrecognizedField extends PersisterException
  {
  return new self(sprintf('Unrecognized field: %s', $field));
  }
+ public static function byFullyQualifiedName(string $className, string $field) : self
+ {
+ return new self(sprintf('Unrecognized field: %s::$%s', $className, $field));
+ }
 }

@@ -19,7 +19,7 @@ class DateTimeValidator extends DateValidator
  }
  $value = (string) $value;
  \DateTime::createFromFormat($constraint->format, $value);
- $errors = \DateTime::getLastErrors();
+ $errors = \DateTime::getLastErrors() ?: ['error_count' => 0, 'warnings' => []];
  if (0 < $errors['error_count']) {
  $this->context->buildViolation($constraint->message)->setParameter('{{ value }}', $this->formatValue($value))->setCode(DateTime::INVALID_FORMAT_ERROR)->addViolation();
  return;

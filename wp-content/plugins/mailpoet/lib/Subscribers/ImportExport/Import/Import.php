@@ -181,23 +181,40 @@ class Import {
           );
       }
 
-      if ($existingSubscribers['data'] && $this->updateSubscribers) {
+      $updateExistingSubscribersStatus = false;
+
+      if ($existingSubscribers['data']) {
         $allowedStatuses = [
           SubscriberEntity::STATUS_SUBSCRIBED,
           SubscriberEntity::STATUS_UNSUBSCRIBED,
           SubscriberEntity::STATUS_INACTIVE,
         ];
         if (in_array($this->existingSubscribersStatus, $allowedStatuses, true)) {
+          $updateExistingSubscribersStatus = true;
           $existingSubscribers = $this->addField($existingSubscribers, 'status', $this->existingSubscribersStatus);
         }
-        $updatedSubscribers =
-          $this->createOrUpdateSubscribers(
-            self::ACTION_UPDATE,
-            $existingSubscribers,
-            $this->subscribersCustomFields
-          );
-        if ($wpUsers) {
-          $this->synchronizeWPUsers($wpUsers);
+        if ($this->updateSubscribers) {
+          // Update existing subscribers' info (first_name, last_name etc.)
+          // as well as status (optionally) if the status column was added above
+          $updatedSubscribers =
+            $this->createOrUpdateSubscribers(
+              self::ACTION_UPDATE,
+              $existingSubscribers,
+              $this->subscribersCustomFields
+            );
+          if ($wpUsers) {
+            $this->synchronizeWPUsers($wpUsers);
+          }
+        } elseif ($updateExistingSubscribersStatus) {
+          // Only update existing subscribers' status
+          // For this we need to remove all other fields except email and status
+          $existingSubscribers['fields'] = array_intersect($existingSubscribers['fields'], ['email', 'status']);
+          $existingSubscribers['data'] = array_intersect_key($existingSubscribers['data'], array_flip(['email', 'status']));
+          $updatedSubscribers =
+            $this->createOrUpdateSubscribers(
+              self::ACTION_UPDATE,
+              $existingSubscribers
+            );
         }
       }
     } catch (\Exception $e) {
@@ -235,7 +252,9 @@ class Import {
               $invalidRecords[] = $index;
             }
             return strtolower($email);
-          }, array_keys($data), $data
+          },
+          array_keys($data),
+          $data
         );
       }
       if (in_array($column, ['created_at', 'confirmed_at'], true)) {
@@ -249,7 +268,9 @@ class Import {
               return null;
             }
             return $ip;
-          }, array_keys($data), $data
+          },
+          array_keys($data),
+          $data
         );
       }
       // if this is a custom column
@@ -289,7 +310,9 @@ class Import {
           $invalidRecords[] = $index;
         }
         return $date;
-      }, array_keys($data), $data
+      },
+      array_keys($data),
+      $data
     );
   }
 
@@ -424,7 +447,6 @@ class Import {
       0,
       $subscribersCount,
       $fieldValue
-
     );
     $subscribers['fields'][] = $fieldName;
 
@@ -465,7 +487,8 @@ class Import {
     $subscribersData['data']['link_token'] = array_map(
       function () {
         return Security::generateRandomString(SubscriberEntity::LINK_TOKEN_LENGTH);
-      }, array_fill(0, $subscribersCount, null)
+      },
+      array_fill(0, $subscribersCount, null)
     );
     return $subscribersData;
   }

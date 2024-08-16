@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,53 +38,63 @@ class __TwigTemplate_61cb543be158996f16d5d8b82ef5c705d0385360e195ec90bf04aa95dcd
     {
         $macros = $this->macros;
         // line 1
-        $context["currentDay"] = \MailPoetVendor\twig_number_format_filter($this->env, \MailPoetVendor\twig_date_format_filter($this->env, "now", "d"));
+        $context["currentDay"] = $this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatNumber($this->extensions['MailPoetVendor\Twig\Extension\CoreExtension']->formatDate("now", "d"));
         // line 2
-        echo "<select id=\"{{ id }}_days\">
+        yield "<select id=\"{{ id }}_days\">
   <option value=\"\">";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Day");
-        echo "</option>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Day");
+        yield "</option>
   ";
         // line 4
         $context['_parent'] = $context;
-        $context['_seq'] = \MailPoetVendor\twig_ensure_traversable(range(1, 31));
+        $context['_seq'] = CoreExtension::ensureTraversable(range(1, 31));
         foreach ($context['_seq'] as $context["_key"] => $context["day"]) {
             // line 5
-            echo "    <option
+            yield "    <option
     ";
             // line 6
             if ((($context["currentDay"] ?? null) == $context["day"])) {
                 // line 7
-                echo "      {{#if params.is_default_today}}selected=\"selected\"{{/if}}
+                yield "      {{#if params.is_default_today}}selected=\"selected\"{{/if}}
     ";
             }
             // line 9
-            echo "    >";
-            echo \MailPoetVendor\twig_escape_filter($this->env, $context["day"], "html", null, true);
-            echo "</option>
+            yield "    >";
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($context["day"], "html", null, true);
+            yield "</option>
   ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['day'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
         // line 11
-        echo "</select>";
+        yield "</select>";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "form/templatesLegacy/blocks/date_days.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  68 => 11,  59 => 9,  55 => 7,  53 => 6,  50 => 5,  46 => 4,  42 => 3,  39 => 2,  37 => 1,);
+        return array (  69 => 11,  60 => 9,  56 => 7,  54 => 6,  51 => 5,  47 => 4,  43 => 3,  40 => 2,  38 => 1,);
     }
 
     public function getSourceContext()

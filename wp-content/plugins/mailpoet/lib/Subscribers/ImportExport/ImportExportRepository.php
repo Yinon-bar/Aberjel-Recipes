@@ -13,9 +13,11 @@ use MailPoet\Entities\SubscriberCustomFieldEntity;
 use MailPoet\Entities\SubscriberEntity;
 use MailPoet\Entities\SubscriberSegmentEntity;
 use MailPoet\Segments\DynamicSegments\FilterHandler;
+use MailPoet\Subscribers\SubscriberCustomFieldRepository;
+use MailPoet\Subscribers\SubscribersRepository;
 use MailPoetVendor\Doctrine\DBAL\Connection;
-use MailPoetVendor\Doctrine\DBAL\Driver\Statement;
 use MailPoetVendor\Doctrine\DBAL\Query\QueryBuilder;
+use MailPoetVendor\Doctrine\DBAL\Result;
 use MailPoetVendor\Doctrine\ORM\EntityManager;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 
@@ -55,31 +57,51 @@ class ImportExportRepository {
   /** @var FilterHandler */
   private $filterHandler;
 
+  /** @var SubscribersRepository */
+  private $subscribersRepository;
+
+  /** @var SubscriberCustomFieldRepository */
+  private $subscriberCustomFieldRepository;
+
   public function __construct(
     EntityManager $entityManager,
     SubscriberChangesNotifier $changesNotifier,
-    FilterHandler $filterHandler
+    FilterHandler $filterHandler,
+    SubscribersRepository $subscribersRepository,
+    SubscriberCustomFieldRepository $subscriberCustomFieldRepository
   ) {
     $this->entityManager = $entityManager;
     $this->subscriberChangesNotifier = $changesNotifier;
     $this->filterHandler = $filterHandler;
+    $this->subscribersRepository = $subscribersRepository;
+    $this->subscriberCustomFieldRepository = $subscriberCustomFieldRepository;
   }
 
   /**
+   * @param class-string<object> $className
    * @return ClassMetadata<object>
    */
   protected function getClassMetadata(string $className): ClassMetadata {
     return $this->entityManager->getClassMetadata($className);
   }
 
+  /**
+   * @param class-string<object> $className
+   */
   protected function getTableName(string $className): string {
     return $this->getClassMetadata($className)->getTableName();
   }
 
+  /**
+   * @param class-string<object> $className
+   */
   protected function getTableColumns(string $className): array {
     return $this->getClassMetadata($className)->getColumnNames();
   }
 
+  /**
+   * @param class-string<object> $className
+   */
   public function insertMultiple(
     string $className,
     array $columns,
@@ -99,7 +121,8 @@ class ImportExportRepository {
       }, $columns);
 
       foreach ($item as $columnKey => $column) {
-        $parameters[$paramNames[$columnKey]] = $column;
+        // We need to remove the colon character from the query parameter name that is passed to the query builder
+        $parameters[substr($paramNames[$columnKey], 1)] = $column;
       }
       $rows[] = "(" . implode(', ', $paramNames) . ")";
     }
@@ -112,6 +135,9 @@ class ImportExportRepository {
     return $count;
   }
 
+  /**
+   * @param class-string<object> $className
+   */
   public function updateMultiple(
     string $className,
     array $columns,
@@ -173,6 +199,12 @@ class ImportExportRepository {
       " . implode(' AND ', $keyColumnsConditions) . "
     ", $parameters, $parameterTypes);
     $this->notifyUpdates($className, $columns, $data);
+    if ($className === SubscriberEntity::class) {
+      $this->subscribersRepository->refreshAll();
+    }
+    if ($className === SubscriberCustomFieldEntity::class) {
+      $this->subscriberCustomFieldRepository->refreshAll();
+    }
     return $count;
   }
 
@@ -215,13 +247,12 @@ class ImportExportRepository {
     }
 
     $statement = $qb->execute();
-    return $statement instanceof Statement ? $statement->fetchAll() : [];
+    return $statement instanceof Result ? $statement->fetchAll() : [];
   }
 
   private function createSubscribersQueryBuilder(int $limit, int $offset): QueryBuilder {
     $subscriberSegmentTable = $this->getTableName(SubscriberSegmentEntity::class);
     $subscriberTable = $this->getTableName(SubscriberEntity::class);
-    $segmentTable = $this->getTableName(SegmentEntity::class);
 
     return $this->entityManager->getConnection()->createQueryBuilder()
       ->select("
@@ -281,6 +312,9 @@ class ImportExportRepository {
     }
   }
 
+  /**
+   * @param class-string<object> $className
+   */
   private function getIdsByEmail(string $className, array $columns, array $data): array {
     $tableName = $this->getTableName($className);
     $emailIndex = array_search('email', $columns);

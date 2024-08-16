@@ -3,26 +3,25 @@ namespace MailPoetVendor\Symfony\Polyfill\Intl\Normalizer;
 if (!defined('ABSPATH')) exit;
 class Normalizer
 {
- const FORM_D = \MailPoetVendor\Normalizer::FORM_D;
- const FORM_KD = \MailPoetVendor\Normalizer::FORM_KD;
- const FORM_C = \MailPoetVendor\Normalizer::FORM_C;
- const FORM_KC = \MailPoetVendor\Normalizer::FORM_KC;
- const NFD = \MailPoetVendor\Normalizer::NFD;
- const NFKD = \MailPoetVendor\Normalizer::NFKD;
- const NFC = \MailPoetVendor\Normalizer::NFC;
- const NFKC = \MailPoetVendor\Normalizer::NFKC;
+ public const FORM_D = \MailPoetVendor\Normalizer::FORM_D;
+ public const FORM_KD = \MailPoetVendor\Normalizer::FORM_KD;
+ public const FORM_C = \MailPoetVendor\Normalizer::FORM_C;
+ public const FORM_KC = \MailPoetVendor\Normalizer::FORM_KC;
+ public const NFD = \MailPoetVendor\Normalizer::NFD;
+ public const NFKD = \MailPoetVendor\Normalizer::NFKD;
+ public const NFC = \MailPoetVendor\Normalizer::NFC;
+ public const NFKC = \MailPoetVendor\Normalizer::NFKC;
  private static $C;
  private static $D;
  private static $KD;
  private static $cC;
- private static $ulenMask = array("\xc0" => 2, "\xd0" => 2, "\xe0" => 3, "\xf0" => 4);
+ private static $ulenMask = ["\xc0" => 2, "\xd0" => 2, "\xe0" => 3, "\xf0" => 4];
  private static $ASCII = " eiasntrolud][cmp'\ng|hv.fb,:=-q10C2*yx)(L9AS/P\"EjMIk3>5T<D4}B{8FwR67UGN;JzV#HOW_&!K?XQ%Y\\\tZ+~^\$@`\x00\x01\x02\x03\x04\x05\x06\x07\x08\v\f\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
- public static function isNormalized($s, $form = self::NFC)
+ public static function isNormalized(string $s, int $form = self::FORM_C)
  {
- if (!\in_array($form, array(self::NFD, self::NFKD, self::NFC, self::NFKC))) {
+ if (!\in_array($form, [self::NFD, self::NFKD, self::NFC, self::NFKC])) {
  return \false;
  }
- $s = (string) $s;
  if (!isset($s[\strspn($s, self::$ASCII)])) {
  return \true;
  }
@@ -31,9 +30,8 @@ class Normalizer
  }
  return self::normalize($s, $form) === $s;
  }
- public static function normalize($s, $form = self::NFC)
+ public static function normalize(string $s, int $form = self::FORM_C)
  {
- $s = (string) $s;
  if (!\preg_match('//u', $s)) {
  return \false;
  }
@@ -58,7 +56,10 @@ class Normalizer
  if (\defined('\MailPoetVendor\Normalizer::NONE') && \MailPoetVendor\Normalizer::NONE == $form) {
  return $s;
  }
+ if (80000 > \PHP_VERSION_ID) {
  return \false;
+ }
+ throw new \ValueError('normalizer_normalize(): Argument #2 ($form) must be a a valid normalization form');
  }
  if ('' === $s) {
  return '';
@@ -117,7 +118,7 @@ class Normalizer
  $uchr = \substr($s, $i, $ulen);
  if ($lastUchr < "ᄀ" || "ᄒ" < $lastUchr || $uchr < "ᅡ" || "ᅵ" < $uchr || $lastUcls) {
  // Table lookup and combining chars composition
- $ucls = isset($combClass[$uchr]) ? $combClass[$uchr] : 0;
+ $ucls = $combClass[$uchr] ?? 0;
  if (isset($compMap[$lastUchr . $uchr]) && (!$lastUcls || $lastUcls < $ucls)) {
  $lastUchr = $compMap[$lastUchr . $uchr];
  } elseif ($lastUcls = $ucls) {
@@ -158,7 +159,7 @@ class Normalizer
  if ($c) {
  $compatMap = self::$KD;
  }
- $c = array();
+ $c = [];
  $i = 0;
  $len = \strlen($s);
  while ($i < $len) {
@@ -167,7 +168,7 @@ class Normalizer
  if ($c) {
  \ksort($c);
  $result .= \implode('', $c);
- $c = array();
+ $c = [];
  }
  $j = 1 + \strspn($s, $ASCII, $i + 1);
  $result .= \substr($s, $i, $j);
@@ -179,7 +180,7 @@ class Normalizer
  $i += $ulen;
  if ($uchr < "가" || "힣" < $uchr) {
  // Table lookup
- if ($uchr !== ($j = isset($compatMap[$uchr]) ? $compatMap[$uchr] : (isset($decompMap[$uchr]) ? $decompMap[$uchr] : $uchr))) {
+ if ($uchr !== ($j = $compatMap[$uchr] ?? $decompMap[$uchr] ?? $uchr)) {
  $uchr = $j;
  $j = \strlen($uchr);
  $ulen = $uchr[0] < "\x80" ? 1 : $ulenMask[$uchr[0] & "\xf0"];
@@ -218,7 +219,7 @@ class Normalizer
  if ($c) {
  \ksort($c);
  $result .= \implode('', $c);
- $c = array();
+ $c = [];
  }
  $result .= $uchr;
  }

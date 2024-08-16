@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 
 
 use MailPoetVendor\Twig\Extension\AbstractExtension;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\TwigFunction;
 
 class Handlebars extends AbstractExtension {
@@ -28,6 +29,7 @@ class Handlebars extends AbstractExtension {
 
   public function generatePartial($env, $context) {
     // get arguments (minus env & $context)
+    /** @var array{0:string, 1:array|string, 2:string} $args */
     $args = array_slice(func_get_args(), 2);
     $argsCount = count($args);
 
@@ -45,7 +47,7 @@ class Handlebars extends AbstractExtension {
         return;
     }
 
-    $renderedTemplate = \MailPoetVendor\twig_include($env, $context, $file);
+    $renderedTemplate = CoreExtension::include($env, $context, $file);
 
     $output = <<<EOL
 <script id="$id" type="text/x-handlebars-template">

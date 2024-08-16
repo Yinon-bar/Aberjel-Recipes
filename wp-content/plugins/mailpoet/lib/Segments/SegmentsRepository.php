@@ -72,7 +72,7 @@ class SegmentsRepository extends Repository {
       ->getResult();
   }
 
-  public function getWPUsersSegment(): ?SegmentEntity {
+  public function getWPUsersSegment(): SegmentEntity {
     $segment = $this->findOneBy(['type' => SegmentEntity::TYPE_WP_USERS]);
 
     if (!$segment) {
@@ -156,10 +156,10 @@ class SegmentsRepository extends Repository {
     try {
       $dynamicSegment = $this->findOneById($id);
       if (!$dynamicSegment instanceof SegmentEntity) {
-        throw InvalidStateException::create()->withMessage(sprintf("Could not find segment with ID %s.", $id));
+        throw InvalidStateException::create()->withMessage(sprintf("Could not find segment with ID '%s'.", $id));
       }
       if ($dynamicSegment->getType() !== SegmentEntity::TYPE_DYNAMIC) {
-        throw InvalidStateException::create()->withMessage(sprintf("Segment with ID %s is not a dynamic segment. Its type is %s.", $id, $dynamicSegment->getType()));
+        throw InvalidStateException::create()->withMessage(sprintf("Segment with ID '%s' is not a dynamic segment. Its type is %s.", $id, $dynamicSegment->getType()));
       }
     } catch (InvalidStateException $exception) {
       $this->loggerFactory->getLogger(LoggerFactory::TOPIC_SEGMENTS)->error(sprintf("Could not verify existence of dynamic segment: %s", $exception->getMessage()));
@@ -338,6 +338,7 @@ class SegmentsRepository extends Repository {
       ->from($segmentFiltersTable, 'sf')
       ->groupBy('sf.segment_id')
       ->having('COUNT(sf.id) > 1');
+    /** @var null|int $result */
     $result = $this->entityManager->getConnection()->createQueryBuilder()
       ->select('count(*)')
       ->from(sprintf('(%s) as subCounts', $qbInner->getSQL()))

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,28 +38,38 @@ class __TwigTemplate_49dbfe4146cc56abca0fd262ba63938d36f1ee75a2835926df2a4ac7314
     {
         $macros = $this->macros;
         // line 1
-        echo "<div class=\"mailpoet_container_empty\">{{#ifCond emptyContainerMessage '!==' ''}}{{emptyContainerMessage}}{{else}}{{#if isRoot}}";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Add a column block here.");
-        echo "{{else}}";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Add a content block here.");
-        echo "{{/if}}{{/ifCond}}</div>
+        yield "<div class=\"mailpoet_container_empty\">{{#ifCond emptyContainerMessage '!==' ''}}{{emptyContainerMessage}}{{else}}{{#if isRoot}}";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Add a column block here.");
+        yield "{{else}}";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Add a content block here.");
+        yield "{{/if}}{{/ifCond}}</div>
 {{debug}}
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/container/emptyBlock.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array (  38 => 1,);
     }
 
     public function getSourceContext()

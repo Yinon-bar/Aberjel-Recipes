@@ -4,9 +4,11 @@ namespace MailPoetVendor\Doctrine\ORM\Internal\Hydration;
 if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Doctrine\ORM\Internal\SQLResultCasing;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
+use MailPoetVendor\Doctrine\ORM\Mapping\MappingException;
 use MailPoetVendor\Doctrine\ORM\Query;
 use Exception;
 use RuntimeException;
+use ValueError;
 use function array_keys;
 use function array_search;
 use function count;
@@ -90,6 +92,14 @@ class SimpleObjectHydrator extends AbstractHydrator
  if (isset($cacheKeyInfo['type'])) {
  $type = $cacheKeyInfo['type'];
  $value = $type->convertToPHPValue($value, $this->_platform);
+ }
+ if ($value !== null && isset($cacheKeyInfo['enumType'])) {
+ $originalValue = $value;
+ try {
+ $value = $this->buildEnum($originalValue, $cacheKeyInfo['enumType']);
+ } catch (ValueError $e) {
+ throw MappingException::invalidEnumValue($entityName, $cacheKeyInfo['fieldName'], (string) $originalValue, $cacheKeyInfo['enumType'], $e);
+ }
  }
  $fieldName = $cacheKeyInfo['fieldName'];
  // Prevent overwrite in case of inherit classes using same property name (See AbstractHydrator)

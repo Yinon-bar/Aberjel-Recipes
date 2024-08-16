@@ -4,6 +4,7 @@ namespace MailPoetVendor\Doctrine\ORM\Mapping\Driver;
 if (!defined('ABSPATH')) exit;
 use Attribute;
 use MailPoetVendor\Doctrine\ORM\Mapping\Annotation;
+use LogicException;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
@@ -11,32 +12,35 @@ use ReflectionProperty;
 use function assert;
 use function is_string;
 use function is_subclass_of;
+use function sprintf;
 final class AttributeReader
 {
  private array $isRepeatableAttribute = [];
- public function getClassAnnotations(ReflectionClass $class) : array
+ public function getClassAttributes(ReflectionClass $class) : array
  {
  return $this->convertToAttributeInstances($class->getAttributes());
  }
- public function getClassAnnotation(ReflectionClass $class, $annotationName)
- {
- return $this->getClassAnnotations($class)[$annotationName] ?? ($this->isRepeatable($annotationName) ? new RepeatableAttributeCollection() : null);
- }
- public function getMethodAnnotations(ReflectionMethod $method) : array
+ public function getMethodAttributes(ReflectionMethod $method) : array
  {
  return $this->convertToAttributeInstances($method->getAttributes());
  }
- public function getMethodAnnotation(ReflectionMethod $method, $annotationName)
- {
- return $this->getMethodAnnotations($method)[$annotationName] ?? ($this->isRepeatable($annotationName) ? new RepeatableAttributeCollection() : null);
- }
- public function getPropertyAnnotations(ReflectionProperty $property) : array
+ public function getPropertyAttributes(ReflectionProperty $property) : array
  {
  return $this->convertToAttributeInstances($property->getAttributes());
  }
- public function getPropertyAnnotation(ReflectionProperty $property, $annotationName)
+ public function getPropertyAttribute(ReflectionProperty $property, $attributeName)
  {
- return $this->getPropertyAnnotations($property)[$annotationName] ?? ($this->isRepeatable($annotationName) ? new RepeatableAttributeCollection() : null);
+ if ($this->isRepeatable($attributeName)) {
+ throw new LogicException(sprintf('The attribute "%s" is repeatable. Call getPropertyAttributeCollection() instead.', $attributeName));
+ }
+ return $this->getPropertyAttributes($property)[$attributeName] ?? ($this->isRepeatable($attributeName) ? new RepeatableAttributeCollection() : null);
+ }
+ public function getPropertyAttributeCollection(ReflectionProperty $property, string $attributeName) : RepeatableAttributeCollection
+ {
+ if (!$this->isRepeatable($attributeName)) {
+ throw new LogicException(sprintf('The attribute "%s" is not repeatable. Call getPropertyAttribute() instead.', $attributeName));
+ }
+ return $this->getPropertyAttributes($property)[$attributeName] ?? new RepeatableAttributeCollection();
  }
  private function convertToAttributeInstances(array $attributes) : array
  {
@@ -44,7 +48,7 @@ final class AttributeReader
  foreach ($attributes as $attribute) {
  $attributeName = $attribute->getName();
  assert(is_string($attributeName));
- // Make sure we only get Doctrine Annotations
+ // Make sure we only get Doctrine Attributes
  if (!is_subclass_of($attributeName, Annotation::class)) {
  continue;
  }

@@ -2,6 +2,7 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Persisters\Entity;
 if (!defined('ABSPATH')) exit;
+use BackedEnum;
 use MailPoetVendor\Doctrine\Common\Collections\Criteria;
 use MailPoetVendor\Doctrine\Common\Collections\Expr\Comparison;
 use MailPoetVendor\Doctrine\Common\Util\ClassUtils;
@@ -11,6 +12,7 @@ use MailPoetVendor\Doctrine\DBAL\Platforms\AbstractPlatform;
 use MailPoetVendor\Doctrine\DBAL\Result;
 use MailPoetVendor\Doctrine\DBAL\Types\Type;
 use MailPoetVendor\Doctrine\DBAL\Types\Types;
+use MailPoetVendor\Doctrine\Deprecations\Deprecation;
 use MailPoetVendor\Doctrine\ORM\EntityManagerInterface;
 use MailPoetVendor\Doctrine\ORM\Mapping\ClassMetadata;
 use MailPoetVendor\Doctrine\ORM\Mapping\MappingException;
@@ -44,7 +46,7 @@ use function is_object;
 use function reset;
 use function spl_object_id;
 use function sprintf;
-use function strpos;
+use function str_contains;
 use function strtoupper;
 use function trim;
 class BasicEntityPersister implements EntityPersister
@@ -220,12 +222,13 @@ class BasicEntityPersister implements EntityPersister
  $targetMapping = $this->em->getClassMetadata($this->class->associationMappings[$idField]['targetEntity']);
  $targetType = PersisterHelper::getTypeOfField($targetMapping->identifier[0], $targetMapping, $this->em);
  if ($targetType === []) {
- throw UnrecognizedField::byName($targetMapping->identifier[0]);
+ throw UnrecognizedField::byFullyQualifiedName($this->class->name, $targetMapping->identifier[0]);
  }
  $types[] = reset($targetType);
  }
  if ($versioned) {
  $versionField = $this->class->versionField;
+ assert($versionField !== null);
  $versionFieldType = $this->class->fieldMappings[$versionField]['type'];
  $versionColumn = $this->quoteStrategy->getColumnName($versionField, $this->class, $this->platform);
  $where[] = $versionColumn;
@@ -458,12 +461,13 @@ class BasicEntityPersister implements EntityPersister
  }
  $valueVisitor = new SqlValueVisitor();
  $valueVisitor->dispatch($expression);
- [$params, $types] = $valueVisitor->getParamsAndTypes();
- foreach ($params as $param) {
- $sqlParams = array_merge($sqlParams, $this->getValues($param));
- }
+ [, $types] = $valueVisitor->getParamsAndTypes();
  foreach ($types as $type) {
- [$field, $value] = $type;
+ [$field, $value, $operator] = $type;
+ if ($value === null && ($operator === Comparison::EQ || $operator === Comparison::NEQ)) {
+ continue;
+ }
+ $sqlParams = array_merge($sqlParams, $this->getValues($value));
  $sqlTypes = array_merge($sqlTypes, $this->getTypes($field, $value, $this->class));
  }
  return [$sqlParams, $sqlTypes];
@@ -625,7 +629,7 @@ class BasicEntityPersister implements EntityPersister
  }
  continue;
  }
- throw UnrecognizedField::byName($fieldName);
+ throw UnrecognizedField::byFullyQualifiedName($this->class->name, $fieldName);
  }
  return ' ORDER BY ' . implode(', ', $orderByList);
  }
@@ -810,6 +814,9 @@ class BasicEntityPersister implements EntityPersister
  $sql = sprintf('%s.%s', $tableAlias, $this->quoteStrategy->getColumnName($field, $class, $this->platform));
  $columnAlias = $this->getSQLColumnAlias($fieldMapping['columnName']);
  $this->currentPersisterContext->rsm->addFieldResult($alias, $columnAlias, $field);
+ if (!empty($fieldMapping['enumType'])) {
+ $this->currentPersisterContext->rsm->addEnumResult($columnAlias, $fieldMapping['enumType']);
+ }
  if (isset($fieldMapping['requireSQLConversion'])) {
  $type = Type::getType($fieldMapping['type']);
  $sql = $type->convertToPHPValueSQL($sql, $this->platform);
@@ -848,7 +855,11 @@ class BasicEntityPersister implements EntityPersister
  }
  protected function getLockTablesSql($lockMode)
  {
- return $this->platform->appendLockHint('FROM ' . $this->quoteStrategy->getTableName($this->class, $this->platform) . ' ' . $this->getSQLTableAlias($this->class->name), $lockMode ?? LockMode::NONE);
+ if ($lockMode === null) {
+ Deprecation::trigger('doctrine/orm', 'https://github.com/doctrine/orm/pull/9466', 'Passing null as argument to %s is deprecated, pass LockMode::NONE instead.', __METHOD__);
+ $lockMode = LockMode::NONE;
+ }
+ return $this->platform->appendLockHint('FROM ' . $this->quoteStrategy->getTableName($this->class, $this->platform) . ' ' . $this->getSQLTableAlias($this->class->name), $lockMode);
  }
  protected function getSelectConditionCriteriaSQL(Criteria $criteria)
  {
@@ -933,13 +944,13 @@ class BasicEntityPersister implements EntityPersister
  }
  return $columns;
  }
- if ($assoc !== null && strpos($field, ' ') === \false && strpos($field, '(') === \false) {
+ if ($assoc !== null && !str_contains($field, ' ') && !str_contains($field, '(')) {
  // very careless developers could potentially open up this normally hidden api for userland attacks,
  // therefore checking for spaces and function calls which are not allowed.
  // found a join column condition, not really a "field"
  return [$field];
  }
- throw UnrecognizedField::byName($field);
+ throw UnrecognizedField::byFullyQualifiedName($this->class->name, $field);
  }
  protected function getSelectConditionSQL(array $criteria, $assoc = null)
  {
@@ -1059,10 +1070,13 @@ class BasicEntityPersister implements EntityPersister
  }
  return $this->getIndividualValue($value);
  }
- private function getIndividualValue($value)
+ private function getIndividualValue($value) : array
  {
  if (!is_object($value)) {
  return [$value];
+ }
+ if ($value instanceof BackedEnum) {
+ return [$value->value];
  }
  $valueClass = ClassUtils::getClass($value);
  if ($this->em->getMetadataFactory()->isTransient($valueClass)) {
@@ -1085,7 +1099,7 @@ class BasicEntityPersister implements EntityPersister
  return \false;
  }
  $alias = $this->getSQLTableAlias($this->class->name);
- $sql = 'SELECT 1 ' . $this->getLockTablesSql(null) . ' WHERE ' . $this->getSelectConditionSQL($criteria);
+ $sql = 'SELECT 1 ' . $this->getLockTablesSql(LockMode::NONE) . ' WHERE ' . $this->getSelectConditionSQL($criteria);
  [$params, $types] = $this->expandParameters($criteria);
  if ($extraConditions !== null) {
  $sql .= ' AND ' . $this->getSelectConditionCriteriaSQL($extraConditions);

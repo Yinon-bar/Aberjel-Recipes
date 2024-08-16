@@ -2,6 +2,7 @@
 declare (strict_types=1);
 namespace MailPoetVendor\Doctrine\ORM\Query;
 if (!defined('ABSPATH')) exit;
+use BackedEnum;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -31,8 +32,15 @@ class ParameterTypeInferer
  if ($value instanceof DateInterval) {
  return Types::DATEINTERVAL;
  }
+ if ($value instanceof BackedEnum) {
+ return is_int($value->value) ? Types::INTEGER : Types::STRING;
+ }
  if (is_array($value)) {
- return is_int(current($value)) ? Connection::PARAM_INT_ARRAY : Connection::PARAM_STR_ARRAY;
+ $firstValue = current($value);
+ if ($firstValue instanceof BackedEnum) {
+ $firstValue = $firstValue->value;
+ }
+ return is_int($firstValue) ? Connection::PARAM_INT_ARRAY : Connection::PARAM_STR_ARRAY;
  }
  return ParameterType::STRING;
  }

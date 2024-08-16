@@ -25,6 +25,7 @@ class OutputFormat
  public $sAfterDeclarationBlock = '';
  public $sIndentation = "\t";
  public $bIgnoreExceptions = \false;
+ public $bRenderComments = \false;
  private $oFormatter = null;
  private $oNextLevelFormat = null;
  private $iIndentationLevel = 0;
@@ -117,13 +118,13 @@ class OutputFormat
  public static function createCompact()
  {
  $format = self::create();
- $format->set('Space*Rules', "")->set('Space*Blocks', "")->setSpaceAfterRuleName('')->setSpaceBeforeOpeningBrace('')->setSpaceAfterSelectorSeparator('');
+ $format->set('Space*Rules', "")->set('Space*Blocks', "")->setSpaceAfterRuleName('')->setSpaceBeforeOpeningBrace('')->setSpaceAfterSelectorSeparator('')->setRenderComments(\false);
  return $format;
  }
  public static function createPretty()
  {
  $format = self::create();
- $format->set('Space*Rules', "\n")->set('Space*Blocks', "\n")->setSpaceBetweenBlocks("\n\n")->set('SpaceAfterListArgumentSeparator', ['default' => '', ',' => ' ']);
+ $format->set('Space*Rules', "\n")->set('Space*Blocks', "\n")->setSpaceBetweenBlocks("\n\n")->set('SpaceAfterListArgumentSeparator', ['default' => '', ',' => ' '])->setRenderComments(\true);
  return $format;
  }
 }

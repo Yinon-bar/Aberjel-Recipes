@@ -52,6 +52,9 @@ class PermanentNotices {
   /** @var DisabledMailFunctionNotice */
   private $disabledMailFunctionNotice;
 
+  /** @var DisabledWPCronNotice */
+  private $disabledWPCronNotice;
+
   /** @var PendingApprovalNotice */
   private $pendingApprovalNotice;
 
@@ -61,6 +64,9 @@ class PermanentNotices {
   /** @var PremiumFeaturesAvailableNotice */
   private $premiumFeaturesAvailableNotice;
 
+  /** @var SenderDomainAuthenticationNotices */
+  private $senderDomainAuthenticationNotices;
+
   public function __construct(
     WPFunctions $wp,
     TrackingConfig $trackingConfig,
@@ -68,7 +74,8 @@ class PermanentNotices {
     SettingsController $settings,
     SubscribersFeature $subscribersFeature,
     ServicesChecker $serviceChecker,
-    MailerFactory $mailerFactory
+    MailerFactory $mailerFactory,
+    SenderDomainAuthenticationNotices $senderDomainAuthenticationNotices
   ) {
     $this->wp = $wp;
     $this->phpVersionWarnings = new PHPVersionWarnings();
@@ -76,15 +83,17 @@ class PermanentNotices {
     $this->unauthorizedEmailsNotice = new UnauthorizedEmailNotice($wp, $settings);
     $this->unauthorizedEmailsInNewslettersNotice = new UnauthorizedEmailInNewslettersNotice($settings, $wp);
     $this->inactiveSubscribersNotice = new InactiveSubscribersNotice($settings, $subscribersRepository, $wp);
-    $this->blackFridayNotice = new BlackFridayNotice($subscribersRepository);
+    $this->blackFridayNotice = new BlackFridayNotice($serviceChecker, $subscribersFeature);
     $this->headersAlreadySentNotice = new HeadersAlreadySentNotice($settings, $trackingConfig, $wp);
     $this->emailWithInvalidListNotice = new EmailWithInvalidSegmentNotice($wp);
     $this->changedTrackingNotice = new ChangedTrackingNotice($wp);
     $this->deprecatedFilterNotice = new DeprecatedFilterNotice($wp);
     $this->disabledMailFunctionNotice = new DisabledMailFunctionNotice($wp, $settings, $subscribersFeature, $mailerFactory);
+    $this->disabledWPCronNotice = new DisabledWPCronNotice($wp, $settings);
     $this->pendingApprovalNotice = new PendingApprovalNotice($settings);
     $this->woocommerceVersionWarning = new WooCommerceVersionWarning($wp);
     $this->premiumFeaturesAvailableNotice = new PremiumFeaturesAvailableNotice($subscribersFeature, $serviceChecker, $wp);
+    $this->senderDomainAuthenticationNotices = $senderDomainAuthenticationNotices;
   }
 
   public function init() {
@@ -132,6 +141,9 @@ class PermanentNotices {
     $this->disabledMailFunctionNotice->init(
       Menu::isOnMailPoetAdminPage($excludeSetupWizard)
     );
+    $this->disabledWPCronNotice->init(
+      Menu::isOnMailPoetAdminPage($excludeSetupWizard)
+    );
     $this->pendingApprovalNotice->init(
       Menu::isOnMailPoetAdminPage($excludeSetupWizard)
     );
@@ -140,6 +152,14 @@ class PermanentNotices {
     );
     $this->premiumFeaturesAvailableNotice->init(
       Menu::isOnMailPoetAdminPage($excludeSetupWizard)
+    );
+    $excludeDomainAuthenticationNotices = [
+      'mailpoet-settings',
+      'mailpoet-newsletter-editor',
+      ...$excludeSetupWizard,
+    ];
+    $this->senderDomainAuthenticationNotices->init(
+      Menu::isOnMailPoetAdminPage($excludeDomainAuthenticationNotices)
     );
   }
 
@@ -166,6 +186,9 @@ class PermanentNotices {
         break;
       case (ChangedTrackingNotice::OPTION_NAME):
         $this->changedTrackingNotice->disable();
+        break;
+      case (DisabledWPCronNotice::OPTION_NAME):
+        $this->disabledWPCronNotice->disable();
         break;
       case (DeprecatedFilterNotice::OPTION_NAME):
         $this->deprecatedFilterNotice->disable();

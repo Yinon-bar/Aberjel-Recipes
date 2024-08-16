@@ -1,6 +1,7 @@
 <?php
 namespace MailPoetVendor\Symfony\Component\Validator\Constraints;
 if (!defined('ABSPATH')) exit;
+use MailPoetVendor\Symfony\Component\Validator\Constraint;
 use MailPoetVendor\Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 class Collection extends Composite
@@ -15,8 +16,7 @@ class Collection extends Composite
  public $missingFieldsMessage = 'This field is missing.';
  public function __construct($fields = null, array $groups = null, $payload = null, bool $allowExtraFields = null, bool $allowMissingFields = null, string $extraFieldsMessage = null, string $missingFieldsMessage = null)
  {
- // no known options set? $fields is the fields array
- if (\is_array($fields) && !\array_intersect(\array_keys($fields), ['groups', 'fields', 'allowExtraFields', 'allowMissingFields', 'extraFieldsMessage', 'missingFieldsMessage'])) {
+ if (\is_array($fields) && (($firstField = \reset($fields)) instanceof Constraint || ($firstField[0] ?? null) instanceof Constraint)) {
  $fields = ['fields' => $fields];
  }
  parent::__construct($fields, $groups, $payload);

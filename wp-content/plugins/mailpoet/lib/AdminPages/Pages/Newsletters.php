@@ -9,60 +9,51 @@ use MailPoet\AdminPages\PageRenderer;
 use MailPoet\AutomaticEmails\AutomaticEmails;
 use MailPoet\Config\Env;
 use MailPoet\Config\Menu;
-use MailPoet\Config\ServicesChecker;
 use MailPoet\Entities\NewsletterEntity;
+use MailPoet\Entities\SegmentEntity;
 use MailPoet\Listing\PageLimit;
 use MailPoet\Newsletter\NewslettersRepository;
 use MailPoet\NewsletterTemplates\NewsletterTemplatesRepository;
 use MailPoet\Segments\SegmentsSimpleListRepository;
+use MailPoet\Segments\WooCommerce;
 use MailPoet\Services\AuthorizedSenderDomainController;
 use MailPoet\Services\Bridge;
 use MailPoet\Settings\SettingsController;
-use MailPoet\Util\License\Features\Subscribers as SubscribersFeature;
+use MailPoet\Settings\UserFlagsController;
+use MailPoet\Util\License\Features\CapabilitiesManager;
 use MailPoet\WooCommerce\TransactionalEmails;
 use MailPoet\WP\AutocompletePostListLoader as WPPostListLoader;
 use MailPoet\WP\DateTime;
 use MailPoet\WP\Functions as WPFunctions;
 
 class Newsletters {
-  /** @var PageRenderer */
-  private $pageRenderer;
+  private PageRenderer $pageRenderer;
 
-  /** @var PageLimit */
-  private $listingPageLimit;
+  private PageLimit $listingPageLimit;
 
-  /** @var WPFunctions */
-  private $wp;
+  private WPFunctions $wp;
 
-  /** @var SettingsController */
-  private $settings;
+  private SettingsController $settings;
 
-  /** @var NewsletterTemplatesRepository */
-  private $newsletterTemplatesRepository;
+  private NewsletterTemplatesRepository $newsletterTemplatesRepository;
 
-  /** @var AutomaticEmails */
-  private $automaticEmails;
+  private AutomaticEmails $automaticEmails;
 
-  /** @var WPPostListLoader */
-  private $wpPostListLoader;
+  private WPPostListLoader $wpPostListLoader;
 
-  /** @var SegmentsSimpleListRepository */
-  private $segmentsListRepository;
+  private SegmentsSimpleListRepository $segmentsListRepository;
 
-  /** @var NewslettersRepository */
-  private $newslettersRepository;
+  private NewslettersRepository $newslettersRepository;
 
-  /** @var Bridge */
-  private $bridge;
+  private Bridge $bridge;
 
-  /** @var AuthorizedSenderDomainController */
-  private $senderDomainController;
+  private AuthorizedSenderDomainController $senderDomainController;
 
-  /** @var SubscribersFeature */
-  private $subscribersFeature;
+  private UserFlagsController $userFlagsController;
 
-  /** @var ServicesChecker */
-  private $servicesChecker;
+  private WooCommerce $wooCommerceSegment;
+
+  private CapabilitiesManager $capabilitiesManager;
 
   public function __construct(
     PageRenderer $pageRenderer,
@@ -76,8 +67,9 @@ class Newsletters {
     NewslettersRepository $newslettersRepository,
     Bridge $bridge,
     AuthorizedSenderDomainController $senderDomainController,
-    SubscribersFeature $subscribersFeature,
-    ServicesChecker $servicesChecker
+    UserFlagsController $userFlagsController,
+    WooCommerce $wooCommerceSegment,
+    CapabilitiesManager $capabilitiesManager
   ) {
     $this->pageRenderer = $pageRenderer;
     $this->listingPageLimit = $listingPageLimit;
@@ -90,8 +82,9 @@ class Newsletters {
     $this->newslettersRepository = $newslettersRepository;
     $this->bridge = $bridge;
     $this->senderDomainController = $senderDomainController;
-    $this->subscribersFeature = $subscribersFeature;
-    $this->servicesChecker = $servicesChecker;
+    $this->userFlagsController = $userFlagsController;
+    $this->wooCommerceSegment = $wooCommerceSegment;
+    $this->capabilitiesManager = $capabilitiesManager;
   }
 
   public function render() {
@@ -100,7 +93,8 @@ class Newsletters {
     $data = [];
 
     $data['items_per_page'] = $this->listingPageLimit->getLimitPerPage('newsletters');
-    $segments = $this->segmentsListRepository->getListWithSubscribedSubscribersCounts();
+    $includedSegmentTypes = $this->wooCommerceSegment->shouldShowWooCommerceSegment() ? [] : SegmentEntity::NON_WOO_RELATED_TYPES;
+    $segments = $this->segmentsListRepository->getListWithSubscribedSubscribersCounts($includedSegmentTypes);
     $data['segments'] = $segments;
     $data['settings'] = $this->settings->getAll();
     $data['current_wp_user'] = $this->wp->wpGetCurrentUser()->to_array();
@@ -110,8 +104,8 @@ class Newsletters {
 
     $dateTime = new DateTime();
     $data['current_date'] = $dateTime->getCurrentDate(DateTime::DEFAULT_DATE_FORMAT);
-    $data['tomorrow_date'] = $dateTime->getCurrentDateTime()->modify( "+1 day" )
-      ->format( DateTime::DEFAULT_DATE_FORMAT );
+    $data['tomorrow_date'] = $dateTime->getCurrentDateTime()->modify("+1 day")
+      ->format(DateTime::DEFAULT_DATE_FORMAT);
     $data['current_time'] = $dateTime->getCurrentTime();
     $data['current_date_time'] = $dateTime->getCurrentDateTime()->format(DateTime::DEFAULT_DATE_TIME_FORMAT);
     $data['schedule_time_of_day'] = $dateTime->getTimeInterval(
@@ -130,7 +124,8 @@ class Newsletters {
 
     $data['sent_newsletters_count'] = $this->newslettersRepository->countBy(['status' => NewsletterEntity::STATUS_SENT]);
     $data['woocommerce_transactional_email_id'] = $this->settings->get(TransactionalEmails::SETTING_EMAIL_ID);
-    $data['display_detailed_stats'] = $this->subscribersFeature->hasValidPremiumKey() && !$this->subscribersFeature->check() && $this->servicesChecker->isPremiumPluginActive();
+    $detailedAnalyticsCapability = $this->capabilitiesManager->getCapability('detailedAnalytics');
+    $data['display_detailed_stats'] = isset($detailedAnalyticsCapability) && !$detailedAnalyticsCapability->isRestricted;
     $data['newsletters_templates_recently_sent_count'] = $this->newsletterTemplatesRepository->getRecentlySentCount();
 
     $data['product_categories'] = $this->wpPostListLoader->getWooCommerceCategories();
@@ -139,15 +134,29 @@ class Newsletters {
 
     $data['authorized_emails'] = [];
     $data['verified_sender_domains'] = [];
+    $data['partially_verified_sender_domains'] = [];
     $data['all_sender_domains'] = [];
+    $data['sender_restrictions'] = [];
 
     if ($this->bridge->isMailpoetSendingServiceEnabled()) {
       $data['authorized_emails'] = $this->bridge->getAuthorizedEmailAddresses();
-      $data['verified_sender_domains'] = $this->senderDomainController->getVerifiedSenderDomains();
+      $data['verified_sender_domains'] = $this->senderDomainController->getFullyVerifiedSenderDomains(true);
+      $data['partially_verified_sender_domains'] = $this->senderDomainController->getPartiallyVerifiedSenderDomains(true);
       $data['all_sender_domains'] = $this->senderDomainController->getAllSenderDomains();
+      $data['sender_restrictions'] = [
+        'lowerLimit' => AuthorizedSenderDomainController::LOWER_LIMIT,
+        'isAuthorizedDomainRequiredForNewCampaigns' => $this->senderDomainController->isAuthorizedDomainRequiredForNewCampaigns(),
+        'campaignTypes' => NewsletterEntity::CAMPAIGN_TYPES,
+      ];
     }
 
     $data['corrupt_newsletters'] = $this->getCorruptNewsletterSubjects();
+
+    $data['legacy_automatic_emails_count'] = $this->newslettersRepository->countBy([
+      'type' => [NewsletterEntity::TYPE_WELCOME, NewsletterEntity::TYPE_AUTOMATIC],
+    ]);
+
+    $data['legacy_automatic_emails_notice_dismissed'] = (bool)$this->userFlagsController->get('legacy_automatic_emails_notice_dismissed');
 
     $this->pageRenderer->displayPage('newsletters.html', $data);
   }

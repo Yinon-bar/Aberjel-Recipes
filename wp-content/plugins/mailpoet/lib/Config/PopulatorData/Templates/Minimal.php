@@ -1,10 +1,8 @@
 <?php // phpcs:ignore SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing
+
 namespace MailPoet\Config\PopulatorData\Templates;
 
 if (!defined('ABSPATH')) exit;
-
-
-use MailPoet\WP\Functions as WPFunctions;
 
 
 class Minimal {
@@ -12,7 +10,9 @@ class Minimal {
   private $template_image_url;
   private $social_icon_url;
 
-  public function __construct($assets_url) {
+  public function __construct(
+    $assets_url
+  ) {
     $this->template_image_url = 'https://ps.w.org/mailpoet/assets/newsletter-templates/minimal';
     $this->social_icon_url = $assets_url . '/img/newsletter_editor/social-icons';
   }
@@ -32,7 +32,7 @@ class Minimal {
   }
 
   private function getBody() {
-    return  [
+    return [
       'content' =>
          [
           'type' => 'container',
@@ -782,8 +782,8 @@ class Minimal {
                               1 =>
                                  [
                                   'type' => 'footer',
-                                  'text' => '<p><span style="color: #808080;"><a href="[link:subscription_unsubscribe_url]" style="color: #808080;">'.__("Unsubscribe", 'mailpoet').'</a></span></p>
-<p><span style="color: #808080;"><a href="[link:subscription_manage_url]" style="color: #808080;">'.__("Manage your subscription", 'mailpoet').'</a></span><br /><span style="color: #999999;">'.__("Add your postal address here!", 'mailpoet').'</span></p>',
+                                  'text' => '<p><span style="color: #808080;"><a href="[link:subscription_unsubscribe_url]" style="color: #808080;">' . __("Unsubscribe", 'mailpoet') . '</a></span></p>
+<p><span style="color: #808080;"><a href="[link:subscription_manage_url]" style="color: #808080;">' . __("Manage your subscription", 'mailpoet') . '</a></span><br /><span style="color: #999999;">' . __("Add your postal address here!", 'mailpoet') . '</span></p>',
                                   'styles' =>
                                      [
                                       'block' =>
@@ -1068,7 +1068,7 @@ class Minimal {
              ],
           'footer' =>
              [
-              'text' => '<p><a href="[link:subscription_unsubscribe_url]">'.__("Unsubscribe", 'mailpoet').'</a> | <a href="[link:subscription_manage_url]">'.__("Manage your subscription", 'mailpoet').'</a><br />'.__("Add your postal address here!", 'mailpoet').'</p>',
+              'text' => '<p><a href="[link:subscription_unsubscribe_url]">' . __("Unsubscribe", 'mailpoet') . '</a> | <a href="[link:subscription_manage_url]">' . __("Manage your subscription", 'mailpoet') . '</a><br />' . __("Add your postal address here!", 'mailpoet') . '</p>',
               'styles' =>
                  [
                   'block' =>
@@ -1193,7 +1193,7 @@ class Minimal {
              ],
           'header' =>
              [
-              'text' => '<a href="[link:newsletter_view_in_browser_url]">'.__("View this in your browser.", 'mailpoet').'</a>',
+              'text' => '<a href="[link:newsletter_view_in_browser_url]">' . __("View this in your browser.", 'mailpoet') . '</a>',
               'styles' =>
                  [
                   'block' =>
@@ -1217,6 +1217,4 @@ class Minimal {
          ],
     ];
   }
-
-
 }

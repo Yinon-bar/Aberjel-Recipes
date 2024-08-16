@@ -8,11 +8,12 @@ class BetweenExpression extends Node
  public $leftBetweenExpression;
  public $rightBetweenExpression;
  public $not;
- public function __construct($expr, $leftExpr, $rightExpr)
+ public function __construct($expr, $leftExpr, $rightExpr, bool $not = \false)
  {
  $this->expression = $expr;
  $this->leftBetweenExpression = $leftExpr;
  $this->rightBetweenExpression = $rightExpr;
+ $this->not = $not;
  }
  public function dispatch($sqlWalker)
  {

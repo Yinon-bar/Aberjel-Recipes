@@ -13,6 +13,7 @@ use MailPoet\Mailer\SubscriberError;
 use MailPoet\Services\Bridge\API;
 use MailPoet\Util\Helpers;
 use MailPoet\Util\License\Features\Subscribers as SubscribersFeature;
+use MailPoet\Util\Notices\PendingApprovalNotice;
 use MailPoet\Util\Notices\UnauthorizedEmailNotice;
 use MailPoet\WP\Functions as WPFunctions;
 use MailPoetVendor\Carbon\Carbon;
@@ -34,14 +35,19 @@ class MailPoetMapper {
   /** @var WPFunctions */
   private $wp;
 
+  /** @var PendingApprovalNotice */
+  private $pendingApprovalNotice;
+
   public function __construct(
     ServicesChecker $servicesChecker,
     SubscribersFeature $subscribers,
-    WPFunctions $wp
+    WPFunctions $wp,
+    PendingApprovalNotice $pendingApprovalNotice
   ) {
     $this->servicesChecker = $servicesChecker;
     $this->subscribersFeature = $subscribers;
     $this->wp = $wp;
+    $this->pendingApprovalNotice = $pendingApprovalNotice;
   }
 
   public function getInvalidApiKeyError() {
@@ -66,20 +72,27 @@ class MailPoetMapper {
       case API::RESPONSE_CODE_PAYLOAD_ERROR:
         $resultParsed = json_decode($result['message'], true);
         $message = __('Error while sending.', 'mailpoet');
-        if (!is_array($resultParsed)) {
-          if (isset($result['error']) && $result['error'] === API::ERROR_MESSAGE_DMRAC) {
-            $message .= $this->getDmarcMessage($result, $sender);
-          } else {
-            $message .= ' ' . $result['message'];
+
+        if (is_array($resultParsed)) {
+          try {
+            $subscribersErrors = $this->getSubscribersErrors($resultParsed, $subscribers);
+            $level = MailerError::LEVEL_SOFT;
+          } catch (InvalidArgumentException $e) {
+            $message .= ' ' . $e->getMessage();
           }
           break;
         }
-        try {
-          $subscribersErrors = $this->getSubscribersErrors($resultParsed, $subscribers);
-          $level = MailerError::LEVEL_SOFT;
-        } catch (InvalidArgumentException $e) {
-          $message .= ' ' . $e->getMessage();
+
+        $appendedMessage = ' ' . $result['message'];
+        if (isset($result['error']) && in_array($result['error'], [API::ERROR_MESSAGE_DMRAC, API::ERROR_MESSAGE_BULK_EMAIL_FORBIDDEN])) {
+            $appendedMessage = $this->getDmarcMessage($result, $sender);
+
+          if ($result['error'] === API::ERROR_MESSAGE_BULK_EMAIL_FORBIDDEN) {
+            $operation = MailerError::OPERATION_DOMAIN_AUTHORIZATION;
+            $level = MailerError::LEVEL_SOFT;
+          }
         }
+        $message .= $appendedMessage;
         break;
       case API::RESPONSE_CODE_INTERNAL_SERVER_ERROR:
       case API::RESPONSE_CODE_BAD_GATEWAY:
@@ -162,7 +175,7 @@ class MailPoetMapper {
     );
     $message = Helpers::replaceLinkTags(
       $message,
-      'https://www.mailpoet.com/support/',
+      'https://www.mailpoet.com/support-for-banned-users/',
       [
         'target' => '_blank',
         'rel' => 'noopener noreferrer',
@@ -223,27 +236,13 @@ class MailPoetMapper {
     return "{$message}<br/>";
   }
 
-  private function getPendingApprovalMessage(): string {
-    $message = __("Your subscription is currently [link]pending approval[/link]. You’ll soon be able to send once our team reviews your account. In the meantime, you can send previews to your authorized emails.", 'mailpoet');
-    $message = Helpers::replaceLinkTags(
-      $message,
-      'https://kb.mailpoet.com/article/350-pending-approval-subscription',
-      [
-        'target' => '_blank',
-        'rel' => 'noopener noreferrer',
-      ]
-    );
-
-    return "{$message}<br/>";
-  }
-
   /**
    * Returns error $message and $operation for API::RESPONSE_CODE_CAN_NOT_SEND
    */
   private function getCanNotSendError(array $result, $sender): array {
     if ($result['error'] === API::ERROR_MESSAGE_PENDING_APPROVAL) {
       $operation = MailerError::OPERATION_PENDING_APPROVAL;
-      $message = $this->getPendingApprovalMessage();
+      $message = $this->pendingApprovalNotice->getPendingApprovalMessage() . '<br/>';
       return [$operation, $message];
     }
 

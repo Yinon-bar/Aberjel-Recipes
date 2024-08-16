@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -42,7 +43,7 @@ class __TwigTemplate_73223e600e7d98691234a281f9573e6bebabbe006922fa4a10de4b25ee4
     {
         $macros = $this->macros;
         $this->parent = $this->loadTemplate("emails/statsNotificationLayout.txt", "emails/statsNotification.txt", 1);
-        $this->parent->display($context, array_merge($this->blocks, $blocks));
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
     }
 
     // line 3
@@ -50,133 +51,143 @@ class __TwigTemplate_73223e600e7d98691234a281f9573e6bebabbe006922fa4a10de4b25ee4
     {
         $macros = $this->macros;
         // line 4
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Your stats are in!");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Your stats are in!");
+        yield "
 
 ";
         // line 6
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["subject"] ?? null), "html", null, true);
-        echo "
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["subject"] ?? null), "html", null, true);
+        yield "
 
 ";
         // line 8
         if (($context["subscribersLimitReached"] ?? null)) {
             // line 9
-            echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_replace_filter($this->extensions['MailPoet\Twig\I18n']->translate("Congratulations, you now have more than [subscribersLimit] subscribers!"), ["[subscribersLimit]" => ($context["subscribersLimit"] ?? null)]), "html", null, true);
-            echo "
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(MailPoetVendor\Twig\Extension\CoreExtension::replace($this->extensions['MailPoet\Twig\I18n']->translate("Congratulations, you now have more than [subscribersLimit] subscribers!"), ["[subscribersLimit]" => ($context["subscribersLimit"] ?? null)]), "html", null, true);
+            yield "
 
 ";
             // line 11
             if (($context["hasValidApiKey"] ?? null)) {
                 // line 12
-                echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_replace_filter($this->extensions['MailPoet\Twig\I18n']->translate("Your plan is limited to [subscribersLimit] subscribers."), ["[subscribersLimit]" => ($context["subscribersLimit"] ?? null)]), "html", null, true);
-                echo "
+                yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(MailPoetVendor\Twig\Extension\CoreExtension::replace($this->extensions['MailPoet\Twig\I18n']->translate("Your plan is limited to [subscribersLimit] subscribers."), ["[subscribersLimit]" => ($context["subscribersLimit"] ?? null)]), "html", null, true);
+                yield "
 ";
             } else {
                 // line 14
-                echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_replace_filter($this->extensions['MailPoet\Twig\I18n']->translate("Our free version is limited to [subscribersLimit] subscribers."), ["[subscribersLimit]" => ($context["subscribersLimit"] ?? null)]), "html", null, true);
-                echo "
+                yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(MailPoetVendor\Twig\Extension\CoreExtension::replace($this->extensions['MailPoet\Twig\I18n']->translate("Our free version is limited to [subscribersLimit] subscribers."), ["[subscribersLimit]" => ($context["subscribersLimit"] ?? null)]), "html", null, true);
+                yield "
 ";
             }
             // line 16
-            echo $this->extensions['MailPoet\Twig\I18n']->translate("You need to upgrade now to be able to continue using MailPoet.");
-            echo "
+            yield $this->extensions['MailPoet\Twig\I18n']->translate("You need to upgrade now to be able to continue using MailPoet.");
+            yield "
 
 ";
             // line 18
-            echo $this->extensions['MailPoet\Twig\I18n']->translate("Upgrade Now");
-            echo "
+            yield $this->extensions['MailPoet\Twig\I18n']->translate("Upgrade Now");
+            yield "
   ";
             // line 19
-            echo \MailPoetVendor\twig_escape_filter($this->env, ($context["upgradeNowLink"] ?? null), "html", null, true);
-            echo "
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["upgradeNowLink"] ?? null), "html", null, true);
+            yield "
 ";
         }
         // line 21
-        echo "
+        yield "
 ";
         // line 22
-        echo $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["clicked"] ?? null));
-        echo "% ";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("clicked");
-        echo "
+        yield $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["clicked"] ?? null));
+        yield "% ";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("clicked");
+        yield "
   ";
         // line 23
-        echo $this->extensions['MailPoet\Twig\Functions']->clickedStatsText(($context["clicked"] ?? null));
-        echo "
+        yield $this->extensions['MailPoet\Twig\Functions']->clickedStatsText(($context["clicked"] ?? null));
+        yield "
 
 ";
         // line 25
-        echo $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["opened"] ?? null));
-        echo "% ";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("opened");
-        echo "
+        yield $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["opened"] ?? null));
+        yield "% ";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("opened");
+        yield "
 
 ";
         // line 27
-        echo $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["machineOpened"] ?? null));
-        echo "% ";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("machine-opened");
-        echo "
+        yield $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["machineOpened"] ?? null));
+        yield "% ";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("machine-opened");
+        yield "
 
 ";
         // line 29
-        echo $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["unsubscribed"] ?? null));
-        echo "% ";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("unsubscribed");
-        echo "
+        yield $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["unsubscribed"] ?? null));
+        yield "% ";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("unsubscribed");
+        yield "
 
 ";
         // line 31
-        echo $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["bounced"] ?? null));
-        echo "% ";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("bounced");
-        echo "
+        yield $this->extensions['MailPoet\Twig\Functions']->statsNumberFormatI18n(($context["bounced"] ?? null));
+        yield "% ";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("bounced");
+        yield "
 
 ";
         // line 33
         if ((($context["topLinkClicks"] ?? null) > 0)) {
             // line 34
-            echo $this->extensions['MailPoet\Twig\I18n']->translate("Most clicked link");
-            echo "
+            yield $this->extensions['MailPoet\Twig\I18n']->translate("Most clicked link");
+            yield "
   ";
             // line 35
-            echo \MailPoetVendor\twig_escape_filter($this->env, ($context["topLink"] ?? null), "html", null, true);
-            echo "
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["topLink"] ?? null), "html", null, true);
+            yield "
 
   ";
             // line 37
-            echo \MailPoetVendor\twig_escape_filter($this->env, \MailPoetVendor\twig_replace_filter($this->extensions['MailPoet\Twig\I18n']->translate("%s unique clicks"), ["%s" => ($context["topLinkClicks"] ?? null)]), "html", null, true);
-            echo "
+            yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(MailPoetVendor\Twig\Extension\CoreExtension::replace($this->extensions['MailPoet\Twig\I18n']->translate("%s unique clicks"), ["%s" => ($context["topLinkClicks"] ?? null)]), "html", null, true);
+            yield "
 ";
         }
         // line 39
-        echo "
+        yield "
 ";
         // line 40
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("View all stats");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("View all stats");
+        yield "
   ";
         // line 41
-        echo \MailPoetVendor\twig_escape_filter($this->env, ($context["linkStats"] ?? null), "html", null, true);
-        echo "
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape(($context["linkStats"] ?? null), "html", null, true);
+        yield "
 
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "emails/statsNotification.txt";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  158 => 41,  154 => 40,  151 => 39,  146 => 37,  141 => 35,  137 => 34,  135 => 33,  128 => 31,  121 => 29,  114 => 27,  107 => 25,  102 => 23,  96 => 22,  93 => 21,  88 => 19,  84 => 18,  79 => 16,  74 => 14,  69 => 12,  67 => 11,  62 => 9,  60 => 8,  55 => 6,  50 => 4,  46 => 3,  35 => 1,);
+        return array (  159 => 41,  155 => 40,  152 => 39,  147 => 37,  142 => 35,  138 => 34,  136 => 33,  129 => 31,  122 => 29,  115 => 27,  108 => 25,  103 => 23,  97 => 22,  94 => 21,  89 => 19,  85 => 18,  80 => 16,  75 => 14,  70 => 12,  68 => 11,  63 => 9,  61 => 8,  56 => 6,  51 => 4,  47 => 3,  36 => 1,);
     }
 
     public function getSourceContext()

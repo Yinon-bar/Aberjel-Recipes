@@ -78,10 +78,10 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'wpUserId', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'isWoocommerceUser', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'firstName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'email', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'status', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscribedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSubscribedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unconfirmedData', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'source', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'countConfirmations', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unsubscribeToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'linkToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScore', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScoreUpdatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastEngagementAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSendingAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastOpenAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastClickAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPurchaseAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPageViewAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'woocommerceSyncedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'emailCount', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberSegments', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberCustomFields', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberTags', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'id', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'createdAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'updatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'deletedAt'];
+            return ['__isInitialized__', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'wpUserId', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'isWoocommerceUser', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'firstName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'email', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'status', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscribedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSubscribedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unconfirmedData', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'source', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'countConfirmations', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unsubscribeToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'linkToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScore', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScoreUpdatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastEngagementAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSendingAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastOpenAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastClickAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPurchaseAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPageViewAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'woocommerceSyncedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'emailCount', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberSegments', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberCustomFields', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberTags', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'scheduledTaskSubscribers', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'id', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'createdAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'updatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'deletedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'validationGroups'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'wpUserId', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'isWoocommerceUser', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'firstName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'email', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'status', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscribedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSubscribedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unconfirmedData', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'source', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'countConfirmations', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unsubscribeToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'linkToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScore', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScoreUpdatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastEngagementAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSendingAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastOpenAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastClickAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPurchaseAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPageViewAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'woocommerceSyncedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'emailCount', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberSegments', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberCustomFields', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberTags', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'id', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'createdAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'updatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'deletedAt'];
+        return ['__isInitialized__', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'wpUserId', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'isWoocommerceUser', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'firstName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastName', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'email', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'status', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscribedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedIp', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'confirmedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSubscribedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unconfirmedData', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'source', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'countConfirmations', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'unsubscribeToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'linkToken', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScore', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'engagementScoreUpdatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastEngagementAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastSendingAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastOpenAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastClickAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPurchaseAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'lastPageViewAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'woocommerceSyncedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'emailCount', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberSegments', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberCustomFields', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'subscriberTags', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'scheduledTaskSubscribers', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'id', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'createdAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'updatedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'deletedAt', '' . "\0" . 'MailPoet\\Entities\\SubscriberEntity' . "\0" . 'validationGroups'];
     }
 
     /**
@@ -117,7 +117,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
     /**
      * Forces initialization of the proxy
      */
-    public function __load()
+    public function __load(): void
     {
         $this->__initializer__ && $this->__initializer__->__invoke($this, '__load', []);
     }
@@ -126,7 +126,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific loading logic
      */
-    public function __isInitialized()
+    public function __isInitialized(): bool
     {
         return $this->__isInitialized__;
     }
@@ -135,7 +135,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific loading logic
      */
-    public function __setInitialized($initialized)
+    public function __setInitialized($initialized): void
     {
         $this->__isInitialized__ = $initialized;
     }
@@ -144,7 +144,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific loading logic
      */
-    public function __setInitializer(\Closure $initializer = null)
+    public function __setInitializer(?\Closure $initializer = null): void
     {
         $this->__initializer__ = $initializer;
     }
@@ -153,7 +153,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific loading logic
      */
-    public function __getInitializer()
+    public function __getInitializer(): ?\Closure
     {
         return $this->__initializer__;
     }
@@ -162,7 +162,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific loading logic
      */
-    public function __setCloner(\Closure $cloner = null)
+    public function __setCloner(?\Closure $cloner = null): void
     {
         $this->__cloner__ = $cloner;
     }
@@ -171,7 +171,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific cloning logic
      */
-    public function __getCloner()
+    public function __getCloner(): ?\Closure
     {
         return $this->__cloner__;
     }
@@ -182,7 +182,7 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
      * @deprecated no longer in use - generated code now relies on internal components rather than generated public API
      * @static
      */
-    public function __getLazyProperties()
+    public function __getLazyProperties(): array
     {
         return self::$lazyPropertiesDefaults;
     }
@@ -916,6 +916,28 @@ class SubscriberEntity extends \MailPoet\Entities\SubscriberEntity implements \M
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDeletedAt', [$deletedAt]);
 
         return parent::setDeletedAt($deletedAt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getValidationGroups(): ?array
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValidationGroups', []);
+
+        return parent::getValidationGroups();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setValidationGroups(?array $validationGroups): void
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValidationGroups', [$validationGroups]);
+
+        parent::setValidationGroups($validationGroups);
     }
 
 }

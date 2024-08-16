@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -37,29 +38,29 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
     {
         $macros = $this->macros;
         // line 1
-        echo "<h3>";
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Footer");
-        echo "</h3>
+        yield "<h3>";
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Footer");
+        yield "</h3>
 <div class=\"mailpoet_form_field mailpoet_form_narrow_select2\">
     <div class=\"mailpoet_form_field_title\">";
         // line 3
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Text");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Text");
+        yield "</div>
     <div class=\"mailpoet_form_field_input_option mailpoet_form_field_input_nowrap\">
         <input type=\"text\" name=\"font-color\" id=\"mailpoet_field_footer_text_color\" class=\"mailpoet_field_footer_text_color mailpoet_color\" value=\"{{ model.styles.text.fontColor }}\" />
         <select id=\"mailpoet_field_footer_text_font_family\" name=\"font-family\" class=\"mailpoet_select mailpoet_select_medium mailpoet_field_footer_text_font_family mailpoet_font_family\">
         <optgroup label=\"";
         // line 7
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Standard fonts");
-        echo "\">
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Standard fonts");
+        yield "\">
         {{#each availableStyles.fonts.standard}}
             <option value=\"{{ this }}\" {{#ifCond this '==' ../model.styles.text.fontFamily}}SELECTED{{/ifCond}}>{{ this }}</option>
         {{/each}}
         </optgroup>
         <optgroup label=\"";
         // line 12
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Custom fonts");
-        echo "\">
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Custom fonts");
+        yield "\">
         {{#each availableStyles.fonts.custom}}
             <option value=\"{{ this }}\" {{#ifCond this '==' ../model.styles.text.fontFamily}}SELECTED{{/ifCond}}>{{ this }}</option>
         {{/each}}
@@ -78,14 +79,14 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
     </div>
     <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 29
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Links");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Links");
+        yield "</div>
     <label>
         <div class=\"mailpoet_form_field_checkbox_option mailpoet_option_offset_left_small\">
             <input type=\"checkbox\" name=\"underline\" value=\"underline\" id=\"mailpoet_field_footer_link_underline\" {{#ifCond model.styles.link.textDecoration '==' 'underline'}}CHECKED{{/ifCond}}/> ";
         // line 32
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Underline");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Underline");
+        yield "
         </div>
     </label>
 </div>
@@ -96,8 +97,8 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
     </div>
     <div class=\"mailpoet_form_field_title mailpoet_form_field_title_inline\">";
         // line 41
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Background");
-        echo "</div>
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Background");
+        yield "</div>
 </div>
 
 <div class=\"mailpoet_form_field\">
@@ -106,8 +107,8 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
         <input type=\"radio\" name=\"alignment\" class=\"mailpoet_field_footer_alignment\" value=\"left\" {{#ifCond model.styles.text.textAlign '===' 'left'}}CHECKED{{/ifCond}}/>
         ";
         // line 48
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Left");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Left");
+        yield "
         </label>
     </div>
     <div class=\"mailpoet_form_field_radio_option\">
@@ -115,8 +116,8 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
             <input type=\"radio\" name=\"alignment\" class=\"mailpoet_field_footer_alignment\" value=\"center\" {{#ifCond model.styles.text.textAlign '===' 'center'}}CHECKED{{/ifCond}}/>
             ";
         // line 54
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Center");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Center");
+        yield "
         </label>
     </div>
     <div class=\"mailpoet_form_field_radio_option\">
@@ -124,8 +125,8 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
             <input type=\"radio\" name=\"alignment\" class=\"mailpoet_field_footer_alignment\" value=\"right\" {{#ifCond model.styles.text.textAlign '===' 'right'}}CHECKED{{/ifCond}}/>
             ";
         // line 60
-        echo $this->extensions['MailPoet\Twig\I18n']->translate("Right");
-        echo "
+        yield $this->extensions['MailPoet\Twig\I18n']->translate("Right");
+        yield "
         </label>
     </div>
 </div>
@@ -133,36 +134,46 @@ class __TwigTemplate_4dad24d6979ff687df324ba72e4a627bdb1ada3d948a10097db0d301237
 <div class=\"mailpoet_form_field\">
     <input type=\"button\" class=\"button button-primary mailpoet_done_editing\" data-automation-id=\"footer_done_button\" value=\"";
         // line 66
-        echo \MailPoetVendor\twig_escape_filter($this->env, $this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
-        echo "\" />
+        yield $this->env->getRuntime('MailPoetVendor\Twig\Runtime\EscaperRuntime')->escape($this->extensions['MailPoet\Twig\I18n']->translate("Done"), "html_attr");
+        yield "\" />
 </div>
 
 <div class=\"mailpoet_form_field\">
   <p class=\"mailpoet_settings_notice\">";
         // line 70
-        echo MailPoet\Util\Helpers::replaceLinkTags($this->extensions['MailPoet\Twig\I18n']->translate("If an email client [link]does not support a custom web font[/link], a similar standard font will be used instead."), "https://kb.mailpoet.com/article/176-which-fonts-can-be-used-in-mailpoet#custom-web-fonts", ["target" => "_blank"]);
-        echo "</p>
+        yield MailPoet\Util\Helpers::replaceLinkTags($this->extensions['MailPoet\Twig\I18n']->translate("If an email client [link]does not support a custom web font[/link], a similar standard font will be used instead."), "https://kb.mailpoet.com/article/176-which-fonts-can-be-used-in-mailpoet#custom-web-fonts", ["target" => "_blank"]);
+        yield "</p>
 </div>
 
 <script type=\"text/javascript\">
     fontsSelect('#mailpoet_field_footer_text_font_family');
 </script>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/footer/settings.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function isTraitable()
     {
         return false;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  140 => 70,  133 => 66,  124 => 60,  115 => 54,  106 => 48,  96 => 41,  84 => 32,  78 => 29,  58 => 12,  50 => 7,  43 => 3,  37 => 1,);
+        return array (  141 => 70,  134 => 66,  125 => 60,  116 => 54,  107 => 48,  97 => 41,  85 => 32,  79 => 29,  59 => 12,  51 => 7,  44 => 3,  38 => 1,);
     }
 
     public function getSourceContext()

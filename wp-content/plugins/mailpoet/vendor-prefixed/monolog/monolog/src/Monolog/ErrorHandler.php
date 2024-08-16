@@ -15,7 +15,7 @@ class ErrorHandler
  private $hasFatalErrorHandler = \false;
  private $fatalLevel = LogLevel::ALERT;
  private $reservedMemory = null;
- private $lastFatalTrace;
+ private $lastFatalData = null;
  private static $fatalErrors = [\E_ERROR, \E_PARSE, \E_CORE_ERROR, \E_COMPILE_ERROR, \E_USER_ERROR];
  public function __construct(LoggerInterface $logger)
  {
@@ -92,7 +92,7 @@ class ErrorHandler
  if ($this->previousExceptionHandler) {
  ($this->previousExceptionHandler)($e);
  }
- if (!\headers_sent() && !\ini_get('display_errors')) {
+ if (!\headers_sent() && \in_array(\strtolower((string) \ini_get('display_errors')), ['0', '', 'false', 'off', 'none', 'no'], \true)) {
  \http_response_code(500);
  }
  exit(255);
@@ -110,7 +110,7 @@ class ErrorHandler
  $trace = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
  \array_shift($trace);
  // Exclude handleError from trace
- $this->lastFatalTrace = $trace;
+ $this->lastFatalData = ['type' => $code, 'message' => $message, 'file' => $file, 'line' => $line, 'trace' => $trace];
  }
  if ($this->previousErrorHandler === \true) {
  return \false;
@@ -122,9 +122,14 @@ class ErrorHandler
  public function handleFatalError() : void
  {
  $this->reservedMemory = '';
+ if (\is_array($this->lastFatalData)) {
+ $lastError = $this->lastFatalData;
+ } else {
  $lastError = \error_get_last();
+ }
  if ($lastError && \in_array($lastError['type'], self::$fatalErrors, \true)) {
- $this->logger->log($this->fatalLevel, 'Fatal Error (' . self::codeToString($lastError['type']) . '): ' . $lastError['message'], ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line'], 'trace' => $this->lastFatalTrace]);
+ $trace = $lastError['trace'] ?? null;
+ $this->logger->log($this->fatalLevel, 'Fatal Error (' . self::codeToString($lastError['type']) . '): ' . $lastError['message'], ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line'], 'trace' => $trace]);
  if ($this->logger instanceof Logger) {
  foreach ($this->logger->getHandlers() as $handler) {
  $handler->close();

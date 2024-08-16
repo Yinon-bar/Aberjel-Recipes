@@ -6,7 +6,7 @@ use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 use MailPoetVendor\Doctrine\ORM\EntityRepository;
 #[\Attribute(Attribute::TARGET_CLASS)]
-final class Entity implements Annotation
+final class Entity implements MappingAttribute
 {
  public $repositoryClass;
  public $readOnly = \false;

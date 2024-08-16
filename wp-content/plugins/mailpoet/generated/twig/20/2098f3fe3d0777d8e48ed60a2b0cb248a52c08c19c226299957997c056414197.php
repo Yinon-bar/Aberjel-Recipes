@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 use MailPoetVendor\Twig\Environment;
 use MailPoetVendor\Twig\Error\LoaderError;
 use MailPoetVendor\Twig\Error\RuntimeError;
+use MailPoetVendor\Twig\Extension\CoreExtension;
 use MailPoetVendor\Twig\Extension\SandboxExtension;
 use MailPoetVendor\Twig\Markup;
 use MailPoetVendor\Twig\Sandbox\SecurityError;
@@ -36,8 +37,7 @@ class __TwigTemplate_72c7cba0142b0800859a59bebc68ebb3db001473f6011d3bbefbb20af99
     protected function doDisplay(array $context, array $blocks = [])
     {
         $macros = $this->macros;
-        // line 1
-        echo "<div class=\"mailpoet_tools\"></div>
+        yield "<div class=\"mailpoet_tools\"></div>
 <style type=\"text/css\">
     .mailpoet_editor_view_{{ viewCid }} .mailpoet_content,
     .mailpoet_editor_view_{{ viewCid }} .mailpoet_content p {
@@ -58,16 +58,23 @@ class __TwigTemplate_72c7cba0142b0800859a59bebc68ebb3db001473f6011d3bbefbb20af99
 <div class=\"mailpoet_content mailpoet_text_content\" data-automation-id=\"header\">{{{ model.text }}}</div>
 <div class=\"mailpoet_block_highlight\"></div>
 ";
+        return; yield '';
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getTemplateName()
     {
         return "newsletter/templates/blocks/header/block.hbs";
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getDebugInfo()
     {
-        return array (  37 => 1,);
+        return array ();
     }
 
     public function getSourceContext()

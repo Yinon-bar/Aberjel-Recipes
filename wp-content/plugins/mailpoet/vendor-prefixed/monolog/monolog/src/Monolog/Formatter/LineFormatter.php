@@ -10,6 +10,7 @@ class LineFormatter extends NormalizerFormatter
  protected $allowInlineLineBreaks;
  protected $ignoreEmptyContextAndExtra;
  protected $includeStacktraces;
+ protected $stacktracesParser;
  public function __construct(?string $format = null, ?string $dateFormat = null, bool $allowInlineLineBreaks = \false, bool $ignoreEmptyContextAndExtra = \false, bool $includeStacktraces = \false)
  {
  $this->format = $format === null ? static::SIMPLE_FORMAT : $format;
@@ -18,11 +19,12 @@ class LineFormatter extends NormalizerFormatter
  $this->includeStacktraces($includeStacktraces);
  parent::__construct($dateFormat);
  }
- public function includeStacktraces(bool $include = \true) : self
+ public function includeStacktraces(bool $include = \true, ?callable $parser = null) : self
  {
  $this->includeStacktraces = $include;
  if ($this->includeStacktraces) {
  $this->allowInlineLineBreaks = \true;
+ $this->stacktracesParser = $parser;
  }
  return $this;
  }
@@ -94,6 +96,11 @@ class LineFormatter extends NormalizerFormatter
  $str = $this->formatException($e);
  if ($previous = $e->getPrevious()) {
  do {
+ $depth++;
+ if ($depth > $this->maxNormalizeDepth) {
+ $str .= "\n[previous exception] Over " . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
+ break;
+ }
  $str .= "\n[previous exception] " . $this->formatException($previous);
  } while ($previous = $previous->getPrevious());
  }
@@ -113,7 +120,11 @@ class LineFormatter extends NormalizerFormatter
  {
  if ($this->allowInlineLineBreaks) {
  if (0 === \strpos($str, '{')) {
- return \str_replace(array('\\r', '\\n'), array("\r", "\n"), $str);
+ $str = \preg_replace('/(?<!\\\\)\\\\[rn]/', "\n", $str);
+ if (null === $str) {
+ $pcreErrorCode = \preg_last_error();
+ throw new \RuntimeException('Failed to run preg_replace: ' . $pcreErrorCode . ' / ' . Utils::pcreLastErrorMessage($pcreErrorCode));
+ }
  }
  return $str;
  }
@@ -139,8 +150,20 @@ class LineFormatter extends NormalizerFormatter
  }
  $str .= '): ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine() . ')';
  if ($this->includeStacktraces) {
- $str .= "\n[stacktrace]\n" . $e->getTraceAsString() . "\n";
+ $str .= $this->stacktracesParser($e);
  }
  return $str;
+ }
+ private function stacktracesParser(\Throwable $e) : string
+ {
+ $trace = $e->getTraceAsString();
+ if ($this->stacktracesParser) {
+ $trace = $this->stacktracesParserCustom($trace);
+ }
+ return "\n[stacktrace]\n" . $trace . "\n";
+ }
+ private function stacktracesParserCustom(string $trace) : string
+ {
+ return \implode("\n", \array_filter(\array_map($this->stacktracesParser, \explode("\n", $trace))));
  }
 }

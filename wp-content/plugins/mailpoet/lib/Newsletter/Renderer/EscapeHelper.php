@@ -23,13 +23,14 @@ class EscapeHelper {
   }
 
   /**
-   * Similar to escapeHtmlAttr just this one keeps single quotes since some email clients
-   * (e.g. Yahoo webmail) don't support encoded quoted font names
+   * Escapes Style attributes, but preserves single quotes. Some email clients
+   * (e.g. Yahoo webmail) don't support encoded quoted font names.
+   * Previously used htmlspecialchars but switched to esc_attr which is more appropriate.
    * @param string $string
    * @return string
    */
   public static function escapeHtmlStyleAttr($string) {
-    return htmlspecialchars((string)$string, ENT_COMPAT, 'UTF-8');
+    return str_replace('&#039;', "'", esc_attr((string)$string));
   }
 
   /**
@@ -37,7 +38,8 @@ class EscapeHelper {
    * @return string
    */
   public static function unescapeHtmlStyleAttr($string) {
-    return htmlspecialchars_decode((string)$string, ENT_COMPAT);
+    // This decodes entities which may have been added by esc_attr.
+    return htmlspecialchars_decode((string)$string, ENT_QUOTES);
   }
 
   /**

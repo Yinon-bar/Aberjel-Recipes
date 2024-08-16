@@ -92,7 +92,8 @@ class InactiveSubscribersController {
     $endId = $startId + $batchSize;
     $lifetimeEmailsThreshold = self::LIFETIME_EMAILS_THRESHOLD;
     $inactiveSubscriberIdsTmpTable = 'inactive_subscriber_ids';
-    $connection->executeQuery("
+    $connection->executeQuery(
+      "
       CREATE TEMPORARY TABLE IF NOT EXISTS {$inactiveSubscriberIdsTmpTable}
       (UNIQUE subscriber_id (id), PRIMARY KEY (`id`))
       SELECT s.id FROM {$subscribersTable} as s
@@ -112,7 +113,8 @@ class InactiveSubscribersController {
         'startId' => $startId,
         'endId' => $endId,
         'unopenedEmailsThreshold' => $unopenedEmails,
-    ]);
+      ]
+    );
 
     $result = $connection->executeQuery("
       SELECT isi.id FROM {$inactiveSubscriberIdsTmpTable} isi
@@ -171,7 +173,8 @@ class InactiveSubscribersController {
     $idsToActivate = array_map(
       function($id) {
         return (int)$id['id'];
-      }, $idsToActivate
+      },
+      $idsToActivate
     );
     if (!count($idsToActivate)) {
       return 0;

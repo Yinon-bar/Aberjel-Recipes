@@ -6,7 +6,7 @@ use Attribute;
 use MailPoetVendor\Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 use MailPoetVendor\Doctrine\ORM\EntityRepository;
 #[\Attribute(Attribute::TARGET_CLASS)]
-final class MappedSuperclass implements Annotation
+final class MappedSuperclass implements MappingAttribute
 {
  public $repositoryClass;
  public function __construct(?string $repositoryClass = null)
